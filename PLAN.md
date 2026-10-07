@@ -390,12 +390,13 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: 85 tests pass (test_features: synthetic treadmill and overground walk, alternating contacts, >90% stance agreement); anim8te clean writes features.json (~110 KB); walk-ur7zdb and jog-qa61r5 show alternating L/R contacts with auto ground velocity -0.79/-0.89 m/s (treadmill belt); thresholds in meta.json filters.contacts (height 0.04 m, speed 0.8 m/s, min 3 frames); re-run byte-identical
 
 ### M2.8 Debug overlays
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M2.6, M2.7
 - **Component:** godot
 - **Effort:** M
 - **Done when:** per-overlay toggles for foot-contact markers (green planted, red sliding), root trajectory (past and predicted), velocity vectors, ground-penetration highlight, skeleton wireframe and joint-jerk heatmap; each overlay is its own node reading `features.json`; toggles persist across clip changes and sessions.
 - **Notes:** GDD §6.4. The motion-matching pick and cost overlay is M5.4.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M2.9 Video for Godot: transcode takes and the GVHMR overlay to Ogg Theora
 - **Status:** todo
