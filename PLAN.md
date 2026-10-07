@@ -45,7 +45,7 @@ M0 feasibility ──gate──> M1 pipeline CLI ──> M2 Gym viewer ──> M
 
 Why this order, and where it departs from the GDD's milestone text:
 
-1. **M0 is a gate, not a milestone of work.** Nothing in M1 or later is worth building if GVHMR output on AI-generated video is unusable (GDD §11). M0 uses the ComfyUI-MotionCapture test bench so no pipeline code is written before the answer is in.
+1. **M0 is a gate, not a milestone of work.** Nothing in M1 or later is worth building if GVHMR output on AI-generated video is unusable (GDD §11). M0 runs GVHMR through the Apple-Silicon fork on the Mac (M0.10) and judges overlays and per-take metrics, so no pipeline code is written before the answer is in. The first in-Godot look at the motion is M1.11.
 2. **M1 ships a *minimal* `clean` stage** (smoothing and ground alignment only). The GDD lists the full cleanup in stage 5, but foot locking, root motion, looping and segmentation can only be tuned against something you can see. So they move to **M3.A**, after the Gym exists, and before the Workflow Manager exposes them as toggles.
 3. **M2 adds one pipeline task** (`features.json`, M2.7) because the Gym overlays need per-frame contacts and trajectories, and recomputing them in GDScript would duplicate the pipeline's logic.
 4. **Two spikes are inserted** where the design has an unverified assumption: runtime GLB loading plus `RetargetModifier3D` (M2.4), and the Godot motion-matching addon (M5.2). Each one is a half-day check that protects a week of UI work.
@@ -61,7 +61,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 | ID | Question | Status | Decision | Needed by |
 |---|---|---|---|---|
 | Q1 | Which CC0 mannequin becomes the default character? | open | | M2.3 |
-| Q2 | GPU host for `gvhmr-worker`: always-on box vs spin-up per batch? | open | | M0.6 |
+| Q2 | GPU host for `gvhmr-worker`: always-on box vs spin-up per batch? | decided | Neither for now: GVHMR runs locally on the Mac through the Apple-Silicon fork (M0.10, about 30 s per static-camera take). A cloud CUDA box is deferred until moving-camera clips or batch volume need it, and would then be spin-up per batch | M0.6 |
 | Q3 | Performer: one generic base image, or a Lara-like character from day one? | decided | One generic performer, `perf01` (woman in black tee and joggers standing on a treadmill deck), reused for every clip; a stylized character comes later by retargeting from the canonical skeleton | M0.4 |
 | Q4 | Root-motion policy for treadmill loops: synthesized constant speed, or speed-matched to stride length? | open | | M3.2 |
 | Q5 | Does the @MrCollison open-source parkour controller change the Controller plan? | open | | M5.2 |
@@ -72,7 +72,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 
 ## M0: Accounts, GPU box, feasibility test
 
-**Done when:** fal key works; ComfyUI + ComfyUI-MotionCapture runs on the cloud GPU; 3 to 5 H3 Max takes (idle, jog, vault) go through its `GVHMR.json` workflow to GLB and are judged by eye in Godot; the go/no-go decision is written down.
+**Done when:** fal key works; GVHMR runs on the Mac through the Apple-Silicon fork; 3 to 5 H3 Max takes (idle, jog, vault) are extracted and judged from their overlays and per-take motion metrics; Godot is installed and pinned; the go/no-go decision is written down.
 **Gate:** M0.9 go/no-go. If no-go, stop and rethink stages 2 and 4 (GDD §4) before any M1 work.
 
 Everything here is throwaway except the base image, the takes, and the findings document. Accounts and license acceptances need the project owner, so several tasks will sit in `blocked` until those are done.
@@ -130,32 +130,33 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-07 in-progress -> done: idle 2, jog 3, vault 3 takes (5 s, 768P, expansion off) under library/clips/{idle,jog,vault}-m05/takes/; vault redone side-on from perf01/vault/base.png (camera pans to follow); prompts, seeds, wall clock and $2.55 total logged in docs/feasibility.md
 
 ### M0.6 Provision the cloud GPU box and install ComfyUI + ComfyUI-MotionCapture
-- **Status:** todo
+- **Status:** skipped
 - **Depends on:** M0.3
 - **Component:** worker
 - **Effort:** M
 - **Done when:** Q2 decided; a CUDA box (24 GB VRAM or more recommended) runs ComfyUI with ComfyUI-MotionCapture installed by hand (not the experimental one-click installer); checkpoints from M0.3 in place; `workflows/GVHMR.json` loads with no missing nodes; `worker/README.md` records the host, image, hourly cost and every install step so the box can be rebuilt from scratch.
 - **Notes:** GDD §4 alternative and §8. Needs the owner: account and billing on RunPod, Lambda or similar. Keep an install script (`worker/setup_comfyui.sh`) rather than only notes, since spin-up-per-batch (Q2) means rebuilding often.
+- **Log:** 2026-10-07 todo -> skipped: owner skipped it: GVHMR runs on the Mac through the Apple-Silicon fork (M0.10); Q2 decided, cloud box deferred; M0.7 repointed to overlays and metrics, M0.8 to Godot install only, M1.4 to the Mac
 
-### M0.7 Run the takes through the GVHMR.json workflow and export GLB
+### M0.7 Judge the feasibility takes from overlays and motion metrics
 - **Status:** todo
-- **Depends on:** M0.5, M0.6
-- **Component:** worker
+- **Depends on:** M0.10
+- **Component:** pipeline
 - **Effort:** S
-- **Done when:** every take from M0.5 has a GLB (from the `SMPL to GLB Animation` node) and an overlay video under `library/clips/<clip_id>/feasibility/`; per-take extraction time and any failures are recorded in `docs/feasibility.md`.
-- **Notes:** Use the static-camera path. This is the only place ComfyUI-MotionCapture output is used directly; from M1 on, extraction goes through our own worker API.
+- **Done when:** a throwaway script under `docs/scratch/` reads each take's `hmr4d_results.pt` from M0.10 and reports per take: foot sliding while a foot is in contact (cm per frame), frame-to-frame jitter of the joints, root height over time (the vault should rise by about the block height), and treadmill drift for the jog; each take's `1_incam.mp4` and `2_global.mp4` overlays are reviewed for limb flips, missing frames and body-shape drift between takes; numbers and observations are recorded per take in `docs/feasibility.md`.
+- **Notes:** Repointed from the ComfyUI `GVHMR.json` run when M0.6 was skipped (Q2). No GLB in M0: turning `hmr4d_results.pt` into a skeleton animation is M1.6 to M1.10, and M1.11 is the first in-Godot check. Joint positions need the SMPL-X body model from M0.3; run the script with the fork's `.venv` (it has torch and the body-model code), not inside `motionai/`.
 
-### M0.8 Install Godot and inspect the feasibility GLBs
+### M0.8 Install Godot and pin the version
 - **Status:** todo
-- **Depends on:** M0.7
+- **Depends on:** M0.1
 - **Component:** godot
 - **Effort:** S
-- **Done when:** Q7 decided and Godot installed on the Mac; an empty project under `godot/` opens; each feasibility GLB is imported and played in a scratch scene; `docs/feasibility.md` lists per-clip observations (jitter, foot skate, limb flips, proportion drift between takes, treadmill drift, missing frames) with screenshots or short captures.
-- **Notes:** Judge against what the Gym will need: feet that stay planted when they should, a root that does not drift, and no limb flips. Expect jitter; that is what stage 5 is for. Limb flips and lost tracking are the real red flags.
+- **Done when:** Q7 decided and Godot installed on the Mac; an empty project under `godot/` opens with the version pinned in `godot/project.godot`, one unit one metre, Y-up.
+- **Notes:** The feasibility GLB import was dropped when M0.6 was skipped; the first motion in Godot is M1.11. M2.1 to M2.3 start from this project.
 
 ### M0.9 Go/no-go decision
 - **Status:** todo
-- **Depends on:** M0.8
+- **Depends on:** M0.7
 - **Component:** decision
 - **Effort:** S
 - **Gate:** yes
@@ -213,11 +214,11 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 
 ### M1.4 gvhmr-worker: native FastAPI wrapper around GVHMR demo.py
 - **Status:** todo
-- **Depends on:** M0.6
+- **Depends on:** M0.10
 - **Component:** worker
 - **Effort:** M
-- **Done when:** Q8 decided; `worker/` has a `Dockerfile` or `setup.sh` that installs GVHMR and expects the M0.3 checkpoints at a mounted path; `POST /extract` (multipart video, bearer token, `static_camera=true`) returns a job id; `GET /jobs/{id}` returns `queued|running|done|failed`, log tail, and when done the download URLs for `hmr4d_results.pt` and `overlay.mp4`; one M0 take runs through it on the GPU box; `worker/README.md` documents start-up and the API.
-- **Notes:** GDD §8. Runs `tools/demo/demo.py --video ... -s`. Keep the API tiny so a commercial service (Move.ai, Rokoko, DeepMotion) can replace it later (GDD §10). No GPL code in here.
+- **Done when:** Q8 decided; `worker/` has a `Dockerfile` or `setup.sh` that installs GVHMR and expects the M0.3 checkpoints at a mounted path; `POST /extract` (multipart video, bearer token, `static_camera=true`) returns a job id; `GET /jobs/{id}` returns `queued|running|done|failed`, log tail, and when done the download URLs for `hmr4d_results.pt` and `overlay.mp4`; one M0 take runs through it on the Mac (Apple-Silicon fork, MPS); `worker/README.md` documents start-up and the API.
+- **Notes:** GDD §8. Runs the fork's `gvhmr demo <video> -s` on the Mac (Q2; install notes in `docs/feasibility.md`, M0.10), or upstream `tools/demo/demo.py --video ... -s` on a CUDA box later. Keep the API tiny so a commercial service (Move.ai, Rokoko, DeepMotion) can replace it later (GDD §10). No GPL code in here.
 
 ### M1.5 motionai extract: worker client
 - **Status:** todo

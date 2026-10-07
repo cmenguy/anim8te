@@ -60,7 +60,7 @@ Collected as the plan progresses; none are needed to read the documents.
 - A Mac for development with Python 3.11 or later and Godot 4.4 or later.
 - A fal.ai account and API key for video generation (about $0.40 per 5-second take at 768p).
 - SMPL-X and SMPL research licenses, for the body models GVHMR and the converter use.
-- A cloud NVIDIA GPU (RunPod, Lambda or similar) for GVHMR. It does not run on a Mac.
+- An Apple Silicon Mac with 32 GB or more for GVHMR, through the fork at https://github.com/ryanrudes/gvhmr (install notes in `docs/feasibility.md`). A cloud NVIDIA GPU is only needed later, for moving-camera clips or batch runs.
 - ffmpeg, to transcode takes to Ogg Theora for Godot's video player.
 - Optional: an Anthropic API key for the agent-assist features.
 
@@ -85,7 +85,7 @@ GDD.md  PLAN.md  README.md  CLAUDE.md
 .claude/skills/   next-step and roadmap skills, plan parser
 godot/            Godot project: Gym + Workflow Manager
 motionai/         Python package: CLI, pipeline stages, local daemon
-worker/           gvhmr-worker: FastAPI wrapper around GVHMR for the GPU box
+worker/           gvhmr-worker: FastAPI wrapper around GVHMR (Mac fork now, GPU box later)
 library/          performers, clips and models on disk (git-ignored)
 tests/            pipeline unit tests (axis conventions, bone map, QC metrics)
 docs/             feasibility notes, pipeline notes, findings, captures

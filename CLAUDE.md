@@ -33,7 +33,7 @@ GDD.md  PLAN.md  README.md  CLAUDE.md
 .claude/skills/   next-step, roadmap (and the plan parser)
 godot/            Godot 4.x project: Gym + Workflow Manager         (from M2)
 motionai/         Python package: CLI, pipeline stages, daemon      (from M1)
-worker/           gvhmr-worker for the CUDA box, install scripts    (from M0.6)
+worker/           gvhmr-worker around GVHMR (Mac fork), install     (from M1.4)
 library/          performers, clips, models; git-ignored
 tests/            pytest; fixtures stay under 1 MB
 docs/             feasibility, pipeline notes, findings, captures
