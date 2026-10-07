@@ -340,12 +340,13 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: headless check: boxes 0.5/1.0/1.5 m, ledge 2.2 m, gaps 1.50/2.50/3.50 m, ramps 20.0/35.0 deg, 8 risers of 0.18 m, beam 0.3 m, all StaticBody3D with collision and size labels; ACES + procedural sky + 1 directional light; renders from 5 orbit views and F-focus checked
 
 ### M2.3 Default mannequin on the humanoid profile
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M2.1
 - **Component:** godot
 - **Effort:** M
 - **Done when:** Q1 decided; a CC0 humanoid mesh imported under `godot/assets/mannequin/` with its license file; import settings use `SkeletonProfileHumanoid` with a `BoneMap` where all required bones are mapped, bones renamed, "overwrite axis" and "fix silhouette" on; a library clip from M1 plays on it through the editor import path.
 - **Notes:** GDD §6.2. Candidates: Quaternius CC0 humanoids, Kenney characters, or a neutral mannequin from a CC0 pack. Avoid the SMPL-X mesh (license).
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M2.4 Spike: runtime GLB load and RetargetModifier3D onto the mannequin
 - **Status:** todo
