@@ -235,12 +235,13 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: Q8 decided native; worker/setup.sh installs the pinned fork + worker (ran on the Mac); idle-m05/3 through POST /extract -> done in 36 s on MPS, hmr4d_results.pt (155x63 body_pose) and overlay.mp4 downloaded, overlay checked; 401 without token, 422 on static_camera=false; 11 worker tests pass. Found: without ffprobe GVHMR treats 24 fps takes as 30 fps (M0.10 outputs were 124 frames, worker gives 155)
 
 ### M1.5 anim8te extract: worker client
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M1.3, M1.4
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** `anim8te extract <clip_id> [--take n]` marks the selected take, uploads it, polls with progress, downloads to `gvhmr/hmr4d_results.pt` and `gvhmr/overlay.mp4`, and updates `meta.json`; worker unreachable, bad token and failed jobs produce clear messages and leave the clip re-runnable.
 - **Notes:** GDD §4 stage 4.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M1.6 Load SMPL-X parameters and rebuild joints
 - **Status:** todo
