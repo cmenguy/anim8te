@@ -3,10 +3,7 @@
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/calibration_level.tscn" id="2_level"]
 [ext_resource type="Script" path="res://scripts/orbit_camera.gd" id="3_orbit"]
-
-[sub_resource type="CapsuleMesh" id="placeholder"]
-radius = 0.25
-height = 1.75
+[ext_resource type="PackedScene" uid="uid://cs52ii4oejybr" path="res://assets/mannequin/Superhero_Male_FullBody.gltf" id="4_mannequin"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
@@ -15,9 +12,7 @@ script = ExtResource("1_main")
 
 [node name="Character" type="Node3D" parent="."]
 
-[node name="Placeholder" type="MeshInstance3D" parent="Character"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.875, 0)
-mesh = SubResource("placeholder")
+[node name="Mannequin" parent="Character" instance=ExtResource("4_mannequin")]
 
 [node name="Camera3D" type="Camera3D" parent="."]
 current = true

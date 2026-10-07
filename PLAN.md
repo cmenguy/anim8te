@@ -60,7 +60,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 
 | ID | Question | Status | Decision | Needed by |
 |---|---|---|---|---|
-| Q1 | Which CC0 mannequin becomes the default character? | open | | M2.3 |
+| Q1 | Which CC0 mannequin becomes the default character? | decided | Quaternius Universal Base Characters (Standard, CC0), the male full-body glTF: UE-style 65-bone rig with fingers, every required `SkeletonProfileHumanoid` bone mappable; textures downscaled to 1024 px. Kenney's Animated Characters were the lighter alternative but coarser and less neutral | M2.3 |
 | Q2 | GPU host for `gvhmr-worker`: always-on box vs spin-up per batch? | decided | Neither for now: GVHMR runs locally on the Mac through the Apple-Silicon fork (M0.10, about 30 s per static-camera take). A cloud CUDA box is deferred until moving-camera clips or batch volume need it, and would then be spin-up per batch | M0.6 |
 | Q3 | Performer: one generic base image, or a Lara-like character from day one? | decided | One generic performer, `perf01` (woman in black tee and joggers standing on a treadmill deck), reused for every clip; a stylized character comes later by retargeting from the canonical skeleton | M0.4 |
 | Q4 | Root-motion policy for treadmill loops: synthesized constant speed, or speed-matched to stride length? | open | | M3.2 |
@@ -340,16 +340,18 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: headless check: boxes 0.5/1.0/1.5 m, ledge 2.2 m, gaps 1.50/2.50/3.50 m, ramps 20.0/35.0 deg, 8 risers of 0.18 m, beam 0.3 m, all StaticBody3D with collision and size labels; ACES + procedural sky + 1 directional light; renders from 5 orbit views and F-focus checked
 
 ### M2.3 Default mannequin on the humanoid profile
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M2.1
 - **Component:** godot
 - **Effort:** M
 - **Done when:** Q1 decided; a CC0 humanoid mesh imported under `godot/assets/mannequin/` with its license file; import settings use `SkeletonProfileHumanoid` with a `BoneMap` where all required bones are mapped, bones renamed, "overwrite axis" and "fix silhouette" on; a library clip from M1 plays on it through the editor import path.
 - **Notes:** GDD §6.2. Candidates: Quaternius CC0 humanoids, Kenney characters, or a neutral mannequin from a CC0 pack. Avoid the SMPL-X mesh (license).
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: Q1 decided (Quaternius Universal Base Characters, male, CC0, LICENSE.txt alongside); import: BoneMap on SkeletonProfileHumanoid, 53/56 bones mapped, all 17 required, renamed, %GeneralSkeleton, Overwrite Axis + fix silhouette; walk-ur7zdb imported as AnimationLibrary (23 tracks on %GeneralSkeleton) loops on the mannequin in scenes/mannequin_preview.tscn, checked on Movie Maker frames
 
 ### M2.4 Spike: runtime GLB load and RetargetModifier3D onto the mannequin
 - **Status:** todo
-- **Depends on:** M2.3, M1.10
+- **Depends on:** M2.3, M1.10, M2.12
 - **Component:** godot
 - **Effort:** M
 - **Done when:** a script loads `library/clips/<id>/motion.glb` at runtime with `GLTFDocument`, finds its `Skeleton3D` and `AnimationPlayer`, and drives the mannequin through `RetargetModifier3D` using the humanoid profile; bone renaming at runtime (if needed) is handled; `godot/README.md` has a "Runtime retargeting" section with the gotchas and the chosen node layout.
@@ -410,6 +412,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Effort:** S
 - **Done when:** every clip so far has been viewed in Clip Viewer and Compare; `docs/gym-findings.md` lists defects per clip (foot skate, ground penetration, jitter, root drift, limb flips) with timestamps; the list ranks which cleanup filters matter most, which sets the order of M3.A. This closes M2.
 - **Notes:** GDD §3.2: the gym with overlays is the fastest way to see what still breaks.
+
+### M2.12 Export: straight-spine rest so humanoid retargeting keeps posture
+- **Status:** todo
+- **Depends on:** M1.10
+- **Component:** pipeline
+- **Effort:** S
+- **Done when:** `anim8te export` writes `motion.glb` with the Spine, Chest, UpperChest, Neck and Head rest offsets vertical (same lengths, rotations unchanged), documented in `docs/pipeline-notes.md` and covered by `tests/test_export.py`; the M1 clips are re-exported and `godot/assets/sample_clips/walk-ur7zdb.glb` refreshed; on the mannequin the walk's Chest>UpperChest lean is within about 15 degrees of vertical (it is 35 to 38 degrees today).
+- **Notes:** Found in M2.3. SMPL-X's rest spine is kinked (the UpperChest joint sits behind Chest: 27 degrees forward at rest, -10 at the neck). Godot's "overwrite axis" retarget transfers bone directions rather than deltas from rest, so that kink lands on the mannequin as a hunch with the head pushed forward. A scratch copy with the five spine offsets straightened walked upright (upper back 9 to 11 degrees, neck -4 to -6, head 6 to 7). M2.4 uses the same profile path, so it depends on this.
 
 ## M3: Workflow Manager, Flow A
 
