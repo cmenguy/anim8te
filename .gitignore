@@ -1,0 +1,27 @@
+# secrets
+.env
+.env.*
+!.env.example
+
+# generated media, body models and checkpoints (never in git)
+library/
+*.ckpt
+*.pt
+*.npz
+*.pkl
+
+# godot
+.godot/
+
+# python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/
+
+# claude code per-machine settings
+.claude/settings.local.json
+
+# macOS
+.DS_Store
