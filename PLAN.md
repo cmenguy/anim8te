@@ -255,12 +255,13 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: load_gvhmr on real walk-ur7zdb output: 155 frames at 30 fps (GVHMR resamples the 24 fps take), body_pose (T,21,3), betas (10,); rest_skeleton via smplx gives 22 joints with SMPL parents, ankle-to-head 1.47 m; tests/test_convert.py on a 5.5 KB 10-frame fixture, 47 tests pass
 
 ### M1.7 Axis conventions: GVHMR world frame to glTF
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M1.6
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** the up axis and handedness of GVHMR's world frame are verified on a real clip (feet near the ground plane, head above hips, forward matching the video); `to_gltf_frame()` converts positions and rotations to Y-up, right-handed, metres; a unit test pins the convention with a known standing pose; the finding is written in `docs/pipeline-notes.md`.
 - **Notes:** GDD §4 stage 5.2. Getting this wrong silently breaks everything downstream, which is why it is its own task with its own test.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M1.8 Canonical skeleton: SkeletonProfileHumanoid names on the SMPL-X tree
 - **Status:** todo
