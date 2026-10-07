@@ -4,18 +4,22 @@ extends PanelContainer
 ## Selecting a clip in the library panel plays it on the mannequin; the bar
 ## has play/pause, frame step back and forward, a timeline to scrub (by
 ## frame), speed from 0.1x to 2x, a loop toggle and the camera follow toggle,
-## and shows the current frame and time. Built in code.
+## and shows the current frame and time. Built in code. The Compare toggle
+## (M2.10) shows the CompareView, which follows the same transport.
 ##
 ## Keys: Space plays or pauses, Left / Right (or , / .) step one frame,
-## L toggles loop; the orbit camera handles C (follow) and F (focus).
+## L toggles loop, V toggles Compare; the orbit camera handles C (follow)
+## and F (focus).
 
 @export var clip_player: NodePath
 @export var library_panel: NodePath
 @export var camera: NodePath
+@export var compare_view: NodePath
 
 var player: ClipPlayer
 var panel: LibraryPanel
 var cam: Camera3D
+var compare: CompareView
 var play_button: Button
 var back_button: Button
 var forward_button: Button
@@ -26,6 +30,7 @@ var speed_slider: HSlider
 var speed_label: Label
 var loop_check: CheckBox
 var follow_check: CheckBox
+var compare_check: CheckBox
 var _resume_after_scrub := false
 
 
@@ -33,6 +38,7 @@ func _ready() -> void:
 	player = get_node_or_null(clip_player) as ClipPlayer
 	panel = get_node_or_null(library_panel) as LibraryPanel
 	cam = get_node_or_null(camera) as Camera3D
+	compare = get_node_or_null(compare_view) as CompareView
 	_build()
 	if panel:
 		panel.clip_selected.connect(select)
@@ -73,6 +79,8 @@ func _process(_delta: float) -> void:
 	loop_check.set_pressed_no_signal(player.loop)
 	if cam and "follow" in cam:
 		follow_check.set_pressed_no_signal(cam.follow)
+	if compare:
+		compare_check.set_pressed_no_signal(compare.is_active())
 
 
 func _input(event: InputEvent) -> void:
@@ -91,6 +99,9 @@ func _input(event: InputEvent) -> void:
 		KEY_L:
 			if not event.echo:
 				player.loop = not player.loop
+		KEY_V:
+			if not event.echo and compare:
+				compare.set_active(not compare.is_active())
 		_:
 			return
 	get_viewport().set_input_as_handled()
@@ -181,6 +192,13 @@ func _build() -> void:
 	follow_check.focus_mode = Control.FOCUS_NONE
 	follow_check.toggled.connect(func(on): if cam: cam.follow = on)
 	bottom.add_child(follow_check)
+	compare_check = CheckBox.new()
+	compare_check.text = "Compare"
+	compare_check.tooltip_text = "Source take, GVHMR overlay and 3D side by side (V)"
+	compare_check.focus_mode = Control.FOCUS_NONE
+	compare_check.disabled = compare == null
+	compare_check.toggled.connect(func(on): if compare: compare.set_active(on))
+	bottom.add_child(compare_check)
 
 
 func _button(text: String, tip: String, action: Callable) -> Button:

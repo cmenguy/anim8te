@@ -4,7 +4,9 @@ extends Camera3D
 ## follow (the orbit centre tracks the character on the ground plane, so the
 ## view does not bob with the hips). A focus target with a `focus_position()`
 ## method (ClipPlayer: its hips) is followed through that, otherwise through
-## its origin plus `focus_height`.
+## its origin plus `focus_height`. A click or wheel over a GUI control (a
+## panel, Compare's 3D pane) is left to the control: wheel events pass
+## through even a stopping control.
 
 @export var focus_target: NodePath
 @export var focus_height := 1.0  # metres above the target's origin (about hip height)
@@ -55,6 +57,8 @@ func focus() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and get_viewport().gui_get_hovered_control():
+		return
 	if event is InputEventMouseButton:
 		match event.button_index:
 			MOUSE_BUTTON_LEFT, MOUSE_BUTTON_RIGHT:

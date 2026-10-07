@@ -27,12 +27,12 @@ The editor cache `.godot/` is git-ignored and rebuilt on first open.
 
 ## Scenes
 
-- `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (a `ClipPlayer` driving the default mannequin, in its rest pose until a clip is picked), the orbit camera, `UI/LibraryPanel` (see "Library panel") and `UI/ClipViewer` (see "Clip Viewer").
+- `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (a `ClipPlayer` driving the default mannequin, in its rest pose until a clip is picked), the orbit camera, `UI/LibraryPanel` (see "Library panel"), `UI/ClipViewer` (see "Clip Viewer") and `UI/CompareView` (see "Compare", hidden until toggled).
 - `mannequin_preview.tscn`: the mannequin playing the sample clip `walk-ur7zdb` in a loop through the editor import path (an `AnimationPlayer` whose `root_node` is the mannequin). Open it and press F6 to check an import setting change.
 - `runtime_retarget.tscn`: the mannequin playing a library clip loaded at runtime (`ClipPlayer`, see "Runtime retargeting"). `clip_id` defaults to `walk-ur7zdb`; `godot --path godot scenes/runtime_retarget.tscn -- --clip=jog-qa61r5` picks another.
 - `calibration_level.tscn`: the grey-box level (GDD §6.1), with a neutral procedural sky, one directional light and ACES tone mapping. `scripts/calibration_level.gd` builds the props in code (it is a `@tool` script, so they show up in the editor too). Every prop is a `StaticBody3D` with collision and a size label; the ground's grid shader (`assets/shaders/grid.gdshader`) draws 1 m and 10 cm lines in world space, with the X axis in red and the Z axis in blue.
 
-Orbit camera (`scripts/orbit_camera.gd`): left or right drag orbits, middle drag or shift + drag pans, the wheel zooms, F focuses on the character and C toggles follow: the orbit centre tracks the character on the ground plane (its hips, through `ClipPlayer.focus_position()`), keeping its height so the view does not bob.
+Orbit camera (`scripts/orbit_camera.gd`): left or right drag orbits, middle drag or shift + drag pans, the wheel zooms, F focuses on the character and C toggles follow: the orbit centre tracks the character on the ground plane (its hips, through `ClipPlayer.focus_position()`), keeping its height so the view does not bob. A click or wheel over a GUI control is left to the control (Godot passes wheel events on even past a control that stops the mouse, so the main camera would otherwise zoom along with Compare's 3D pane).
 
 ## Default mannequin
 
@@ -62,7 +62,7 @@ It builds a throwaway library under `user://` (complete, partial and broken clip
 
 ## Clip Viewer
 
-`scripts/clip_viewer.gd` (`ClipViewer`, the bar along the bottom of `main.tscn`) is the Clip Viewer mode (GDD §6.3). Selecting a playable clip in the library panel plays it on the mannequin from frame 0; a partial clip is named in the bar and not played. The bar has frame step back and forward, play/pause, a timeline (one step per frame) to scrub, speed from 0.1x to 2x with a 1x reset, Loop and Follow (the camera, as C does), and shows the clip id, its frame count and rate, the current frame and the time. Keys: Space plays or pauses, Left/Right (or `,`/`.`) step a frame and pause, L toggles loop.
+`scripts/clip_viewer.gd` (`ClipViewer`, the bar along the bottom of `main.tscn`) is the Clip Viewer mode (GDD §6.3). Selecting a playable clip in the library panel plays it on the mannequin from frame 0; a partial clip is named in the bar and not played. The bar has frame step back and forward, play/pause, a timeline (one step per frame) to scrub, speed from 0.1x to 2x with a 1x reset, Loop, Follow (the camera, as C does) and Compare (next section), and shows the clip id, its frame count and rate, the current frame and the time. Keys: Space plays or pauses, Left/Right (or `,`/`.`) step a frame and pause, L toggles loop, V toggles Compare.
 
 The transport lives in `ClipPlayer` (`set_playing`, `seek`, `seek_frame`, `step`, `speed`, `loop`, `current_clip`), so other modes can reuse it. A clip has one key per frame; `RuntimeClip.frame_count` and `fps` come from the keys (30 fps for GVHMR). Stepping wraps around when looping and stops at the ends otherwise; a non-looping clip stops on its last frame and Play starts it over. A looping animation wraps a seek to its length back to 0, so the last frame of a looping clip is shown 0.1 ms before it. Clips load in about 10 ms the first time and 0.2 ms from the cache, so switching needs no preloading. Check with:
 
@@ -102,6 +102,26 @@ godot --headless --path godot --script tests/check_video_playback.gd [-- --clip=
 ```
 
 It plays both files of a library clip, checks length, playback rate, frame size, a seek to 3 s and the stop at the end, and exits 1 on a failed check.
+
+## Compare
+
+`scripts/compare_view.gd` (`CompareView`, `UI/CompareView` in `main.tscn`) is the Compare mode (GDD §6.3): the Compare toggle in the Clip Viewer bar (or V) covers the 3D view with three panes, the source take (`selected.ogv`) on the left, the 3D clip top right and GVHMR's overlay render (`gvhmr/overlay.ogv`) below it. The 3D pane is a `SubViewport` on the main world with its own orbit camera following the character, so the debug overlays show there too (their panel sits over it). A clip without its `.ogv` files says so in the pane title (`anim8te transcode <id>`).
+
+The Clip Viewer bar drives all three: the `ClipPlayer`'s time is the clock and the videos follow it every frame, so play/pause, scrub, step, speed and loop apply to all three. Clip time t is video time t (GVHMR resamples the take to 30 fps without trimming). How the sync works, from Godot 4.7's `VideoStreamPlayer` and Theora sources:
+
+- A `VideoStreamPlayer` advances by the process delta times `speed_scale`, like the `AnimationPlayer`, so at the same speed they stay together without seeking. Theora seeks cost 10 to 35 ms, so a playing video seeks only on a jump (loop, scrub, step) or past half a frame of drift; a paused one seeks whenever the clip's time moves, and that is frame-exact.
+- `CompareView` processes after the `ClipPlayer` and before its own video children: it compares the clip's time with where the videos' update this frame will put them, and a seek there lands exactly (a seek makes the video skip its next update).
+- A seek to exactly k / fps shows frame k - 1, so seeks land 0.1 ms later.
+- On its last frame a running Theora video finds no next frame, stops and rewinds to 0; videos are held there with `paused`. `play()` and unpausing re-enable processing too late for that frame, so the video is seeked once more on the next. The frame time comes from the file's Theora header (`CompareView.theora_fps`; 24 fps for the take, 30 for the overlay).
+
+Check with:
+
+```bash
+godot --headless --path godot --script tests/check_compare.gd [-- --clip=<id>]
+godot --path godot --script tests/check_compare.gd             # also checks the frames on screen
+```
+
+It plays a library clip with both `.ogv` files in Compare mode and checks the drift between each video and the clip on every frame of a full 5 s play at 1x, at 0.5x and 2x, across a loop and to the end of a non-looping clip, plus scrubs, steps and pause. With a renderer (no `--headless`) it also zooms the 3D pane with the wheel and matches each video's texture, every frame, against the file's frames decoded by ffmpeg (`ANIM8TE_FFMPEG`, else `ffmpeg` on PATH). On the M1 jog: drift 0.1 ms at every speed, no corrective seeks while playing, 99.4 to 100 % of video frames on screen the expected one and the rest one frame off (frame-boundary ties), paused scrubs exact. The frame after a stall over 50 ms can show a stale picture (Theora outputs one frame per update); those samples are reported, not judged. Capture: `docs/captures/m2.10-compare.jpg`.
 
 ## Runtime retargeting
 
