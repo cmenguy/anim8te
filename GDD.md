@@ -368,6 +368,7 @@ library/
 │   ├── takes/<n>.mp4      # all generated takes
 │   ├── selected.mp4
 │   ├── gvhmr/hmr4d_results.pt + overlay.mp4
+│   ├── clean/motion.npz   # cleaned motion on the canonical skeleton, input to export
 │   ├── motion.glb         # canonical skeleton + sub-clip animations
 │   └── qc.json
 └── models/<model_id>/

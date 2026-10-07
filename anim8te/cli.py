@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Annotated
 
@@ -9,6 +10,7 @@ import typer
 
 from anim8te.config import Settings, load_settings
 from anim8te.library import Template, list_clips, list_performers
+from anim8te.stages.clean import CleanError, run_clean
 from anim8te.stages.extract import DEFAULT_WORKER_URL, ExtractError, WorkerClient, run_extract
 from anim8te.stages.gen import FalBackend, GenError, GenRequest, plan_gen, run_gen
 
@@ -132,10 +134,64 @@ def extract(
         typer.echo(f"{name + ':':<10} {path}")
 
 
+def _parse_params(items: list[str]) -> dict[str, dict[str, object]]:
+    """`filter.param=value` items to {filter: {param: value}}; values parsed as JSON if they can."""
+    out: dict[str, dict[str, object]] = {}
+    for item in items:
+        key, sep, raw = item.partition("=")
+        name, dot, param = key.partition(".")
+        if not sep or not dot or not name or not param:
+            raise typer.BadParameter(f"{item!r}: expected filter.param=value", param_hint="--set")
+        try:
+            value = json.loads(raw)
+        except json.JSONDecodeError:
+            value = raw
+        out.setdefault(name, {})[param] = value
+    return out
+
+
 @app.command()
-def clean(ctx: typer.Context) -> None:
-    """Clean the extracted motion: smoothing, ground alignment (stage 5)."""
-    _not_yet("M1.9")
+def clean(
+    ctx: typer.Context,
+    clip_id: Annotated[str, typer.Argument(help="Clip id under library/clips/.")],
+    smooth: Annotated[
+        bool | None, typer.Option("--smooth/--no-smooth", help="Turn smoothing on or off.")
+    ] = None,
+    ground: Annotated[
+        bool | None, typer.Option("--ground/--no-ground", help="Turn ground alignment on or off.")
+    ] = None,
+    set_: Annotated[
+        list[str] | None,
+        typer.Option(
+            "--set", help="Filter parameter, e.g. smooth.window=11 or ground.percentile=2."
+        ),
+    ] = None,
+) -> None:
+    """Clean the extracted motion: smoothing, ground alignment (stage 5).
+
+    Filter settings are saved in the clip's meta.json and reused by the next run.
+    """
+    toggles = {k: v for k, v in (("smooth", smooth), ("ground", ground)) if v is not None}
+    try:
+        result = run_clean(
+            _settings(ctx).library,
+            clip_id,
+            toggles=toggles,
+            overrides=_parse_params(set_ or []),
+            log=lambda m: typer.echo(m, err=True),
+        )
+    except CleanError as e:
+        typer.echo(f"error: {e}", err=True)
+        raise typer.Exit(code=1) from e
+    typer.echo(f"clip:      {result.meta.id}, {result.num_frames} frames at {result.fps:g} fps")
+    for name in ("smooth", "ground"):
+        f = result.meta.filters[name]
+        params = ", ".join(f"{k}={v}" for k, v in f.params.items())
+        typer.echo(f"{name + ':':<10} {'on ' if f.enabled else 'off'} ({params})")
+    if result.ground_offset_m is not None:
+        typer.echo(f"ground:    lowered by {result.ground_offset_m * 100:+.1f} cm")
+    typer.echo(f"status:    {result.meta.status.value}")
+    typer.echo(f"motion:    {result.motion}")
 
 
 @app.command()

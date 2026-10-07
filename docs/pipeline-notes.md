@@ -36,7 +36,7 @@ After the conversion, a performer facing the camera faces +Z, the glTF front. In
 - **Handedness.** Left-hip minus right-hip crossed with pelvis-to-head (left × up) points the same way as the toes; a mirrored frame would flip one of the two. On every frame of the walk, idle and jog clips, the horizontal cosine between the two is 0.95 or more. On the vault, the median cosine is 0.73 to 0.82. The low frames are the crouch on the box, where pelvis-to-head is far from vertical.
 - **Forward.** Clips that face the camera face +Z. The vault faces and travels +X, which is screen right for a camera at +Z, and that is what the video shows.
 
-**What the conversion does not do.** GVHMR's floor is not at y = 0. The walk clip's lowest foot joint sits 11 to 14 cm up and the vault's 12 cm or more. The SMPL-X `*_foot` joint is at the ball of the foot, a few cm above the sole. Ground alignment is a cleanup filter (GDD §4 stage 5.4), as is turning a clip's heading to a canonical direction. `to_gltf_frame()` is a fixed change of axes and keeps each clip's heading as filmed.
+**What the conversion does not do.** GVHMR's floor is not at y = 0. The walk clip's lowest foot joint sits 11 to 14 cm up and the vault's 12 cm or more. The SMPL-X `*_foot` joint is at the ball of the foot, a few cm above the sole. Ground alignment is a cleanup filter (GDD §4 stage 5.4; `anim8te clean`, M1.9: on the walk clip it lowers the body 8.9 cm so the 5th-percentile sole height is 0), as is turning a clip's heading to a canonical direction. `to_gltf_frame()` is a fixed change of axes and keeps each clip's heading as filmed.
 
 **Tests.** `tests/test_convert.py` pins this:
 

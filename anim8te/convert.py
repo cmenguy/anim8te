@@ -70,6 +70,7 @@ class RestSkeleton:
 
     joints: np.ndarray  # (22, 3) rest positions, metres, in the model frame
     parents: np.ndarray  # (22,) parent index per joint, -1 for the pelvis
+    sole_y: float = 0.0  # height of the lowest mesh vertex (the soles) in rest pose
     names: tuple[str, ...] = BODY_JOINT_NAMES
 
     def offsets(self) -> np.ndarray:
@@ -151,7 +152,8 @@ def rest_skeleton(
     joints = out.joints[0, :NUM_BODY_JOINTS].numpy().astype(np.float32)
     parents = model.parents[:NUM_BODY_JOINTS].numpy().astype(np.int64)
     parents[0] = -1
-    return RestSkeleton(joints=joints, parents=parents)
+    sole_y = float(out.vertices[0, :, 1].min())
+    return RestSkeleton(joints=joints, parents=parents, sole_y=sole_y)
 
 
 # Stage 5.2: axis fix. GVHMR's world frame ("ay", gvhmr/utils/geo/hmr_global.py) is already Y-up,
