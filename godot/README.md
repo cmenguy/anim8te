@@ -24,4 +24,11 @@ The editor cache `.godot/` is git-ignored and rebuilt on first open.
 | `ui/` | Control scenes and themes for the Workflow Manager |
 | `addons/` | editor plugins and GDExtensions |
 
+## Scenes
+
+- `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (a capsule placeholder until the M2.3 mannequin) and the orbit camera.
+- `calibration_level.tscn`: the grey-box level (GDD §6.1), with a neutral procedural sky, one directional light and ACES tone mapping. `scripts/calibration_level.gd` builds the props in code (it is a `@tool` script, so they show up in the editor too). Every prop is a `StaticBody3D` with collision and a size label; the ground's grid shader (`assets/shaders/grid.gdshader`) draws 1 m and 10 cm lines in world space, with the X axis in red and the Z axis in blue.
+
+Orbit camera (`scripts/orbit_camera.gd`): left or right drag orbits, middle drag or shift + drag pans, the wheel zooms, and F focuses on the character.
+
 Library clips are not copied here: the app loads `motion.glb` files from `library/` at runtime.

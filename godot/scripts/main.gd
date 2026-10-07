@@ -1,2 +1,4 @@
 extends Node3D
-## Entry scene. The Gym level (M2.2) and the app modes (M2.6, M2.10) attach here.
+## Entry scene: the calibration level (M2.2), the character the camera focuses
+## on (a capsule until the mannequin lands in M2.3) and the orbit camera.
+## The app modes (M2.6, M2.10) attach here.

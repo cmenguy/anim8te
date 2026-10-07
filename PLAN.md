@@ -330,12 +330,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: Godot 4.7.2: clean --import and a windowed run (Metal 4.0, Forward+) exit 0 with 0 warning/error lines; main scene scenes/main.tscn, folders scenes/ scripts/ assets/ ui/ addons/, godot/README.md says how to open and run
 
 ### M2.2 Calibration level grey-box
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M2.1
 - **Component:** godot
 - **Effort:** M
-- **Done when:** a 40 x 40 m ground plane with a 1 m grid and 10 cm sub-grid shader; boxes at 0.5, 1.0 and 1.5 m; a 2.2 m ledge wall; gaps of 1.5, 2.5 and 3.5 m between platforms; 20° and 35° ramps; a staircase with 0.18 m risers; a 0.3 m beam; every prop labelled with its size; neutral HDRI sky, one directional light, ACES tone mapping; an orbit camera with focus-on-character.
+- **Done when:** a 40 x 40 m ground plane with a 1 m grid and 10 cm sub-grid shader; boxes at 0.5, 1.0 and 1.5 m; a 2.2 m ledge wall; gaps of 1.5, 2.5 and 3.5 m between platforms; 20° and 35° ramps; a staircase with 0.18 m risers; a 0.3 m beam; every prop labelled with its size; neutral sky (a `ProceduralSkyMaterial`; the owner chose the simplest option over an HDRI asset), one directional light, ACES tone mapping; an orbit camera with focus-on-character.
 - **Notes:** GDD §6.1. One Godot unit is one metre. Build props from `CSGBox3D` or `MeshInstance3D` with collision so M5's controller can use them.
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: headless check: boxes 0.5/1.0/1.5 m, ledge 2.2 m, gaps 1.50/2.50/3.50 m, ramps 20.0/35.0 deg, 8 risers of 0.18 m, beam 0.3 m, all StaticBody3D with collision and size labels; ACES + procedural sky + 1 directional light; renders from 5 orbit views and F-focus checked
 
 ### M2.3 Default mannequin on the humanoid profile
 - **Status:** todo

@@ -1,14 +1,25 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="PackedScene" path="res://scenes/calibration_level.tscn" id="2_level"]
+[ext_resource type="Script" path="res://scripts/orbit_camera.gd" id="3_orbit"]
+
+[sub_resource type="CapsuleMesh" id="placeholder"]
+radius = 0.25
+height = 1.75
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
 
-[node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.966, 0.259, 0, -0.259, 0.966, 0, 1.6, 4)
-current = true
+[node name="CalibrationLevel" parent="." instance=ExtResource("2_level")]
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866, -0.354, 0.354, 0, 0.707, 0.707, -0.5, -0.612, 0.612, 0, 5, 0)
-shadow_enabled = true
+[node name="Character" type="Node3D" parent="."]
+
+[node name="Placeholder" type="MeshInstance3D" parent="Character"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.875, 0)
+mesh = SubResource("placeholder")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+current = true
+script = ExtResource("3_orbit")
+focus_target = NodePath("../Character")
