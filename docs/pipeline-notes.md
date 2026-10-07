@@ -43,3 +43,13 @@ After the conversion, a performer facing the camera faces +Z, the glTF front. In
 - A synthetic standing pose with a 180° yaw (facing the camera in GVHMR's frame) comes out upright, facing +Z, with its left at +X and an identity pelvis rotation.
 - `GVHMR_TO_GLTF` is a rotation that keeps up.
 - On the 10-frame walk fixture, the converted body stands up and faces +Z. This test needs the SMPL-X model and skips without it.
+
+## Canonical skeleton (stage 5.3, M1.8)
+
+`anim8te/skeleton.py` defines the skeleton every library clip uses: the 22 SMPL-X body joints in SMPL-X order (so GVHMR's `body_pose[i]` drives bone `i + 1`), renamed with Godot's `SkeletonProfileHumanoid` names from the GDD §4 stage 5 table, with the SMPL-X parent table (`PARENTS`, root Hips). No fingers, jaw or eyes.
+
+**Rest pose.** `canonical_skeleton(betas)` poses the SMPL-X neutral model at zero pose with the performer's shape. Every rest rotation is the identity and each bone's rest translation is the offset from its parent (`rest_offsets()`), so GVHMR's parent-relative rotations apply without re-expression. The SMPL-X model frame at rest is already glTF's (Y-up, facing +Z, left at +X). Its origin is not the floor: on the walk fixture's shape, Hips sits at y = -0.34 m and the joints span 1.53 m from toes to the head joint (the head joint is at the skull's base, not its top). Ground alignment (M1.9) puts the clip on y = 0.
+
+**One shape per performer (G0).** `performer_betas(library, performer, clip_betas, source_clip)` returns `library/performers/<id>/betas.json` when it exists; otherwise it stores the clip's `betas` there and returns them. The first clip of a performer fixes the shape; later clips reuse it, whatever their own fit says (M0.7 measured a 6 cm stature spread across takes). QC compares each clip's `betas` against this reference (M3.5).
+
+**Tests.** `tests/test_skeleton.py`: each SMPL-X joint maps to exactly one humanoid name and the 22 names are the profile's body bones; the parent table is one tree rooted at Hips with parents before children; the hierarchy is anatomical; the rest pose from the fixture's `betas` is upright, left at +X, toes forward (needs the SMPL-X model); the performer's shape is stored once and reused.
