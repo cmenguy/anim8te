@@ -468,7 +468,7 @@ Three phases. **M3.A** finishes the stage 5 cleanup in the pipeline, tuned again
 - **Component:** pipeline
 - **Effort:** L
 - **Done when:** during each detected contact the foot is pinned to its first-contact position with two-bone IK on hip, knee and ankle (pole vector from the original knee direction), with blend-in and blend-out windows; toggle and parameters in `meta.json`; on the jog and vault clips the foot-skate metric (M3.5) drops clearly and joint jerk does not rise (no knee pops); visible in the Gym overlays.
-- **Notes:** GDD §4 stage 5.4 and §11 foot skate risk.
+- **Notes:** GDD §4 stage 5.4 and §11 foot skate risk. First in M3.A per `docs/gym-findings.md` (M2.11): skate is 27 to 59 % of contact frames on every moving clip. Two gaps found there: contacts are measured against y = 0 only, so the vault's crouch on the block (soles about 0.7 m up after 3 s) gets none; and `ground_velocity` auto picks up a spurious 0.13 m/s on the vault, so non-treadmill templates should use 0.
 
 ### M3.2 Root motion: hips extraction and treadmill synthesis
 - **Status:** todo
@@ -508,7 +508,7 @@ Three phases. **M3.A** finishes the stage 5 cleanup in the pipeline, tuned again
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** a clean filter detects left/right leg swaps (mesh legs out of phase with the 2D leg keypoints) and repairs them, and a travel-rescale filter scales root translation to match the hips' image-space travel at the clip's metres-per-pixel; on `vault-m05/2` and `vault-m05/3` the run-up's leg power above 6 Hz drops from 12 to 13% to under 3%, root travel lands within 10% of the image-based estimate (about 3.8 m and 3.5 m), and idle and jog clips come out unchanged; both filters are toggles in `meta.json`.
-- **Notes:** Condition 3 of G0 (`docs/feasibility.md`, M0.7 vault problems and M0.9). Needs the 2D keypoints and the input video next to `hmr4d_results.pt`, so `/extract` (M1.4, M1.5) has to return them. If repair is not reliable, the fallback is a base image with her larger in frame for side-on clips.
+- **Notes:** Condition 3 of G0 (`docs/feasibility.md`, M0.7 vault problems and M0.9). Needs the 2D keypoints and the input video next to `hmr4d_results.pt`, so `/extract` (M1.4, M1.5) has to return them. If repair is not reliable, the fallback is a base image with her larger in frame for side-on clips. Measure the 6 Hz target with `smooth` off: the default savgol already brings the vault run-up from 17.3 % to 1.2 % without fixing the swaps (`docs/gym-findings.md`).
 
 ### M3.6 clean orchestration: ordered, toggleable, re-runnable filters
 - **Status:** todo
