@@ -52,6 +52,7 @@ Since M0.1 every directory exists with a one-line README; the annotations above 
 - `motion.glb` is skeleton only (no mesh): an `Armature` root, the 22 canonical bones with identity rest rotations, the rest pose standing on y = 0 and the Spine to Head offsets straightened to vertical (M2.12; keeps the humanoid retarget from hunching), one skin, one animation named after the clip id (Hips translation plus every bone's rotation, LINEAR, one key per frame).
 - Library layout per GDD §8.1: `library/clips/<id>/` holds `meta.json`, `takes/`, `selected.mp4`, `gvhmr/`, `clean/motion.npz`, `motion.glb`, `qc.json`, `features.json`. The `meta.json` and `qc.json` schemas are the pydantic models in `anim8te/library.py`; clip ids are `<slug>-<6 random chars>`. A performer's body shape is `library/performers/<id>/betas.json`, set by its first clip and reused by every later one (`anim8te.skeleton.performer_betas`).
 - Prompts for video generation end with "Static camera, full body visible." Cyclic locomotion is generated "on a treadmill"; root motion is added in cleanup. The rules live in `anim8te/templates/*.toml` (one per template); `anim8te gen` applies them, and the UI and agent assist read the same files.
+- The Godot app loads library clips at runtime with `ClipPlayer` (`godot/scripts/clip_player.gd`): `GLTFDocument`, the clip re-expressed on the driven model's rest, then `RetargetModifier3D` (humanoid profile, local pose) with the model's `Skeleton3D` as its direct child. Gotchas in `godot/README.md` "Runtime retargeting".
 - The Godot app never calls fal or the GPU worker directly. It talks to the local `anim8te` daemon over HTTP and loads `.glb` files from the library.
 - Secrets (`FAL_KEY`, `GVHMR_WORKER_TOKEN`, `ANTHROPIC_API_KEY`) live in `.env` or the OS keychain, never in the library, logs or git. `.env.example` lists the names.
 - Anything calling Anthropic models (agent assist, M3.18) goes through the `claude-api` skill.
@@ -79,6 +80,7 @@ uv run anim8te clean <clip_id> [--no-smooth] [--set smooth.window=11]  # smoothi
 uv run anim8te export <clip_id>                             # clean/motion.npz -> motion.glb (skeleton, skin, one animation), status exported
 anim8te serve                                               # local daemon for the Godot app (M3.7)
 godot --editor --path godot                                 # open the Godot project (main scene: scenes/main.tscn)
+godot --headless --path godot --script tests/check_runtime_retarget.gd  # runtime GLB + RetargetModifier3D vs the clip (M2.4)
 worker/setup.sh                                             # install GVHMR (pinned Mac fork) + the worker
 uv run --project worker gvhmr-worker                        # GVHMR worker on 127.0.0.1:8765 (API in worker/README.md)
 cd worker && uv run pytest                                  # worker tests (fake gvhmr CLI)

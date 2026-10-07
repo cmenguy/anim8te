@@ -430,7 +430,7 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Component:** godot
 - **Effort:** M
 - **Done when:** the mannequin on a `CharacterBody3D` in the calibration level moves with WASD relative to a third-person follow camera; an `AnimationTree` blends idle, walk and jog by speed (sprint key for jog) from the library clips imported through the editor path (`assets/sample_clips/`, canonical bone map); a key triggers the vault clip; collision with the props works; `godot/README.md` says how to play; a short capture is saved under `docs/captures/`.
-- **Notes:** Owner's request (2026-10-07): something playable in the grey box early, with the clips that exist today (idle-m05, walk-ur7zdb, jog-m05 or jog-qa61r5, vault-m05). Uses editor imports, so it does not need M2.4. Hand-built blend tree, no motion matching; M5.3 stays the real controller over the starter set. Root motion is optional here (in-place clips plus code-driven velocity is fine).
+- **Notes:** Owner's request (2026-10-07): something playable in the grey box early, with the clips that exist today (idle-m05, walk-ur7zdb, jog-m05 or jog-qa61r5, vault-m05). Only walk-ur7zdb and jog-qa61r5 have a `motion.glb`; idle-m05, jog-m05 and vault-m05 hold M0 feasibility takes only, so they go through `anim8te extract`, `clean` and `export` first (the M0 outputs may need a `meta.json`). Once M2.4 is merged, `ClipPlayer` can load them at runtime instead of copying them under `assets/sample_clips/`. Uses editor imports, so it does not need M2.4. Hand-built blend tree, no motion matching; M5.3 stays the real controller over the starter set. Root motion is optional here (in-place clips plus code-driven velocity is fine).
 
 ## M3: Workflow Manager, Flow A
 
