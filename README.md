@@ -61,7 +61,7 @@ Collected as the plan progresses; none are needed to read the documents.
 - A fal.ai account and API key for video generation (about $0.40 per 5-second take at 768p).
 - SMPL-X and SMPL research licenses, for the body models GVHMR and the converter use. The converter reads `SMPLX_NEUTRAL.npz` from `$GVHMR_BODY_MODELS/smplx/` (default `~/motion-ai-checkpoints/body_models`, see `docs/checkpoints.md`); tests that need it skip when it is missing.
 - An Apple Silicon Mac with 32 GB or more for GVHMR, through the fork at https://github.com/ryanrudes/gvhmr (`worker/setup.sh` installs it; see `worker/README.md`). A cloud NVIDIA GPU is only needed later, for moving-camera clips or batch runs.
-- ffmpeg, to transcode takes to Ogg Theora for Godot's video player; GVHMR also needs its `ffprobe` to read frame rates.
+- ffmpeg (`brew install ffmpeg`): GVHMR needs its `ffprobe` to read frame rates. Writing the Ogg Theora copies Godot plays needs a build with libtheora, which Homebrew's `ffmpeg` lacks: `brew install ffmpeg-full` (keg-only, installs beside it; `anim8te` finds it, or set `ANIM8TE_FFMPEG`).
 - Optional: an Anthropic API key for the agent-assist features.
 
 Install the package and dev tools with [uv](https://docs.astral.sh/uv/) (`pip install -e .` also works):

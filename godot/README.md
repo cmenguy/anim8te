@@ -93,6 +93,16 @@ godot --headless --path godot --script tests/check_overlays.gd
 
 It plays two library clips with a `features.json` (needs the local library), steps every frame with all overlays on and checks each against the file, then checks the toggles across a clip change, keys 1 to 6, and a second session on the same settings file (its own, not the user's). On the M1 clips: the walk's contacts are 35 % sliding, the jog's 56 % (the skate noted in M2.7), and the jog's right toes go 8 mm under the ground on frames 86 and 87. Capture: `docs/captures/m2.8-debug-overlays.jpg` (jog: contacts, trajectory, velocity; jog: wireframe, jerk, penetration; walk: contacts, wireframe, trajectory).
 
+## Video
+
+Godot 4.7 decodes only Ogg Theora (`VideoStreamTheora`), so the app plays the `.ogv` copies the pipeline writes next to the mp4 files (decision Q6): `selected.ogv` (the take, 768x960 at 24 fps for H3 Max 768P) and `gvhmr/overlay.ogv` (GVHMR's render, in-camera overlay and global view side by side, 768x480 at 30 fps). Both are video only and keep the source's size, rate and frame count. `anim8te extract` writes them; `anim8te transcode <id>` does it for clips extracted before M2.9. Load one with `VideoStreamTheora.new()`, `file = <absolute path>`, in a `VideoStreamPlayer`. Check with:
+
+```bash
+godot --headless --path godot --script tests/check_video_playback.gd [-- --clip=<id>]
+```
+
+It plays both files of a library clip, checks length, playback rate, frame size, a seek to 3 s and the stop at the end, and exits 1 on a failed check.
+
 ## Runtime retargeting
 
 `scripts/clip_player.gd` (`ClipPlayer`) plays library clips on a model with no import step: `scripts/runtime_clip.gd` (`RuntimeClip`) reads `library/clips/<id>/motion.glb` with `GLTFDocument`, and a `RetargetModifier3D` on `SkeletonProfileHumanoid` drives the model. The library root is resolved as in the library panel (next section). Node layout, built in `_ready`:
