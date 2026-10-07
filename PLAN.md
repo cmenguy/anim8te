@@ -215,12 +215,14 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: anim8te/library.py: ClipMeta (all listed fields, enums for template/root-motion/status, consistency checks), placeholder QCReport, atomic write, <slug>-<6 chars> ids; anim8te lib ls lists clips and performers with status (run on the real library: 3 pre-M1 clips show 'no meta.json', perf01 ok); tests/test_library.py round-trips tests/fixtures/meta.json, 10 tests pass, ruff clean
 
 ### M1.3 anim8te gen: fal client, prompt templates and takes
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M1.2, M0.2
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** `anim8te gen --performer <id> --template locomotion|traversal|combat|custom --prompt "..." --takes 3 --duration 5 --resolution 768P [--seed N]` creates a clip directory, uploads the base image once, generates takes concurrently, writes `takes/<n>.mp4` and `meta.json` with seeds and cost; templates append the camera rule and (locomotion) the treadmill rule; `--dry-run` prints the final prompt and estimated cost; failures retry with backoff and leave meta.json consistent.
 - **Notes:** GDD §4 stage 2. Templates live in `anim8te/templates/*.toml` so the UI (M3.12) and the agent assist (M3.18) read the same rules.
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: 32 tests pass (templates, dry-run, retry/backoff, partial and total failure keep meta.json consistent); live run walk-ur7zdb: 3/3 takes 768x960 24fps 5.18 s, one upload, $0.45 at $0.03/s, walking in place on the treadmill, full body, static camera
 
 ### M1.4 gvhmr-worker: native FastAPI wrapper around GVHMR demo.py
 - **Status:** todo

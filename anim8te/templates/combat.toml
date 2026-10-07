@@ -1,0 +1,7 @@
+# Attacks, dodges, hit reactions: mostly in place, but steps and lunges keep their travel.
+label = "Combat"
+description = "Attack, dodge or hit reaction; one action per clip, root motion extracted."
+camera_rule = "Natural movement for motion capture. Camera remains perfectly still. Static camera, full body visible."
+loop = false
+root_motion = "extract"
+tags = ["combat"]
