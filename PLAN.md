@@ -320,12 +320,13 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 The Gym reads the library straight from disk in this milestone; the daemon comes in M3.B. Tasks M2.1 to M2.3 only need Godot and can start as soon as M0.8 is done, in parallel with M1.
 
 ### M2.1 Godot project setup
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M0.8
 - **Component:** godot
 - **Effort:** S
 - **Done when:** `godot/project.godot` on the pinned version (Q7), Forward+ renderer, a main scene, folders `scenes/`, `scripts/`, `assets/`, `ui/`, `addons/`; `.godot/` ignored; a `godot/README.md` with how to open and run; the project opens and runs with no errors or warnings.
 - **Notes:** GDD §5 and §8.2.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M2.2 Calibration level grey-box
 - **Status:** todo
