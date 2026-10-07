@@ -73,6 +73,7 @@ class CanonicalSkeleton:
 
     rest_positions: np.ndarray  # (22, 3) joint positions, metres
     betas: np.ndarray  # (10,) the shape they were built from
+    sole_y: float = 0.0  # height of the soles (lowest mesh vertex) in rest pose
     names: tuple[str, ...] = BONE_NAMES
     parents: tuple[int, ...] = PARENTS
 
@@ -96,7 +97,7 @@ def canonical_skeleton(betas: np.ndarray, body_models: Path | None = None) -> Ca
     rest = rest_skeleton(betas, body_models=body_models)
     if tuple(rest.parents.tolist()) != PARENTS:
         raise ValueError(f"unexpected SMPL-X parent table: {rest.parents.tolist()}")
-    return CanonicalSkeleton(rest_positions=rest.joints, betas=betas)
+    return CanonicalSkeleton(rest_positions=rest.joints, betas=betas, sole_y=rest.sole_y)
 
 
 # --- performer body shape ------------------------------------------------------------------
