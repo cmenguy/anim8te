@@ -275,12 +275,13 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: anim8te/skeleton.py: 22 SMPL-X joints -> SkeletonProfileHumanoid names, SMPL-X parents rooted at Hips, rest pose from betas via smplx (fixture shape: 1.53 m toes to head joint, left +X, toes +Z); per-performer betas.json set by first clip; tests/test_skeleton.py 7 pass with the body model, 59 total
 
 ### M1.9 Minimal anim8te clean: smoothing and ground alignment
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M1.8
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** `anim8te clean <clip_id>` applies One-Euro (or Savitzky-Golay) smoothing to rotations and hips translation, then ground alignment (lowest foot or toe height over the clip, using a low percentile, moved to y = 0); filter toggles and parameters are read from and written to `meta.json`; re-running is idempotent; a test shows a jittered synthetic signal gets smoother and the minimum foot height is about 0.
 - **Notes:** GDD §4 stage 5.4. The rest of the filters (foot lock, root motion, loop, segmentation, QC) are M3.A.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M1.10 anim8te export: write motion.glb
 - **Status:** todo
