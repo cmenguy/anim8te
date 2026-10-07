@@ -64,7 +64,7 @@ Collected as the plan progresses; none are needed to read the documents.
 - ffmpeg, to transcode takes to Ogg Theora for Godot's video player.
 - Optional: an Anthropic API key for the agent-assist features.
 
-Secrets go in `.env` (names listed in `.env.example` once task M0.1 lands), never in git; `.gitignore` already excludes `.env`, `.envrc`, the library and all model checkpoints.
+Secrets go in `.env` (names listed in `.env.example`), never in git; `.gitignore` already excludes `.env`, `.envrc`, the library and all model checkpoints.
 
 GitHub access uses the personal `cmenguy` login through a git-ignored `.envrc` loaded by [direnv](https://direnv.net/):
 
@@ -91,7 +91,7 @@ tests/            pipeline unit tests (axis conventions, bone map, QC metrics)
 docs/             feasibility notes, pipeline notes, findings, captures
 ```
 
-The code directories are created by task M0.1. `.gitignore` is already in place.
+Each directory holds a one-line README until its milestone fills it in. `library/` is git-ignored apart from its README. Copy `.env.example` to `.env` for the secrets.
 
 ## Licensing
 
