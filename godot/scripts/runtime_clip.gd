@@ -39,6 +39,9 @@ var animation: Animation
 var rests: Dictionary
 ## Rest hip height; the source skeleton's motion_scale.
 var motion_scale: float
+## One key per frame (anim8te export): frame count and rate, from the keys.
+var frame_count: int
+var fps: float
 ## Bone names and parent names, in skeleton order.
 var bone_names: PackedStringArray
 var bone_parents: PackedStringArray
@@ -105,6 +108,10 @@ static func load_clip(path: String, reference: Dictionary) -> RuntimeClip:
 	clip.id = names[0]
 	# Duplicate so the clip outlives the generated scene.
 	clip.animation = player.get_animation(names[0]).duplicate(true)
+	clip.frame_count = 0
+	for t in clip.animation.get_track_count():
+		clip.frame_count = maxi(clip.frame_count, clip.animation.track_get_key_count(t))
+	clip.fps = (clip.frame_count - 1) / clip.animation.length if clip.animation.length > 0.0 else 30.0
 	var skeleton_path := String(scene.get_path_to(skeleton))
 	var ok := clip._fix_rest(skeleton, skeleton_path, reference)
 	scene.free()
