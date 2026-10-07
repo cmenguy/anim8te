@@ -78,12 +78,13 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 Everything here is throwaway except the base image, the takes, and the findings document. Accounts and license acceptances need the project owner, so several tasks will sit in `blocked` until those are done.
 
 ### M0.1 Scaffold the repo layout
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** none
 - **Component:** repo
 - **Effort:** S
 - **Done when:** `godot/`, `motionai/`, `worker/`, `library/`, `tests/`, `docs/` exist with a one-line README each; `.gitignore` still covers `library/`, `.env`, `.godot/`, `__pycache__/`, `*.ckpt`, `*.pt`, `*.npz`, `*.pkl` plus anything the scaffold adds; `.env.example` lists `FAL_KEY`, `GVHMR_WORKER_URL`, `GVHMR_WORKER_TOKEN`, `ANTHROPIC_API_KEY`; the layout sections of `README.md` and `CLAUDE.md` match what now exists on disk; merged to `main` through a PR.
 - **Notes:** Layout from GDD §8.2. Git was initialised, `.gitignore` written and the remote set on 2026-10-06, so this task is only the directories and `.env.example`. `README.md` and `CLAUDE.md` already describe the target layout; this task makes the repo match them. The library stays git-ignored for now; revisit git-LFS once clips exist.
+- **Log:** 2026-10-06 todo -> in-progress
 
 ### M0.2 fal account, API key and first H3 Max smoke test
 - **Status:** todo
