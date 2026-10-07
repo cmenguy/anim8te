@@ -350,12 +350,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: Q1 decided (Quaternius Universal Base Characters, male, CC0, LICENSE.txt alongside); import: BoneMap on SkeletonProfileHumanoid, 53/56 bones mapped, all 17 required, renamed, %GeneralSkeleton, Overwrite Axis + fix silhouette; walk-ur7zdb imported as AnimationLibrary (23 tracks on %GeneralSkeleton) loops on the mannequin in scenes/mannequin_preview.tscn, checked on Movie Maker frames
 
 ### M2.4 Spike: runtime GLB load and RetargetModifier3D onto the mannequin
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M2.3, M1.10, M2.12
 - **Component:** godot
 - **Effort:** M
 - **Done when:** a script loads `library/clips/<id>/motion.glb` at runtime with `GLTFDocument`, finds its `Skeleton3D` and `AnimationPlayer`, and drives the mannequin through `RetargetModifier3D` using the humanoid profile; bone renaming at runtime (if needed) is handled; `godot/README.md` has a "Runtime retargeting" section with the gotchas and the chosen node layout.
 - **Notes:** This is the main Godot risk for the Clip Viewer and for Flow B (M4). Do it before building UI on top. If runtime retargeting fails, the fallback is to bake clips onto the mannequin's skeleton in the pipeline, which changes M1.10 and M4.5.
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: ClipPlayer: GLTFDocument load + clip re-expressed on the model's rest + RetargetModifier3D (local, model Skeleton3D as direct child); no renaming needed; tests/check_runtime_retarget.gd PASS on walk-ur7zdb + jog-qa61r5: bone directions 0.00 deg and hip height change 0.00 cm vs the clip (editor path 3-14 deg off); README Runtime retargeting; capture docs/captures/m2.4-runtime-retarget.jpg
 
 ### M2.5 Library scanner and clip list
 - **Status:** todo
@@ -422,6 +424,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Notes:** Found in M2.3. SMPL-X's rest spine is kinked (the UpperChest joint sits behind Chest: 27 degrees forward at rest, -10 at the neck). Godot's "overwrite axis" retarget transfers bone directions rather than deltas from rest, so that kink lands on the mannequin as a hunch with the head pushed forward. A scratch copy with the five spine offsets straightened walked upright (upper back 9 to 11 degrees, neck -4 to -6, head 6 to 7). M2.4 uses the same profile path, so it depends on this.
 - **Log:** 2026-10-07 todo -> in-progress
 - **Log:** 2026-10-07 in-progress -> done: export.py STRAIGHT_BONES: Spine..Head rest offsets vertical, lengths kept, rotations unchanged; tests/test_export.py 5 pass (76 total), ruff clean; walk-ur7zdb + jog-qa61r5 re-exported, sample_clips/walk refreshed; mannequin Chest>UpperChest lean per frame 5.5-12.2 deg (median 9.8), was 32.9-39.9 (median 37.1); docs/pipeline-notes.md
+
+### M2.13 Playable grey-box: blend-tree controller over the current clips
+- **Status:** todo
+- **Depends on:** M2.3, M2.2
+- **Component:** godot
+- **Effort:** M
+- **Done when:** the mannequin on a `CharacterBody3D` in the calibration level moves with WASD relative to a third-person follow camera; an `AnimationTree` blends idle, walk and jog by speed (sprint key for jog) from the library clips imported through the editor path (`assets/sample_clips/`, canonical bone map); a key triggers the vault clip; collision with the props works; `godot/README.md` says how to play; a short capture is saved under `docs/captures/`.
+- **Notes:** Owner's request (2026-10-07): something playable in the grey box early, with the clips that exist today (idle-m05, walk-ur7zdb, jog-m05 or jog-qa61r5, vault-m05). Only walk-ur7zdb and jog-qa61r5 have a `motion.glb`; idle-m05, jog-m05 and vault-m05 hold M0 feasibility takes only, so they go through `anim8te extract`, `clean` and `export` first (the M0 outputs may need a `meta.json`). Once M2.4 is merged, `ClipPlayer` can load them at runtime instead of copying them under `assets/sample_clips/`. Uses editor imports, so it does not need M2.4. Hand-built blend tree, no motion matching; M5.3 stays the real controller over the starter set. Root motion is optional here (in-place clips plus code-driven velocity is fine).
 
 ## M3: Workflow Manager, Flow A
 

@@ -1,0 +1,20 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/calibration_level.tscn" id="1_level"]
+[ext_resource type="Script" path="res://scripts/clip_player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/orbit_camera.gd" id="3_orbit"]
+
+[node name="RuntimeRetarget" type="Node3D"]
+
+[node name="CalibrationLevel" parent="." instance=ExtResource("1_level")]
+
+[node name="ClipPlayer" type="Node3D" parent="."]
+script = ExtResource("2_player")
+clip_id = "walk-ur7zdb"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+current = true
+script = ExtResource("3_orbit")
+focus_target = NodePath("../ClipPlayer")
+target = Vector3(0, 0.9, 0)
+distance = 3.5
