@@ -57,7 +57,7 @@ python3 .claude/skills/next-step/scripts/plan.py check
 
 Collected as the plan progresses; none are needed to read the documents.
 
-- A Mac for development with Python 3.11 or later and Godot 4.4 or later.
+- A Mac for development with Python 3.11 or later and Godot 4.7 (`brew install --cask godot`).
 - A fal.ai account and API key for video generation (about $0.40 per 5-second take at 768p).
 - SMPL-X and SMPL research licenses, for the body models GVHMR and the converter use.
 - An Apple Silicon Mac with 32 GB or more for GVHMR, through the fork at https://github.com/ryanrudes/gvhmr (install notes in `docs/feasibility.md`). A cloud NVIDIA GPU is only needed later, for moving-camera clips or batch runs.

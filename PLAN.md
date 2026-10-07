@@ -66,7 +66,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 | Q4 | Root-motion policy for treadmill loops: synthesized constant speed, or speed-matched to stride length? | open | | M3.2 |
 | Q5 | Does the @MrCollison open-source parkour controller change the Controller plan? | open | | M5.2 |
 | Q6 | Video playback in Godot for Compare mode: transcode takes to Ogg Theora, or add a video GDExtension? | proposed | Transcode with ffmpeg in the pipeline (Godot 4 plays .ogv natively; keep mp4 as the source of truth) | M2.9 |
-| Q7 | Which Godot version to pin? `RetargetModifier3D` needs 4.4 or later | proposed | Latest stable 4.x at M0.8, pinned in `godot/project.godot` | M0.8 |
+| Q7 | Which Godot version to pin? `RetargetModifier3D` needs 4.4 or later | decided | Godot 4.7 (4.7.2 stable installed via Homebrew), pinned in `godot/project.godot` `config/features` | M0.8 |
 | Q8 | Extract backend for M1: native GVHMR wrapper or ComfyUI workflow API? | proposed | Native (GDD §8 default, returns `hmr4d_results.pt` directly); ComfyUI stays optional | M1.4 |
 | G0 | Go/no-go after M0: is GVHMR on H3 Max video good enough to build on? | open | | M1.1 |
 
@@ -149,12 +149,14 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-07 in-progress -> done: docs/scratch/judge_takes.py on 7 takes: no missing frames or >45° flips; foot slide idle 0.2-0.3, jog 1.1-1.6, vault 0.6-0.9 cm/frame; jog drift 5-10 cm/5 s; vault soles +0.55/+0.59 m vs ~0.53 m block; vault run-up leg swaps and ~30% overlong travel; stature 1.67-1.73 m across takes; recorded in docs/feasibility.md
 
 ### M0.8 Install Godot and pin the version
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M0.1
 - **Component:** godot
 - **Effort:** S
 - **Done when:** Q7 decided and Godot installed on the Mac; an empty project under `godot/` opens with the version pinned in `godot/project.godot`, one unit one metre, Y-up.
 - **Notes:** The feasibility GLB import was dropped when M0.6 was skipped; the first motion in Godot is M1.11. M2.1 to M2.3 start from this project.
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: Godot 4.7.2 stable installed (Homebrew cask); godot/project.godot pins features 4.7 and opens headless in the 4.7.2 editor with no errors; runtime check: Vector3.UP=(0,1,0), right-handed; Q7 decided
 
 ### M0.9 Go/no-go decision
 - **Status:** todo

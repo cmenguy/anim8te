@@ -44,7 +44,7 @@ Since M0.1 every directory exists with a one-line README; the annotations above 
 ## Conventions
 
 - Python 3.11 or later, `typer` CLI, `pydantic` models, `pytest`, `ruff`. Stage code under `motionai/stages/` has no CLI or HTTP concerns, so the CLI, the daemon and the tests share it.
-- Godot 4.4 or later (`RetargetModifier3D`), pinned in `godot/project.godot`. One unit is one metre, Y-up, right-handed.
+- Godot 4.7 (Q7; `RetargetModifier3D` needs 4.4 or later), pinned in `godot/project.godot`. One unit is one metre, Y-up, right-handed.
 - Canonical skeleton: Godot `SkeletonProfileHumanoid` bone names on the 22 SMPL-X body joints (table in GDD §4 stage 5). Every library clip is a `motion.glb` on that skeleton; the mannequin and imported models are retargeted from it.
 - Library layout per GDD §8.1: `library/clips/<id>/` holds `meta.json`, `takes/`, `selected.mp4`, `gvhmr/`, `motion.glb`, `qc.json`, `features.json`.
 - Prompts for video generation end with "Static camera, full body visible." Cyclic locomotion is generated "on a treadmill"; root motion is added in cleanup.
