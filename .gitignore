@@ -2,6 +2,7 @@
 .env
 .env.*
 !.env.example
+.envrc
 
 # generated media, body models and checkpoints (never in git)
 library/
