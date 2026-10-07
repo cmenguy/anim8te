@@ -72,6 +72,27 @@ godot --headless --path godot --script tests/check_clip_viewer.gd
 
 It loads the main scene against the local library (needs two clips with a `motion.glb`), drives the bar and the player, and exits 1 on a failed check. Capture: `docs/captures/m2.6-clip-viewer.jpg`.
 
+## Debug overlays
+
+`scripts/clip_overlays.gd` (`ClipOverlays`, node `Character/Overlays` in `main.tscn`, a child of the `ClipPlayer` so it shares the clip's space) holds the Gym's debug overlays (GDD §6.4). Each overlay is its own node, a `DebugOverlay` (`scripts/overlays/`) drawing an unshaded `ImmediateMesh` over the character; all of them read the clip's `features.json` (`scripts/clip_features.gd`, `ClipFeatures`, parsed once per clip and cached, about 4 ms) and redraw for the player's current frame. The overlay panel (`scripts/overlay_panel.gd`, top right) has a check box per overlay; keys 1 to 6 toggle them in the same order.
+
+| Key | Overlay | Draws |
+|---|---|---|
+| 1 | Foot contacts | a disk under each foot joint while `contacts` has it planted: green, or red when it slides (horizontal speed relative to the ground, the belt on a treadmill, over `slide_mps` 0.3 m/s, 1 cm per frame) |
+| 2 | Root trajectory | the Hips track on the ground, the past second blue and the next second orange, and the facing arrow; treadmill clips stay on the spot until root motion (M3.2) |
+| 3 | Velocity vectors | `root_velocity` from the Hips (cyan) and the hands' and feet's velocities (yellow), 0.2 m per m/s |
+| 4 | Ground penetration | a red marker, disk and depth in mm on every joint more than 5 mm under the ground; foot joints by their sole, using `rest_heights_above_sole` (added to `features.json` in M2.8; re-run `anim8te clean` on older clips) |
+| 5 | Skeleton wireframe | the extracted canonical skeleton (`joint_positions`) |
+| 6 | Joint jerk heatmap | a marker per joint coloured by `joint_jerk` on a fixed scale, blue at 0 to red at 300 m/s³, so clips compare |
+
+The overlays show the extracted motion, not the mannequin: `features.json` positions match the source skeleton to 0.1 mm, and the mannequin's own proportions put its feet a few centimetres wider and its hands higher, which the wireframe makes visible. Which overlays are on is kept across clip changes and saved in `user://gym_settings.cfg` (section `overlays`), so the next session starts with the same set. A clip without a usable `features.json`, or an overlay with nothing to draw (contacts filter off), is named in the panel. Check with:
+
+```bash
+godot --headless --path godot --script tests/check_overlays.gd
+```
+
+It plays two library clips with a `features.json` (needs the local library), steps every frame with all overlays on and checks each against the file, then checks the toggles across a clip change, keys 1 to 6, and a second session on the same settings file (its own, not the user's). On the M1 clips: the walk's contacts are 35 % sliding, the jog's 56 % (the skate noted in M2.7), and the jog's right toes go 8 mm under the ground on frames 86 and 87. Capture: `docs/captures/m2.8-debug-overlays.jpg` (jog: contacts, trajectory, velocity; jog: wireframe, jerk, penetration; walk: contacts, wireframe, trajectory).
+
 ## Runtime retargeting
 
 `scripts/clip_player.gd` (`ClipPlayer`) plays library clips on a model with no import step: `scripts/runtime_clip.gd` (`RuntimeClip`) reads `library/clips/<id>/motion.glb` with `GLTFDocument`, and a `RetargetModifier3D` on `SkeletonProfileHumanoid` drives the model. The library root is resolved as in the library panel (next section). Node layout, built in `_ready`:

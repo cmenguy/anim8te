@@ -125,6 +125,9 @@ def compute_features(
         bone_names=list(bone_names),
         contacts=contact_lists,
         contact_thresholds=thresholds,
+        rest_heights_above_sole=dict(
+            zip(CONTACT_BONES, _round(rest_heights_above_sole, 4), strict=True)
+        ),
         root_position=_round(positions[:, 0], 4),
         root_velocity=_round(velocity[:, 0], 4),
         joint_positions=_round(positions, 4),

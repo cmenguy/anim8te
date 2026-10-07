@@ -127,9 +127,11 @@ def test_compute_features_shapes_and_root_track():
     np.testing.assert_allclose(np.array(f.root_velocity)[:, 2], 1.2, atol=1e-6)
     assert np.array(f.joint_jerk).shape == (t, 22)
     assert np.allclose(np.array(f.joint_jerk)[:, 0], 0)  # constant velocity: no jerk
+    assert f.rest_heights_above_sole == dict(zip(CONTACT_BONES, rest_above_sole, strict=True))
 
     off = compute_features(pos, list(BONE_NAMES), rest_above_sole, FPS, None)
     assert off.contacts == {} and off.contact_thresholds is None
+    assert off.rest_heights_above_sole == f.rest_heights_above_sole  # penetration needs it too
 
 
 def _meta(**kw) -> ClipMeta:
