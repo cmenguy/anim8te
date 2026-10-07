@@ -265,12 +265,13 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: GVHMR world is Y-up right-handed metres, +Z away from camera (hmr_global.py get_R_c2gv + any->ay); to_gltf_frame = 180° about Y; verified on 8 real clips (facing-camera clips face +Z, vault faces/travels +X = screen right as in video); 52 tests pass; docs/pipeline-notes.md
 
 ### M1.8 Canonical skeleton: SkeletonProfileHumanoid names on the SMPL-X tree
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M1.7
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** `anim8te/skeleton.py` defines the hierarchy of the 22 SMPL-X body joints renamed with the humanoid names from the GDD table (Hips, Spine, Chest, UpperChest, Neck, Head, Left/Right Shoulder, UpperArm, LowerArm, Hand, UpperLeg, LowerLeg, Foot, Toes), rest pose built from the performer's `betas`, parent indices; a test checks every SMPL-X joint maps to exactly one humanoid name and the parent table forms a single tree rooted at Hips.
 - **Notes:** GDD §4 stage 5.3. Rest pose is the SMPL-X zero pose with the performer's shape, so GVHMR's local rotations transfer without re-expression. Godot's humanoid retarget (import-time "overwrite axis" and "fix silhouette", runtime `RetargetModifier3D`) absorbs the difference to the mannequin's rest. No fingers. Per G0, `betas` are fixed per performer (stored once with the performer, reused by every clip), not taken from each clip: M0.7 measured a 6 cm stature spread across clips of the same performer.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M1.9 Minimal anim8te clean: smoothing and ground alignment
 - **Status:** todo
