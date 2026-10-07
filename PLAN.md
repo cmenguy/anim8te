@@ -652,3 +652,12 @@ Three phases. **M3.A** finishes the stage 5 cleanup in the pipeline, tuned again
 - **Effort:** S
 - **Done when:** `docs/engine-checkpoint.md` re-evaluates Godot vs Unreal for the game itself against the GDD §5 criteria, with evidence from M2 to M5 (iteration speed, retargeting, motion matching quality, visual ceiling); the decision and what it changes for the next phase are written down.
 - **Notes:** GDD §5 "When to revisit" and §9.
+
+### M5.7 Spike: UniMate motion-space edits on library clips
+- **Status:** todo
+- **Depends on:** M5.1
+- **Component:** pipeline
+- **Effort:** S
+- **Optional:** yes
+- **Done when:** UniMate (https://huggingface.co/Linzhan/UniMate) runs on two library `motion.glb` clips (on the Mac, or the reason it cannot and what it needs instead); one in-between transition from clip A to clip B and one prompted variation of a clip (e.g. "heavy" or "tired") are exported on the canonical skeleton and judged by eye in the Gym next to their sources; `docs/unimate-spike.md` records runtime, hardware, output quality, and a go or no-go on adding a motion-space edit step after export.
+- **Notes:** Text-conditioned flow-matching motion model (SIGGRAPH Asia 2026) on arbitrary rigged skeletons: in-betweening, extension, joint edits; fixed 60 frames at 30 fps. A possible cheaper route for transitions (GDD §11 ledge risk, M5.5) and variations than new H3 Max takes, not a replacement for stages 2 to 4. Checkpoints are CC BY-NC 4.0, so run it as a separate tool like GVHMR. Prompted by the author of the GDD §3.1 X thread using it to extend H3 Max-derived clips.
