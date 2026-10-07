@@ -250,7 +250,7 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** `anim8te.convert.load_gvhmr(path)` returns per-frame `global_orient`, `body_pose`, `transl`, `betas` and the frame rate as numpy arrays; the `smplx` package rebuilds the 22 body joint positions and parent table from `betas`; a test on a small fixture (`tests/fixtures/*.pt`, under 1 MB, trimmed from a real output) checks shapes, joint count and frame rate.
-- **Notes:** GDD §4 stage 5.1. We only use `smpl_params_global`. Frame rate equals the source video's.
+- **Notes:** GDD §4 stage 5.1. We only use `smpl_params_global`. GVHMR's demo resamples every input to 30 fps (it is a 30 fps model), so the parameters are always 30 fps, not the source video's rate (a 124-frame 24 fps take gives 155 frames).
 - **Log:** 2026-10-07 todo -> in-progress
 
 ### M1.7 Axis conventions: GVHMR world frame to glTF

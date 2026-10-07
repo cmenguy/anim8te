@@ -10,6 +10,9 @@ dependencies = [
     "python-dotenv>=1.0",
     "fal-client>=0.5",
     "httpx>=0.27",
+    "numpy>=2.4.6",
+    "torch>=2.14.1",
+    "smplx>=0.1.28",
 ]
 
 [project.scripts]
