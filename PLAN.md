@@ -360,13 +360,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: ClipPlayer: GLTFDocument load + clip re-expressed on the model's rest + RetargetModifier3D (local, model Skeleton3D as direct child); no renaming needed; tests/check_runtime_retarget.gd PASS on walk-ur7zdb + jog-qa61r5: bone directions 0.00 deg and hip height change 0.00 cm vs the clip (editor path 3-14 deg off); README Runtime retargeting; capture docs/captures/m2.4-runtime-retarget.jpg
 
 ### M2.5 Library scanner and clip list
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M2.4
 - **Component:** godot
 - **Effort:** S
 - **Done when:** on start and on refresh the Gym scans `library/clips/*/` for `meta.json`, `qc.json` and `motion.glb`, builds a clip list with name, tags, status and QC badge; the library path is configurable; missing or partial clips are shown as such rather than crashing.
 - **Notes:** GDD §7.2 Library panel, in its simplest form. The daemon-backed version is M3.10.
 - **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: tests/check_library_scanner.gd PASS (17 checks: complete, no-qc, no-glb, no-meta, corrupt meta/qc, empty dir, missing root, refresh, selection); real library lists 5 clips, 3 partial; --library/ANIM8TE_LIBRARY/path field verified; check_runtime_retarget still PASS; capture docs/captures/m2.5-library-panel.jpg
 
 ### M2.6 Clip Viewer mode
 - **Status:** todo
