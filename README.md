@@ -64,7 +64,19 @@ Collected as the plan progresses; none are needed to read the documents.
 - ffmpeg, to transcode takes to Ogg Theora for Godot's video player.
 - Optional: an Anthropic API key for the agent-assist features.
 
-Secrets go in `.env` (names listed in `.env.example` once task M0.1 lands), never in git; `.gitignore` already excludes `.env`, the library and all model checkpoints.
+Secrets go in `.env` (names listed in `.env.example` once task M0.1 lands), never in git; `.gitignore` already excludes `.env`, `.envrc`, the library and all model checkpoints.
+
+GitHub access uses the personal `cmenguy` login through a git-ignored `.envrc` loaded by [direnv](https://direnv.net/):
+
+```bash
+cat > .envrc <<'EOF'
+export GH_TOKEN=$(gh auth token --hostname github.com --user cmenguy)
+dotenv_if_exists .env
+EOF
+direnv allow .
+```
+
+Shells without direnv (Claude Code's tool shell, for one) prefix `gh` and `git push` with `GH_TOKEN=$(gh auth token --hostname github.com --user cmenguy)`.
 
 ## Repository layout
 

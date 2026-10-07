@@ -19,7 +19,7 @@ python3 .claude/skills/next-step/scripts/plan.py summary --json           # if y
 gh pr list --state open --json number,title,headRefName,isDraft,url
 ```
 
-Every task is done on its own branch and lands on `main` through a pull request (remote: https://github.com/cmenguy/anim8te), and the task's status change rides in that PR. So `main` lags the open PRs: a task with an open PR is finished but not merged (or blocked, if the PR is a draft). List open PRs with `gh` (logged in as `cmenguy`) and show them as **In review**. If you are not on `main`, say which branch the numbers come from.
+Every task is done on its own branch and lands on `main` through a pull request (remote: https://github.com/cmenguy/anim8te), and the task's status change rides in that PR. So `main` lags the open PRs: a task with an open PR is finished but not merged (or blocked, if the PR is a draft). List open PRs with `gh` and show them as **In review**. `gh` needs the personal token: `.envrc` exports `GH_TOKEN` for the terminal, but not for this tool's shell, so if `echo ${GH_TOKEN:+set}` prints nothing, prefix the command with `GH_TOKEN=$(gh auth token --hostname github.com --user cmenguy)`. If you are not on `main`, say which branch the numbers come from.
 
 ## What to produce
 

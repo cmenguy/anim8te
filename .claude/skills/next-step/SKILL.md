@@ -26,7 +26,7 @@ python3 .claude/skills/next-step/scripts/plan.py check                # validate
 
 - Remote `origin` is https://github.com/cmenguy/anim8te. `main` is protected on GitHub: nothing lands there except through a pull request, not even for the owner.
 - **One task, one branch, one PR.** Branch names are `task/<id>-<few-words>`, for example `task/M0.2-fal-smoke-test`. Commit messages and the PR title start with the task id: `M0.2: add fal smoke-test script`.
-- The repo's local git config sets the author to the personal account (`cmenguy`, menguy.charles@gmail.com). Pushes and `gh` commands use whichever account `gh` has active, and only `cmenguy` can push here: check with `gh auth status` and run `gh auth switch -u cmenguy` if another account is active.
+- The repo's local git config sets the author to the personal account (`cmenguy`, menguy.charles@gmail.com). Only that account can push, and the machine's active `gh` login is the work one, so `gh` and `git push` need `GH_TOKEN` set to the personal token. The git-ignored `.envrc` exports it and direnv loads it in the terminal, but direnv does not load in this tool's shell. Check with `echo ${GH_TOKEN:+set}`; if it prints nothing, prefix every `gh` command and `git push` below with `GH_TOKEN=$(gh auth token --hostname github.com --user cmenguy)`. The examples are written without the prefix.
 - The plan's status change is part of the task's PR. Until the PR merges, `main` still says `todo` for that task. That is why step 1 scans open PRs.
 - Opening a PR is the end of a task from this skill's side. Merging is the owner's call: report the link and stop. If the user says to merge, use `gh pr merge <n> --squash --delete-branch`.
 
