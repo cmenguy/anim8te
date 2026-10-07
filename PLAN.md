@@ -205,13 +205,14 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: uv sync and pip -e install; anim8te --help lists gen/extract/clean/export/lib; settings: --library > env > .env > ~/.config/anim8te/config.toml (no secrets) > ./library, checked by 'lib path' and tests; pytest 3 passed; ruff check and format clean
 
 ### M1.2 Library data model: meta.json and qc.json schemas
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M1.1
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** `pydantic` models for `meta.json` (name, tags, performer, template, prompt, final prompt, takes with seed/cost/duration/resolution, selected take, filters, segments, loop, root-motion mode, status, parent clip) and a placeholder `qc.json`; `anim8te lib ls` lists clips and performers with status; a test round-trips a meta.json through the model.
 - **Notes:** Layout from GDD §8.1. Clip IDs: short slug plus a timestamp or random suffix, so re-generating "vault" never collides.
 - **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: anim8te/library.py: ClipMeta (all listed fields, enums for template/root-motion/status, consistency checks), placeholder QCReport, atomic write, <slug>-<6 chars> ids; anim8te lib ls lists clips and performers with status (run on the real library: 3 pre-M1 clips show 'no meta.json', perf01 ok); tests/test_library.py round-trips tests/fixtures/meta.json, 10 tests pass, ruff clean
 
 ### M1.3 anim8te gen: fal client, prompt templates and takes
 - **Status:** todo
