@@ -152,3 +152,74 @@ def rest_skeleton(
     parents = model.parents[:NUM_BODY_JOINTS].numpy().astype(np.int64)
     parents[0] = -1
     return RestSkeleton(joints=joints, parents=parents)
+
+
+# Stage 5.2: axis fix. GVHMR's world frame ("ay", gvhmr/utils/geo/hmr_global.py) is already Y-up,
+# right-handed and in metres: up is minus gravity, +Z is the camera's viewing direction on frame 0
+# projected onto the ground, +X is camera-left. glTF is Y-up, right-handed, metres, with the asset's
+# front at +Z. Turning 180 degrees about Y makes "towards the camera" the glTF front, so a camera at
+# +Z looking down -Z (Camera3D's default direction) frames the clip as the video does.
+# See docs/pipeline-notes.md.
+GVHMR_TO_GLTF = np.diag([-1.0, 1.0, -1.0]).astype(np.float32)
+
+
+def axis_angle_to_matrix(aa: np.ndarray) -> np.ndarray:
+    """(..., 3) axis-angle to (..., 3, 3) rotation matrices (Rodrigues)."""
+    aa = np.asarray(aa, dtype=np.float64)
+    angle = np.linalg.norm(aa, axis=-1, keepdims=True)
+    axis = np.divide(aa, angle, out=np.zeros_like(aa), where=angle > 1e-12)
+    x, y, z = axis[..., 0], axis[..., 1], axis[..., 2]
+    zero = np.zeros_like(x)
+    k = np.stack([zero, -z, y, z, zero, -x, -y, x, zero], axis=-1).reshape(*aa.shape[:-1], 3, 3)
+    s, c = np.sin(angle)[..., None], np.cos(angle)[..., None]
+    return np.eye(3) + s * k + (1.0 - c) * (k @ k)
+
+
+def matrix_to_axis_angle(m: np.ndarray) -> np.ndarray:
+    """(..., 3, 3) rotation matrices to (..., 3) axis-angle, angle in [0, pi]."""
+    m = np.asarray(m, dtype=np.float64)
+    cos = np.clip((np.trace(m, axis1=-2, axis2=-1) - 1.0) / 2.0, -1.0, 1.0)
+    angle = np.arccos(cos)
+    vee = np.stack(
+        [m[..., 2, 1] - m[..., 1, 2], m[..., 0, 2] - m[..., 2, 0], m[..., 1, 0] - m[..., 0, 1]],
+        axis=-1,
+    )
+    sin = np.sin(angle)
+    out = np.where(
+        (sin > 1e-6)[..., None],
+        vee / (2.0 * np.maximum(sin, 1e-12))[..., None] * angle[..., None],
+        0.0,
+    )
+    # near pi the vee vector vanishes: take the axis from the symmetric part instead
+    near_pi = angle > np.pi - 1e-3
+    if np.any(near_pi):
+        mp = m[near_pi]
+        # symmetric part minus cos * I is (1 - cos) * axis axis^T; its largest column is the axis
+        outer = (mp + np.swapaxes(mp, -1, -2)) / 2.0 - cos[near_pi][..., None, None] * np.eye(3)
+        col = np.argmax(np.diagonal(outer, axis1=-2, axis2=-1), axis=-1)
+        axis = outer[np.arange(len(col)), :, col]
+        axis /= np.linalg.norm(axis, axis=-1, keepdims=True)
+        # fix the sign so the result agrees with the (small) antisymmetric part when there is one
+        sign = np.where((axis * vee[near_pi]).sum(-1) < 0, -1.0, 1.0)[..., None]
+        out[near_pi] = axis * sign * angle[near_pi][..., None]
+    return out
+
+
+def to_gltf_frame(
+    positions: np.ndarray, global_orient: np.ndarray | None = None
+) -> tuple[np.ndarray, np.ndarray | None]:
+    """Convert world-frame data from GVHMR's frame to glTF's (Y-up, right-handed, metres, front +Z).
+
+    `positions` (..., 3) are world points: joint positions or the pelvis track. Do not pass SMPL-X
+    `transl`, which is an offset applied before the pelvis rest position and does not rotate like a
+    point. `global_orient` (..., 3) is the pelvis world rotation, axis-angle. Parent-relative
+    rotations (`body_pose`) do not depend on the world frame and need no conversion.
+    """
+    r = GVHMR_TO_GLTF.astype(np.float64)
+    pos = np.asarray(positions)
+    out_pos = (pos.astype(np.float64) @ r.T).astype(pos.dtype)
+    if global_orient is None:
+        return out_pos, None
+    go = np.asarray(global_orient)
+    out_rot = matrix_to_axis_angle(r @ axis_angle_to_matrix(go)).astype(go.dtype)
+    return out_pos, out_rot
