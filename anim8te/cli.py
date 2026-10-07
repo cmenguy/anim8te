@@ -8,6 +8,7 @@ from typing import Annotated
 import typer
 
 from anim8te.config import Settings, load_settings
+from anim8te.library import list_clips, list_performers
 
 app = typer.Typer(help="Motion AI pipeline: gen, extract, clean, export.", no_args_is_help=True)
 lib_app = typer.Typer(help="Inspect the clip library.", no_args_is_help=True)
@@ -62,3 +63,38 @@ def export(ctx: typer.Context) -> None:
 def lib_path(ctx: typer.Context) -> None:
     """Print the resolved library root."""
     typer.echo(_settings(ctx).library)
+
+
+@lib_app.command("ls")
+def lib_ls(ctx: typer.Context) -> None:
+    """List clips and performers with their status."""
+    library = _settings(ctx).library
+    clips = list_clips(library)
+    performers = list_performers(library, clips)
+
+    typer.echo(f"clips ({len(clips)})")
+    rows = [("ID", "STATUS", "PERFORMER", "TAKES", "QC", "NAME")]
+    for c in clips:
+        m = c.meta
+        rows.append(
+            (
+                c.id,
+                c.status,
+                m.performer if m else "-",
+                str(len(m.takes)) if m else "-",
+                c.qc.status.value if c.qc else "-",
+                m.name if m else "-",
+            )
+        )
+    _table(rows)
+
+    typer.echo(f"\nperformers ({len(performers)})")
+    rows = [("ID", "STATUS", "CLIPS")]
+    rows += [(p.id, p.status, str(p.clip_count)) for p in performers]
+    _table(rows)
+
+
+def _table(rows: list[tuple[str, ...]]) -> None:
+    widths = [max(len(r[i]) for r in rows) for i in range(len(rows[0]))]
+    for r in rows:
+        typer.echo("  " + "  ".join(v.ljust(w) for v, w in zip(r, widths, strict=True)).rstrip())

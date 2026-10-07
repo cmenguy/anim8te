@@ -46,7 +46,7 @@ Since M0.1 every directory exists with a one-line README; the annotations above 
 - Python 3.11 or later, `uv`, `typer` CLI, `pydantic` models, `pytest`, `ruff`. Settings resolve in this order: `--library`, environment, `.env`, `~/.config/anim8te/config.toml` (non-secret keys only: `library`, `gvhmr_worker_url`), then `./library`. Stage code under `anim8te/stages/` has no CLI or HTTP concerns, so the CLI, the daemon and the tests share it.
 - Godot 4.7 (Q7; `RetargetModifier3D` needs 4.4 or later), pinned in `godot/project.godot`. One unit is one metre, Y-up, right-handed.
 - Canonical skeleton: Godot `SkeletonProfileHumanoid` bone names on the 22 SMPL-X body joints (table in GDD §4 stage 5). Every library clip is a `motion.glb` on that skeleton; the mannequin and imported models are retargeted from it.
-- Library layout per GDD §8.1: `library/clips/<id>/` holds `meta.json`, `takes/`, `selected.mp4`, `gvhmr/`, `motion.glb`, `qc.json`, `features.json`.
+- Library layout per GDD §8.1: `library/clips/<id>/` holds `meta.json`, `takes/`, `selected.mp4`, `gvhmr/`, `motion.glb`, `qc.json`, `features.json`. The `meta.json` and `qc.json` schemas are the pydantic models in `anim8te/library.py`; clip ids are `<slug>-<6 random chars>`.
 - Prompts for video generation end with "Static camera, full body visible." Cyclic locomotion is generated "on a treadmill"; root motion is added in cleanup.
 - The Godot app never calls fal or the GPU worker directly. It talks to the local `anim8te` daemon over HTTP and loads `.glb` files from the library.
 - Secrets (`FAL_KEY`, `GVHMR_WORKER_TOKEN`, `ANTHROPIC_API_KEY`) live in `.env` or the OS keychain, never in the library, logs or git. `.env.example` lists the names.
@@ -68,6 +68,7 @@ uv sync                                                     # install anim8te an
 uv run pytest                                               # tests
 uv run ruff check . && uv run ruff format --check .         # lint
 uv run anim8te --library <path> lib path                    # resolved library root
+uv run anim8te lib ls                                       # clips and performers with status
 anim8te gen|extract|clean|export <args>                     # pipeline CLI (stubs until M1.3 to M1.10)
 anim8te serve                                               # local daemon for the Godot app (M3.7)
 ```
