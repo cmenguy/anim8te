@@ -387,7 +387,7 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Done when:** `anim8te clean` also writes `features.json` with per-frame foot and toe contacts (height plus velocity thresholds, per side), root position and velocity, joint positions in the canonical frame (metres), per-joint jerk; thresholds live in config; a test on a synthetic walking signal detects alternating contacts.
 - **Notes:** GDD §4 stage 5.4 contact detection and §6.4. Detection only; the foot-lock fix is M3.1. The Gym reads this file instead of recomputing, so the UI and the QC numbers agree.
 - **Log:** 2026-10-07 todo -> in-progress
-- **Log:** 2026-10-07 in-progress -> done: 86 tests pass (test_features: synthetic treadmill and overground walk, alternating contacts, >90% stance agreement); anim8te clean writes features.json (~110 KB); walk-ur7zdb and jog-qa61r5 show alternating L/R contacts with auto ground velocity -0.79/-0.89 m/s (treadmill belt); thresholds in meta.json filters.contacts (height 0.04 m, speed 0.8 m/s, min 3 frames); re-run byte-identical
+- **Log:** 2026-10-07 in-progress -> done: 85 tests pass (test_features: synthetic treadmill and overground walk, alternating contacts, >90% stance agreement); anim8te clean writes features.json (~110 KB); walk-ur7zdb and jog-qa61r5 show alternating L/R contacts with auto ground velocity -0.79/-0.89 m/s (treadmill belt); thresholds in meta.json filters.contacts (height 0.04 m, speed 0.8 m/s, min 3 frames); re-run byte-identical
 
 ### M2.8 Debug overlays
 - **Status:** todo
