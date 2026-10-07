@@ -100,12 +100,14 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-06 in-progress -> done: FAL_KEY in .env; docs/scratch/fal_smoke_test.py --gen-image saved a 768x1344 h264 5.18 s clip (124 frames @24fps); cost $0.15 ($0.03/s)
 
 ### M0.3 Register for SMPL-X and SMPL, download body models and GVHMR checkpoints
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M0.1
 - **Component:** worker
 - **Effort:** S
 - **Done when:** `SMPLX_{NEUTRAL,MALE,FEMALE}.npz`, the SMPL `.pkl` files, `gvhmr_siga24_release.ckpt`, the HMR2, ViTPose and YOLO checkpoints are downloaded into a directory outside git (for example `~/motion-ai-checkpoints/`, mirroring GVHMR's `inputs/checkpoints/` tree); the path and file sizes are listed in `docs/checkpoints.md`.
 - **Notes:** Needs the owner: sign up and accept the non-commercial licenses at https://smpl-x.is.tue.mpg.de/ and https://smpl.is.tue.mpg.de/. The SMPL-X `.npz` files are also needed on the Mac for the `smplx` package in M1.6.
+- **Log:** 2026-10-06 todo -> in-progress
+- **Log:** 2026-10-06 in-progress -> done: 10 files (6.2 GB) in ~/motion-ai-checkpoints/ mirroring GVHMR inputs/checkpoints; SMPLX_NEUTRAL.npz loads (10475 verts, 400 shape+expr dirs); GVHMR ckpts from HF mirror camenduru/GVHMR (Drive quota hit), SHA256 match; sizes and hashes in docs/checkpoints.md
 
 ### M0.4 Choose the performer and make the base image
 - **Status:** todo
