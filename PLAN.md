@@ -400,13 +400,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: 6 overlays (contacts, trajectory, velocity, penetration, wireframe, jerk) each a DebugOverlay node on features.json; check_overlays.gd matches the file on every frame of walk and jog, toggles kept across clip change and a new session (user://gym_settings.cfg), keys 1-6; jog 56% sliding vs walk 35%, jog toes 8 mm under on f86-87; features.json gains rest_heights_above_sole; capture docs/captures/m2.8-debug-overlays.jpg
 
 ### M2.9 Video for Godot: transcode takes and the GVHMR overlay to Ogg Theora
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M1.5
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** Q6 decided; `anim8te extract` writes `selected.ogv` and `gvhmr/overlay.ogv` with ffmpeg (libtheora, same frame rate and size as the source); a missing ffmpeg gives a clear error; Godot's `VideoStreamPlayer` plays both files.
 - **Notes:** Godot 4 only decodes Ogg Theora out of the box. The mp4 files stay the source of truth.
 - **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: Q6 decided (transcode); real extract via worker wrote selected.ogv + gvhmr/overlay.ogv, ffprobe-checked same size/rate/frames (768x960@24 124f, 768x480@30 155f); missing or theora-less ffmpeg -> clear error before upload; check_video_playback.gd passes on walk and jog (play, rate, 3 s seek, end); needs brew ffmpeg-full; 93 pytest pass
 
 ### M2.10 Compare mode: frame-synced source, overlay and 3D
 - **Status:** todo
