@@ -162,6 +162,14 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Done when:** `docs/feasibility.md` has a "Go/no-go" section stating go or no-go, the evidence, and if no-go which of stages 2 (video) or 4 (extraction) to rethink and with what alternatives; decision G0 in the table above is set to `decided`. Only the owner makes this call; the agent prepares the evidence.
 - **Notes:** GDD §9 M0 and §11. Alternatives if no-go: a different video model, stricter prompts, or a commercial video-to-mocap service behind the same `/extract` interface (GDD §10).
 
+### M0.11 Wide vault base image so the camera can stay still
+- **Status:** in-progress
+- **Depends on:** M0.5
+- **Component:** pipeline
+- **Effort:** S
+- **Done when:** `library/performers/perf01/vault/base.png` is a wide shot with her whole path (run-up to landing on the block) in frame, made by a masked fill of `comp7.png` and logged in `candidates/manifest.json`; the v2 takes are moved to `takes/v2/`; three new vault takes from it with the v2 prompt and settings sit at `library/clips/vault-m05/takes/<n>.mp4`; `docs/feasibility.md` records the fill calls, the takes, their cost and whether the camera stays still in each.
+- **Notes:** The v2 takes pan to follow her because she fills about 80% of the frame height and runs out of it; the prompt's "Camera remains perfectly still" loses to "full body visible". Idle and jog stay in place, so they never hit this. Any traveling move will, so the result also tells the GDD §4 stage 2 prompting rules whether wide base images are enough or whether traveling moves are handled as moving-camera clips.
+
 ## M1: Pipeline CLI, one clip
 
 **Done when:** `motionai gen && motionai extract && motionai clean && motionai export` turns one prompt into `motion.glb` that imports into Godot on the humanoid profile.

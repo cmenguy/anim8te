@@ -61,3 +61,16 @@ In all three the body stays in frame from head to feet, because the camera follo
 Vault v2 cost: $0.90 for the image edits (6 images) + $0.45 for the 3 takes.
 
 **M0.5 total: $2.55 at list price** (11 video takes $1.65, image edits $0.90), under the $5 budget.
+
+### Vault v3: wide base image (M0.11)
+
+The v2 takes pan because she fills about 80% of the frame and runs out of it, so the video model follows her. v3 starts from a wide base image with her whole path in frame.
+
+`comp7.png` places her and the block from `cand5` 4 m apart at 38% of the frame height on a 1376x768 canvas; `comp7_mask.png` keeps the two cut-outs (inset 6 px) and fills the rest. Both fill calls use `fal-ai/flux-pro/v1/fill` ($0.05 per megapixel, about $0.05 per image), seeds 1 and 2, PNG; prompts and URLs are in `candidates/manifest.json`.
+
+| Call | Prompt | Result |
+|---|---|---|
+| 1 (`cand8`, `cand9`) | Studio wall and floor, "empty space between the woman on the left and the grey block on the right" | Both add a second block and extra women. Naming the subjects makes the fill paint copies of them. |
+| 2 (`cand10`, `cand11`) | Same studio, no person or object named: "Empty room, nothing on the floor, nothing in front of the wall." | `cand10`: clean, one woman, one block, continuous wall and floor line. `cand11`: four extra people. |
+
+The owner picked `cand10`; it is now `perf01/vault/base.png` (the v2 base was a copy of `cand6`). Fill cost: about $0.22.
