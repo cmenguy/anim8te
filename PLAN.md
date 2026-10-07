@@ -67,7 +67,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 | Q5 | Does the @MrCollison open-source parkour controller change the Controller plan? | open | | M5.2 |
 | Q6 | Video playback in Godot for Compare mode: transcode takes to Ogg Theora, or add a video GDExtension? | proposed | Transcode with ffmpeg in the pipeline (Godot 4 plays .ogv natively; keep mp4 as the source of truth) | M2.9 |
 | Q7 | Which Godot version to pin? `RetargetModifier3D` needs 4.4 or later | decided | Godot 4.7 (4.7.2 stable installed via Homebrew), pinned in `godot/project.godot` `config/features` | M0.8 |
-| Q8 | Extract backend for M1: native GVHMR wrapper or ComfyUI workflow API? | proposed | Native (GDD §8 default, returns `hmr4d_results.pt` directly); ComfyUI stays optional | M1.4 |
+| Q8 | Extract backend for M1: native GVHMR wrapper or ComfyUI workflow API? | decided | Native (owner, 2026-10-07): `worker/` wraps the fork's `gvhmr demo -s` as a subprocess and returns `hmr4d_results.pt` directly; ComfyUI stays optional and out of the pipeline | M1.4 |
 | G0 | Go/no-go after M0: is GVHMR on H3 Max video good enough to build on? | decided | Go with conditions (owner, 2026-10-07): own contact detection and foot lock (M2.7, M3.1); one body shape per performer (M1.8, M3.5); leg-swap repair and travel rescale for dynamic clips (M3.20); still-camera clips only on the Mac worker (M1.4). See `docs/feasibility.md` "M0.9 Go/no-go" | M1.1 |
 
 ## M0: Accounts, GPU box, feasibility test
@@ -225,13 +225,14 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: 32 tests pass (templates, dry-run, retry/backoff, partial and total failure keep meta.json consistent); live run walk-ur7zdb: 3/3 takes 768x960 24fps 5.18 s, one upload, $0.45 at $0.03/s, walking in place on the treadmill, full body, static camera
 
 ### M1.4 gvhmr-worker: native FastAPI wrapper around GVHMR demo.py
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M0.10
 - **Component:** worker
 - **Effort:** M
 - **Done when:** Q8 decided; `worker/` has a `Dockerfile` or `setup.sh` that installs GVHMR and expects the M0.3 checkpoints at a mounted path; `POST /extract` (multipart video, bearer token, `static_camera=true`) returns a job id; `GET /jobs/{id}` returns `queued|running|done|failed`, log tail, and when done the download URLs for `hmr4d_results.pt` and `overlay.mp4`; one M0 take runs through it on the Mac (Apple-Silicon fork, MPS); `worker/README.md` documents start-up and the API.
 - **Notes:** GDD §8. Runs the fork's `gvhmr demo <video> -s` on the Mac (Q2; install notes in `docs/feasibility.md`, M0.10), or upstream `tools/demo/demo.py --video ... -s` on a CUDA box later. Keep the API tiny so a commercial service (Move.ai, Rokoko, DeepMotion) can replace it later (GDD §10). No GPL code in here. Per G0, the Mac worker accepts still-camera takes only: a moving-camera request is refused with a clear error, never run through VGGT or DUSt3R at their defaults (that crashed the Mac in M0.10); those go to a CUDA box or are avoided through framing.
 - **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: Q8 decided native; worker/setup.sh installs the pinned fork + worker (ran on the Mac); idle-m05/3 through POST /extract -> done in 36 s on MPS, hmr4d_results.pt (155x63 body_pose) and overlay.mp4 downloaded, overlay checked; 401 without token, 422 on static_camera=false; 11 worker tests pass. Found: without ffprobe GVHMR treats 24 fps takes as 30 fps (M0.10 outputs were 124 frames, worker gives 155)
 
 ### M1.5 anim8te extract: worker client
 - **Status:** todo

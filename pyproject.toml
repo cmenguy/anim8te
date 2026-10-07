@@ -38,3 +38,6 @@ extend-exclude = ["docs/scratch", ".claude", "*.md"]
 
 [tool.ruff.lint]
 select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["anim8te", "gvhmr_worker"]

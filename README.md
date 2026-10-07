@@ -60,8 +60,8 @@ Collected as the plan progresses; none are needed to read the documents.
 - A Mac for development with Python 3.11 or later and Godot 4.7 (`brew install --cask godot`).
 - A fal.ai account and API key for video generation (about $0.40 per 5-second take at 768p).
 - SMPL-X and SMPL research licenses, for the body models GVHMR and the converter use.
-- An Apple Silicon Mac with 32 GB or more for GVHMR, through the fork at https://github.com/ryanrudes/gvhmr (install notes in `docs/feasibility.md`). A cloud NVIDIA GPU is only needed later, for moving-camera clips or batch runs.
-- ffmpeg, to transcode takes to Ogg Theora for Godot's video player.
+- An Apple Silicon Mac with 32 GB or more for GVHMR, through the fork at https://github.com/ryanrudes/gvhmr (`worker/setup.sh` installs it; see `worker/README.md`). A cloud NVIDIA GPU is only needed later, for moving-camera clips or batch runs.
+- ffmpeg, to transcode takes to Ogg Theora for Godot's video player; GVHMR also needs its `ffprobe` to read frame rates.
 - Optional: an Anthropic API key for the agent-assist features.
 
 Install the package and dev tools with [uv](https://docs.astral.sh/uv/) (`pip install -e .` also works):
@@ -71,6 +71,8 @@ uv sync
 uv run anim8te --help
 uv run pytest
 ```
+
+The GVHMR worker is a separate uv project under `worker/`: `worker/setup.sh` installs it and GVHMR, `uv run --project worker gvhmr-worker` starts it on `127.0.0.1:8765`, and `worker/README.md` documents the API.
 
 The library root defaults to `./library`; override it with `--library`, `ANIM8TE_LIBRARY`, or `library = "..."` in `~/.config/anim8te/config.toml`.
 
@@ -95,7 +97,7 @@ GDD.md  PLAN.md  README.md  CLAUDE.md
 .claude/skills/   next-step and roadmap skills, plan parser
 godot/            Godot project: Gym + Workflow Manager
 anim8te/         Python package: CLI, pipeline stages, local daemon
-worker/           gvhmr-worker: FastAPI wrapper around GVHMR (Mac fork now, GPU box later)
+worker/           gvhmr-worker: FastAPI wrapper around GVHMR (Mac fork now, GPU box later), setup.sh
 library/          performers, clips and models on disk (git-ignored)
 tests/            pipeline unit tests (axis conventions, bone map, QC metrics)
 docs/             feasibility notes, pipeline notes, findings, captures
