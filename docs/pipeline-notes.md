@@ -65,3 +65,34 @@ After the conversion, a performer facing the camera faces +Z, the glTF front. In
 **Checks on the walk clip.** The Khronos glTF-Validator (2.0.0-dev.3.10, `npm i gltf-validator`) reports no errors and no warnings, and one info, `UNUSED_OBJECT` on the skin, because no mesh uses it. Godot 4.7 imports it as a 22-bone `Skeleton3D` whose names and parents match `SkeletonProfileHumanoid`, plus an `AnimationPlayer` with `walk-ur7zdb` (5.13 s, 22 rotation tracks and a Hips position track, 1/30 s steps). The editor's bone-map auto-detection (`BoneMapper::auto_mapping_process`, run in the Advanced Import dialog) matches every name with its regexes: `hip`, `foot`, `(low|under).*leg`, `up.*leg`, `toe`, `hand`, `shoulder`, `(low|fore).*arm`, `up.*arm`, `neck` and `head`. Spine, Chest and UpperChest come from the chain under the shoulders' common parent.
 
 **Tests.** `tests/test_export.py` builds a GLB from a synthetic motion and reads it back: node names and hierarchy, rest translations with the soles at 0, inverse bind matrices, 23 channels, key times `i / fps`, values equal to the input. It also checks that `run_export` writes the file, is deterministic and sets the status, and that it refuses clips that are not cleaned and `motion.npz` files from before M1.10.
+
+## End to end: one prompt to motion.glb (M1.11)
+
+One fresh clip, `jog-qa61r5` (performer `perf01`, template `locomotion`), went through the four CLI stages on an M3 Max on 2026-10-07, with the worker already running on 127.0.0.1:8765:
+
+```bash
+uv run anim8te gen --performer perf01 --template locomotion --name jog \
+  --prompt "The woman jogs at an easy, steady pace with relaxed arm swing"
+uv run anim8te extract jog-qa61r5 --take 2
+uv run anim8te clean jog-qa61r5
+uv run anim8te export jog-qa61r5
+```
+
+| Stage | Wall-clock | Cost | What it did |
+|---|---|---|---|
+| `gen` | 19 s | $0.45 | 3 takes, H3 Max image-to-video, 5 s at 768P, 24 fps, 124 frames each, generated in parallel |
+| take review | about 15 s | | contact sheet of the 3 takes; take 2 picked (1 and 3 drift back on the treadmill) |
+| `extract` | 38 s | $0 (local) | upload, GVHMR on MPS (resample 24 → 30 fps, 155 frames; YOLO 5 s, ViTPose 9 s, recover and render 4 s), download of `hmr4d_results.pt` and `overlay.mp4` |
+| `clean` | 2 s | | Savitzky-Golay (window 9, order 3), ground: soles lowered 2.7 cm |
+| `export` | 1 s | | `motion.glb`, 66 KiB, 155 frames, 5.13 s |
+| **Total** | **75 s** | **$0.45** | `meta.json` `created_at` 17:24:53 to `updated_at` 17:26:08 |
+
+The 20-minute budget (GDD goal G1) holds with a wide margin. Stage 2 is the variable part: fal queue time was negligible here, and a busy queue or 1080P takes would add minutes, not seconds. A cold worker adds its start-up (a few seconds) and GVHMR's model load is already inside the 38 s. `uv run` builds the package on the first call after a change, about a second.
+
+**In Godot.** `docs/scratch/glb_viewer/` is a throwaway Godot 4.7 project (the Gym is M2): it loads a `motion.glb` at runtime with `GLTFDocument`, draws each bone as a capsule, loops the animation and frames it from a front three-quarter view. Movie Maker recorded two loops in 3 s:
+
+```bash
+godot --path docs/scratch/glb_viewer --write-movie out.avi --fixed-fps 30 --quit-after 310 -- library/clips/<id>/motion.glb
+```
+
+The capture is `docs/captures/m1-jog-qa61r5-godot.mp4`. It shows 22 bones and the `jog-qa61r5` animation (5.13 s) jogging in place, facing +Z, with the soles on y = 0. The clip stays on the spot: root motion for treadmill locomotion is synthesized later (template `root_motion = "synthesize"`). The viewer calls `AnimationPlayer.advance(0)` after `play()`; without it the first recorded frame is the T-shaped rest pose.
