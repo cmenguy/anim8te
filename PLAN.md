@@ -270,7 +270,7 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** `motionai export <clip_id>` writes `motion.glb` with `pygltflib`: skin, nodes with rest transforms from M1.8, one animation named after the clip with rotation channels for every bone and a translation channel for Hips, correct frame timing; the file passes the Khronos glTF-Validator with no errors; dragging it into a Godot project auto-detects the humanoid bone map with all 22 bones mapped and plays on a `Skeleton3D`.
-- **Notes:** GDD §4 stage 5.7. No mesh is required in the library GLB; a skeleton-only glTF is valid and keeps files small. Add a tiny placeholder mesh only if Godot's importer needs one.
+- **Notes:** GDD §4 stage 5.7. No mesh is required in the library GLB; a skeleton-only glTF is valid and keeps files small. Add a tiny placeholder mesh only if Godot's importer needs one. Reference only: GVHMR issue #84 (https://github.com/zju3dv/GVHMR/issues/84) shares a `bpy` script that exports `smpl_params_global` to GLB; useful to cross-check our SMPL-to-rotation conversion on one clip, not to adopt (needs `bpy` 4.4 on Python 3.11 against GVHMR's 3.10, patches GVHMR, ships the SMPL mesh, no stated license).
 
 ### M1.11 End-to-end: one prompt to motion.glb in Godot
 - **Status:** todo
