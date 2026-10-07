@@ -40,7 +40,7 @@ python3 .claude/skills/next-step/scripts/plan.py check                # validate
 | `/next-step start` | Pick the next task and start working on it right away. |
 | `/next-step start M2.4` | Start a specific task (even if it is not the top pick; warn if its dependencies are unfinished). |
 | `/next-step done M2.4 --note "..."` | Verify the task's Done when, mark it done, push, open the PR. |
-| `/next-step block M2.4 --note "..."` | Mark it blocked, push what exists as a draft PR, say what unblocks it. |
+| `/next-step block M2.4 --note "..."` | The owner parks it: mark it blocked, push what exists as a draft PR, say what unblocks it. |
 | `/next-step skip M2.4 --note "..."` | Mark it skipped. Only on the user's say-so. |
 
 ## Workflow
@@ -97,12 +97,14 @@ With no `start` argument, end by asking whether to start. With `start`, go strai
 2. Work to the Done when, and only to it. The plan already decided the scope; neighbouring tasks exist for the things that look tempting to do "while you're here". If something outside the task turns out to be necessary, say so and either add a task (keeping the field format) or note it in the Notes line.
 3. Commit in small steps with `<id>:` prefixes. Never commit `.env`, anything under `library/`, or checkpoints; `.gitignore` covers them, keep it that way.
 4. Use the matching tool for the job: the `claude-api` skill for anything calling Anthropic models (M3.18), the Godot docs for engine questions, the GDD's install snippets for GVHMR and fal.
-5. When the user must act (create a key, accept a license, approve spend), stop at that point, say exactly what to do and where, and mark the task blocked with `--note "waiting on owner: <what>"`. Commit, push, and open a **draft** PR so the partial work is visible (`gh pr create --draft ...`). Then go back to `main` and pick the next ready task if there is one that does not depend on it.
+5. When the user must act (create a key, accept a license, top up credit, approve spend), stop at that point and say exactly what to do and where. Then **wait**: ask with `AskUserQuestion` (options: "done, continue" / "park it as blocked"). Do not open a PR, switch branches or propose another task while waiting. On "done, continue", re-run the step that needed them and carry on in the same session. Only on "park it as blocked" (or when the owner says they cannot act soon) mark the task blocked with `--note "waiting on owner: <what>"`, commit, push and open a **draft** PR so the partial work is visible (`gh pr create --draft ...`). Even then, do not start the next task unless the owner asks for it.
 6. If a decision is recorded during the task, update the Decisions table row by hand: set the Status cell to `decided` and write the decision in the Decision cell. The script reads that table but does not edit it.
 
 ### 6. Finish the task
 
-Walk through every clause of the Done when against the repo: run the tests it names, open the files it names, check the numbers it asks for. Then:
+A task is complete only when every clause of its Done when has been verified by actually running it in this session. Writing the script, test or config that *would* satisfy a clause is not the same as satisfying it. Walk through each clause: run the tests it names, run the scripts it names and confirm their real outputs exist, open the files and media they produce (look at frames of a video, open a generated image), check the numbers it asks for. If any clause cannot be verified yet, the task is not done; go back to step 5.5, do not open a PR.
+
+Present the evidence to the owner, including anything that worked but looks wrong (a clip that crops the feet, a cost far from the GDD estimate). Only then:
 
 ```bash
 python3 .claude/skills/next-step/scripts/plan.py set <id> done --note "<the evidence, one line>"
@@ -128,11 +130,11 @@ The note matters. "tests pass, GLB imports with 22/22 bones mapped" tells the ne
 
 Gate tasks (`Gate: yes`, currently M0.9 go/no-go) are the exception: prepare the evidence, present it, and let the owner make the call. Never mark a gate done on your own judgement.
 
-Report the PR link, then ask whether to merge it now (see Git and GitHub). Merge only on a yes. Either way, switch back to `main` (`git checkout main`, plus `git pull --ff-only` after a merge) and run step 1 again to tell the user in one or two lines what comes next.
+Report the PR link, then ask whether to merge it now (see Git and GitHub). Merge only on a yes. Either way, switch back to `main` (`git checkout main`, plus `git pull --ff-only` after a merge) and run step 1 again to tell the user in one or two lines what comes next. Name the next task; do not start it or ask the owner to act on it in the same reply unless they asked to keep going.
 
 ### 7. Blocked and skipped
 
-- `blocked` always carries a note saying who or what unblocks it, and its branch has a draft PR. When the blocker clears, check the branch out, set the task back to `in-progress`, and continue; mark the PR ready with `gh pr ready <n>` when it is done.
+- `blocked` is a last resort for a blocker that will not clear in this session, set only after the owner chose to park the task (step 5.5). It always carries a note saying who or what unblocks it, and its branch has a draft PR. When the blocker clears, check the branch out, set the task back to `in-progress`, and continue; mark the PR ready with `gh pr ready <n>` when it is done.
 - `skipped` is for tasks the user has decided not to do (usually `Optional: yes` ones). It counts as finished for dependency purposes, so downstream tasks become ready. Say that when skipping something a later task relies on. A skip is a one-line PLAN.md change; it still goes through a small PR.
 
 ## Editing the plan itself
