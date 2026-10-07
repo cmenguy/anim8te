@@ -360,7 +360,9 @@ An LLM (Claude via the Anthropic API) is used for three narrow jobs, each shown 
 
 ```
 library/
-├── performers/<performer_id>/base.png
+├── performers/<performer_id>/
+│   ├── base.png
+│   └── betas.json         # SMPL-X body shape, fixed by the performer's first clip
 ├── clips/<clip_id>/
 │   ├── meta.json          # name, tags, prompt, seed, take ids, filters, loop, root-motion mode
 │   ├── takes/<n>.mp4      # all generated takes
