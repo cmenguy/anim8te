@@ -124,7 +124,7 @@ Prompting rules (prompt templates live in the Workflow Manager):
 - One action per clip. Chain actions with extend-video instead of packing them into one prompt.
 - Generate 2 to 3 takes per movement with different seeds.
 
-Cost: about $0.05/s at 480p, $0.08/s at 768p, $0.16/s at 1080p, so roughly $0.40 per 5-second take at 768p.
+Cost: about $0.05/s at 480p, $0.08/s at 768p, $0.16/s at 1080p, so roughly $0.40 per 5-second take at 768p. Measured in M0.2 (2026-10-06): fal lists H3 Max image-to-video at $0.03/s, so a 5-second 768p take cost $0.15.
 
 ### Stage 3: Pick take
 

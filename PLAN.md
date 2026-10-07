@@ -88,12 +88,16 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-06 in-progress -> done: 6 dirs with one-line READMEs; .env.example has the 4 names; .gitignore verified with check-ignore (library/* ignored except README); README/CLAUDE layout updated
 
 ### M0.2 fal account, API key and first H3 Max smoke test
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M0.1
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** `FAL_KEY` set in `.env`; a throwaway script under `docs/scratch/` generates one 5 s, 768P image-to-video clip from any full-body image with `fal_client.subscribe("minimax/h3-max/image-to-video", ...)` and saves the mp4; the real cost of that call is written in the Notes of this task.
-- **Notes:** Needs the owner: create the key at https://fal.ai/dashboard/keys. Inputs and pricing in GDD §4 stage 2.
+- **Notes:** Needs the owner: create the key at https://fal.ai/dashboard/keys. Inputs and pricing in GDD §4 stage 2. Measured 2026-10-06: real cost $0.15 for the 5 s 768P clip ($0.03/s from fal's pricing API, under the GDD's $0.08/s estimate), plus about $0.002 for the flux/schnell base image. Walking toward the camera crops the feet by mid-clip; prefer side-on or treadmill prompts.
+- **Log:** 2026-10-06 todo -> in-progress
+- **Log:** 2026-10-06 in-progress -> blocked: waiting on owner: top up fal balance at https://fal.ai/dashboard/billing (key works, account locked: exhausted balance); then run docs/scratch/fal_smoke_test.py --gen-image
+- **Log:** 2026-10-06 blocked -> in-progress
+- **Log:** 2026-10-06 in-progress -> done: FAL_KEY in .env; docs/scratch/fal_smoke_test.py --gen-image saved a 768x1344 h264 5.18 s clip (124 frames @24fps); cost $0.15 ($0.03/s)
 
 ### M0.3 Register for SMPL-X and SMPL, download body models and GVHMR checkpoints
 - **Status:** todo
