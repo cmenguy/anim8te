@@ -43,7 +43,7 @@ Since M0.1 every directory exists with a one-line README; the annotations above 
 
 ## Conventions
 
-- Python 3.11 or later, `typer` CLI, `pydantic` models, `pytest`, `ruff`. Stage code under `motionai/stages/` has no CLI or HTTP concerns, so the CLI, the daemon and the tests share it.
+- Python 3.11 or later, `uv`, `typer` CLI, `pydantic` models, `pytest`, `ruff`. Settings resolve in this order: `--library`, environment, `.env`, `~/.config/motionai/config.toml` (non-secret keys only: `library`, `gvhmr_worker_url`), then `./library`. Stage code under `motionai/stages/` has no CLI or HTTP concerns, so the CLI, the daemon and the tests share it.
 - Godot 4.7 (Q7; `RetargetModifier3D` needs 4.4 or later), pinned in `godot/project.godot`. One unit is one metre, Y-up, right-handed.
 - Canonical skeleton: Godot `SkeletonProfileHumanoid` bone names on the 22 SMPL-X body joints (table in GDD §4 stage 5). Every library clip is a `motion.glb` on that skeleton; the mannequin and imported models are retargeted from it.
 - Library layout per GDD §8.1: `library/clips/<id>/` holds `meta.json`, `takes/`, `selected.mp4`, `gvhmr/`, `motion.glb`, `qc.json`, `features.json`.
@@ -64,8 +64,11 @@ Since M0.1 every directory exists with a one-line README; the annotations above 
 python3 .claude/skills/next-step/scripts/plan.py next        # what to work on
 python3 .claude/skills/next-step/scripts/plan.py summary     # progress
 python3 .claude/skills/next-step/scripts/plan.py check       # validate PLAN.md
-pytest                                                      # once motionai exists (M1.1)
-motionai gen|extract|clean|export <args>                    # pipeline CLI (M1)
+uv sync                                                     # install motionai and dev tools into .venv
+uv run pytest                                               # tests
+uv run ruff check . && uv run ruff format --check .         # lint
+uv run motionai --library <path> lib path                   # resolved library root
+motionai gen|extract|clean|export <args>                    # pipeline CLI (stubs until M1.3 to M1.10)
 motionai serve                                              # local daemon for the Godot app (M3.7)
 ```
 

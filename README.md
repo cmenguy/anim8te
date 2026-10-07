@@ -6,7 +6,7 @@ An experiment in making game animations with AI instead of a mocap suit. One bas
 base image -> AI video per movement -> 3D motion extraction -> cleanup -> canonical skeleton -> any character
 ```
 
-**Status:** design and planning, October 2026. Nothing runs yet. The first milestone is a feasibility test with a go/no-go gate: is motion extracted from AI-generated video good enough to build on?
+**Status:** October 2026. M0 (feasibility, go/no-go) passed; M1 builds the pipeline CLI. The `motionai` package installs and its commands are stubs until their M1 tasks land.
 
 ## What is being built
 
@@ -63,6 +63,16 @@ Collected as the plan progresses; none are needed to read the documents.
 - An Apple Silicon Mac with 32 GB or more for GVHMR, through the fork at https://github.com/ryanrudes/gvhmr (install notes in `docs/feasibility.md`). A cloud NVIDIA GPU is only needed later, for moving-camera clips or batch runs.
 - ffmpeg, to transcode takes to Ogg Theora for Godot's video player.
 - Optional: an Anthropic API key for the agent-assist features.
+
+Install the package and dev tools with [uv](https://docs.astral.sh/uv/) (`pip install -e .` also works):
+
+```bash
+uv sync
+uv run motionai --help
+uv run pytest
+```
+
+The library root defaults to `./library`; override it with `--library`, `MOTIONAI_LIBRARY`, or `library = "..."` in `~/.config/motionai/config.toml`.
 
 Secrets go in `.env` (names listed in `.env.example`), never in git; `.gitignore` already excludes `.env`, `.envrc`, the library and all model checkpoints.
 
