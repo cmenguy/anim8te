@@ -7,6 +7,9 @@
 # generated media, body models and checkpoints (never in git)
 library/*
 !library/README.md
+!library/performers/
+library/performers/*
+!library/performers/README.md
 *.ckpt
 *.pt
 *.npz
