@@ -27,6 +27,7 @@ func _ready() -> void:
 	add_child(props)
 	_build_ground(props)
 	_build_boxes(props)
+	_build_vault_block(props)
 	_build_ledge(props)
 	_build_gaps(props)
 	_build_ramps(props)
@@ -60,6 +61,13 @@ func _build_boxes(parent: Node3D) -> void:
 		var h := 0.5 * (i + 1)
 		var box := _box(parent, "Box%03dcm" % int(h * 100), Vector3(1.0, h, 1.0), Vector3(-7.0 + 2.0 * i, 0, -6.0))
 		_label(box, "box %.1f m" % h, h)
+
+
+# A deeper 0.5 m block, sized like the one in the vault-m05 take: she lands
+# on it and shuffles about 0.8 m forward, more than the 1 m boxes leave.
+func _build_vault_block(parent: Node3D) -> void:
+	var block := _box(parent, "VaultBlock", Vector3(1.5, 0.5, 2.0), Vector3(-12.0, 0, -6.0))
+	_label(block, "vault block 0.5 m, 2 m deep", 0.5)
 
 
 # Hang / climb wall.
