@@ -1,0 +1,10 @@
+# Cyclic locomotion (walk, jog, sprint). The treadmill keeps the performer in frame and gives
+# clean loops; stage 5 synthesizes root motion (GDD §4 stage 2 and stage 5).
+label = "Locomotion cycle"
+description = "Walk, jog or sprint in place on a treadmill; loops, root motion added in cleanup."
+# appended unless the prompt already mentions a treadmill
+treadmill_rule = "All of it happens in place on a treadmill, facing the camera."
+camera_rule = "Natural movement for motion capture. Camera remains perfectly still. Static camera, full body visible."
+loop = true
+root_motion = "synthesize"
+tags = ["locomotion"]

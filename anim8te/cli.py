@@ -8,7 +8,8 @@ from typing import Annotated
 import typer
 
 from anim8te.config import Settings, load_settings
-from anim8te.library import list_clips, list_performers
+from anim8te.library import Template, list_clips, list_performers
+from anim8te.stages.gen import FalBackend, GenError, GenRequest, plan_gen, run_gen
 
 app = typer.Typer(help="Motion AI pipeline: gen, extract, clean, export.", no_args_is_help=True)
 lib_app = typer.Typer(help="Inspect the clip library.", no_args_is_help=True)
@@ -36,9 +37,65 @@ def _not_yet(task: str) -> None:
 
 
 @app.command()
-def gen(ctx: typer.Context) -> None:
+def gen(
+    ctx: typer.Context,
+    performer: Annotated[str, typer.Option(help="Performer id under library/performers/.")],
+    prompt: Annotated[str, typer.Option(help="One action, described plainly.")],
+    template: Annotated[Template, typer.Option(help="Adds camera and treadmill rules.")] = (
+        Template.custom
+    ),
+    takes: Annotated[int, typer.Option(min=1, max=8, help="Takes to generate.")] = 3,
+    duration: Annotated[float, typer.Option(help="Seconds per take (0.92 to 15).")] = 5.0,
+    resolution: Annotated[str, typer.Option(help="480P, 768P or 1080P.")] = "768P",
+    seed: Annotated[int | None, typer.Option(help="Seed of take 1; take n uses seed+n-1.")] = None,
+    name: Annotated[str | None, typer.Option(help="Clip name; defaults to the prompt.")] = None,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Print the final prompt and cost; call nothing.")
+    ] = False,
+) -> None:
     """Generate video takes from a performer image and a prompt (stage 2)."""
-    _not_yet("M1.3")
+    settings = _settings(ctx)
+    request = GenRequest(
+        performer=performer,
+        prompt=prompt,
+        template=template,
+        takes=takes,
+        duration=duration,
+        resolution=resolution,
+        seed=seed,
+        name=name,
+    )
+    try:
+        plan = plan_gen(settings.library, request)
+    except GenError as e:
+        typer.echo(f"error: {e}", err=True)
+        raise typer.Exit(code=1) from e
+
+    typer.echo(f"clip:      {plan.clip_id}{' (not created)' if dry_run else ''}")
+    typer.echo(f"model:     {request.model}, {duration:g} s, {resolution}")
+    typer.echo(f"image:     {plan.base_image}")
+    typer.echo(f"seeds:     {', '.join(map(str, plan.seeds))}")
+    typer.echo(f"prompt:    {plan.final_prompt}")
+    typer.echo(
+        f"estimated: ${plan.estimated_cost_usd:.2f} "
+        f"({len(plan.seeds)} x ${plan.cost_per_take_usd:.2f} at ${plan.price_per_s}/s)"
+    )
+    if dry_run:
+        return
+    if settings.fal_key is None:
+        typer.echo("error: FAL_KEY is not set (https://fal.ai/dashboard/keys)", err=True)
+        raise typer.Exit(code=1)
+
+    backend = FalBackend(settings.fal_key.get_secret_value())
+    result = run_gen(settings.library, plan, backend, log=lambda m: typer.echo(m, err=True))
+    m = result.meta
+    typer.echo(f"status:    {m.status.value}, {len(m.takes)}/{len(plan.seeds)} takes")
+    typer.echo(f"cost:      ${m.total_cost_usd:.2f}")
+    typer.echo(f"meta:      {result.clip / 'meta.json'}")
+    for f in result.failures:
+        typer.echo(f"failed:    take {f.n} (seed {f.seed}): {f.error}", err=True)
+    if result.failures:
+        raise typer.Exit(code=1)
 
 
 @app.command()

@@ -1,0 +1,7 @@
+# Vaults, climbs, jumps: the performer travels, so root motion comes from the hips.
+label = "Traversal"
+description = "Vault, climb or jump over an obstacle; one action per clip, root motion extracted."
+camera_rule = "Natural movement for motion capture. Camera remains perfectly still. Static camera, full body visible."
+loop = false
+root_motion = "extract"
+tags = ["traversal"]

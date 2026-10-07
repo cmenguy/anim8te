@@ -1,0 +1,7 @@
+# Anything else: only the camera rule is added.
+label = "Custom"
+description = "Free prompt; only the camera rule is appended."
+camera_rule = "Natural movement for motion capture. Camera remains perfectly still. Static camera, full body visible."
+loop = false
+root_motion = "none"
+tags = []
