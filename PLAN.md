@@ -225,12 +225,13 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: 32 tests pass (templates, dry-run, retry/backoff, partial and total failure keep meta.json consistent); live run walk-ur7zdb: 3/3 takes 768x960 24fps 5.18 s, one upload, $0.45 at $0.03/s, walking in place on the treadmill, full body, static camera
 
 ### M1.4 gvhmr-worker: native FastAPI wrapper around GVHMR demo.py
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M0.10
 - **Component:** worker
 - **Effort:** M
 - **Done when:** Q8 decided; `worker/` has a `Dockerfile` or `setup.sh` that installs GVHMR and expects the M0.3 checkpoints at a mounted path; `POST /extract` (multipart video, bearer token, `static_camera=true`) returns a job id; `GET /jobs/{id}` returns `queued|running|done|failed`, log tail, and when done the download URLs for `hmr4d_results.pt` and `overlay.mp4`; one M0 take runs through it on the Mac (Apple-Silicon fork, MPS); `worker/README.md` documents start-up and the API.
 - **Notes:** GDD §8. Runs the fork's `gvhmr demo <video> -s` on the Mac (Q2; install notes in `docs/feasibility.md`, M0.10), or upstream `tools/demo/demo.py --video ... -s` on a CUDA box later. Keep the API tiny so a commercial service (Move.ai, Rokoko, DeepMotion) can replace it later (GDD §10). No GPL code in here. Per G0, the Mac worker accepts still-camera takes only: a moving-camera request is refused with a clear error, never run through VGGT or DUSt3R at their defaults (that crashed the Mac in M0.10); those go to a CUDA box or are avoided through framing.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M1.5 anim8te extract: worker client
 - **Status:** todo
