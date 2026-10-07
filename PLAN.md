@@ -285,12 +285,13 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: anim8te/stages/clean.py + CLI: Savitzky-Golay (9 frames, order 3) on bone quaternions and Hips translation, ground alignment of the 5th-percentile sole height to y=0; filters read from and written to meta.json; idempotent (re-run gives identical arrays); tests/test_clean.py 13 pass (jitter left <10%, sole p5 = 0), 70 total; walk-ur7zdb: 155 frames, lowered 8.9 cm, joint accel energy halved, max smoothing shift 2.4 cm, sole p5 0.0 cm / median 0.9 cm
 
 ### M1.10 anim8te export: write motion.glb
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M1.9
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** `anim8te export <clip_id>` writes `motion.glb` with `pygltflib`: skin, nodes with rest transforms from M1.8, one animation named after the clip with rotation channels for every bone and a translation channel for Hips, correct frame timing; the file passes the Khronos glTF-Validator with no errors; dragging it into a Godot project auto-detects the humanoid bone map with all 22 bones mapped and plays on a `Skeleton3D`.
 - **Notes:** GDD §4 stage 5.7. No mesh is required in the library GLB; a skeleton-only glTF is valid and keeps files small. Add a tiny placeholder mesh only if Godot's importer needs one. Reference only: GVHMR issue #84 (https://github.com/zju3dv/GVHMR/issues/84) shares a `bpy` script that exports `smpl_params_global` to GLB; useful to cross-check our SMPL-to-rotation conversion on one clip, not to adopt (needs `bpy` 4.4 on Python 3.11 against GVHMR's 3.10, patches GVHMR, ships the SMPL mesh, no stated license).
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M1.11 End-to-end: one prompt to motion.glb in Godot
 - **Status:** todo
