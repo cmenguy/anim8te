@@ -74,3 +74,13 @@ The v2 takes pan because she fills about 80% of the frame and runs out of it, so
 | 2 (`cand10`, `cand11`) | Same studio, no person or object named: "Empty room, nothing on the floor, nothing in front of the wall." | `cand10`: clean, one woman, one block, continuous wall and floor line. `cand11`: four extra people. |
 
 The owner picked `cand10`; it is now `perf01/vault/base.png` (the v2 base was a copy of `cand6`). Fill cost: about $0.22.
+
+Takes: same model, prompt and settings as v2 (5 s, 768P, expansion off, seeds 1 to 3), 1344x768 at 24 fps, 124 frames. The v2 takes moved to `takes/v2/`.
+
+| Take (seed) | File | Wall clock | Cost (list) | Camera | First look |
+|---|---|---|---|---|---|
+| 1 | `takes/1.mp4` | 4.7 s | $0.15 | Moves: pushes in and follows her from about 2 s, ends close on her crouch | Run, hands on the block, crouch on top. Dynamic, but the push-in breaks the static assumption. |
+| 2 | `takes/2.mp4` | 4.7 s | $0.15 | Still: wall seams and block fixed in every frame | Walk-run, hands on, knee up, crouch on top. A climb more than a jump. |
+| 3 | `takes/3.mp4` | 4.4 s | $0.15 | Still | Same as 2, slightly lower crouch at the end. |
+
+With her whole path in frame, two of three takes keep the camera still, against none of three in v2. She is about a third of the frame height, smaller than in the other clips; GVHMR will show whether that costs pose detail. Takes 2 and 3 can run with `-s`. Vault v3 cost: $0.22 for the fills + $0.45 for the takes.

@@ -163,12 +163,13 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Notes:** GDD §9 M0 and §11. Alternatives if no-go: a different video model, stricter prompts, or a commercial video-to-mocap service behind the same `/extract` interface (GDD §10).
 
 ### M0.11 Wide vault base image so the camera can stay still
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M0.5
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** `library/performers/perf01/vault/base.png` is a wide shot with her whole path (run-up to landing on the block) in frame, made by a masked fill of `comp7.png` and logged in `candidates/manifest.json`; the v2 takes are moved to `takes/v2/`; three new vault takes from it with the v2 prompt and settings sit at `library/clips/vault-m05/takes/<n>.mp4`; `docs/feasibility.md` records the fill calls, the takes, their cost and whether the camera stays still in each.
 - **Notes:** The v2 takes pan to follow her because she fills about 80% of the frame height and runs out of it; the prompt's "Camera remains perfectly still" loses to "full body visible". Idle and jog stay in place, so they never hit this. Any traveling move will, so the result also tells the GDD §4 stage 2 prompting rules whether wide base images are enough or whether traveling moves are handled as moving-camera clips.
+- **Log:** 2026-10-07 in-progress -> done: base.png is cand10 (comp7 fill, flux-pro/v1/fill); v2 takes in takes/v2/; 3 new takes, 2 and 3 with a still camera, 1 pushes in; fills and takes $0.67 logged in docs/feasibility.md
 
 ## M1: Pipeline CLI, one clip
 
