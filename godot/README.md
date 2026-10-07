@@ -27,7 +27,7 @@ The editor cache `.godot/` is git-ignored and rebuilt on first open.
 
 ## Scenes
 
-- `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (the default mannequin, in its rest pose) and the orbit camera.
+- `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (the default mannequin, in its rest pose), the orbit camera and `UI/LibraryPanel` (see "Library panel").
 - `mannequin_preview.tscn`: the mannequin playing the sample clip `walk-ur7zdb` in a loop through the editor import path (an `AnimationPlayer` whose `root_node` is the mannequin). Open it and press F6 to check an import setting change.
 - `runtime_retarget.tscn`: the mannequin playing a library clip loaded at runtime (`ClipPlayer`, see "Runtime retargeting"). `clip_id` defaults to `walk-ur7zdb`; `godot --path godot scenes/runtime_retarget.tscn -- --clip=jog-qa61r5` picks another.
 - `calibration_level.tscn`: the grey-box level (GDD §6.1), with a neutral procedural sky, one directional light and ACES tone mapping. `scripts/calibration_level.gd` builds the props in code (it is a `@tool` script, so they show up in the editor too). Every prop is a `StaticBody3D` with collision and a size label; the ground's grid shader (`assets/shaders/grid.gdshader`) draws 1 m and 10 cm lines in world space, with the X axis in red and the Z axis in blue.
@@ -48,9 +48,21 @@ Library clips go through the same profile. `assets/sample_clips/walk-ur7zdb.glb`
 
 The sample clip is the editor-path reference only. The app loads `motion.glb` files from `library/` at runtime (next section); clips are not copied here otherwise.
 
+## Library panel
+
+`scripts/library_panel.gd` (`LibraryPanel`, docked left in `main.tscn`) lists the clips under `<library>/clips/*/` with name, tags, status and QC badge, scanned by `scripts/library_scanner.gd` (`LibraryScanner`) on start and on Refresh. It reads `meta.json` (name, tags, status) and `qc.json` (status: `ok`, `!` warn, `x` fail, `...` pending, `-` none) and checks for `motion.glb`. A clip with a file missing or unreadable stays in the list, greyed, with status `partial`; its tooltip says what is wrong. Selecting a row emits `clip_selected(id, playable)` (playable means `motion.glb` exists); the Clip Viewer (M2.6) plays it.
+
+The library root, for the panel and `ClipPlayer` alike (`LibraryScanner.resolve_root`): the node's `library_path` export, else a `--library=<path>` user argument (`godot --path godot -- --library=/path/to/library`), else `ANIM8TE_LIBRARY`, else `<repo>/library`. The path field at the top of the panel switches library on Enter. Check with:
+
+```bash
+godot --headless --path godot --script tests/check_library_scanner.gd
+```
+
+It builds a throwaway library under `user://` (complete, partial and broken clips), checks the scan and the panel, prints the real library's list and exits 1 on a mismatch. Capture: `docs/captures/m2.5-library-panel.jpg`.
+
 ## Runtime retargeting
 
-`scripts/clip_player.gd` (`ClipPlayer`) plays library clips on a model with no import step: `scripts/runtime_clip.gd` (`RuntimeClip`) reads `library/clips/<id>/motion.glb` with `GLTFDocument`, and a `RetargetModifier3D` on `SkeletonProfileHumanoid` drives the model. The library root is the `library_path` export, else `ANIM8TE_LIBRARY`, else `<repo>/library`. Node layout, built in `_ready`:
+`scripts/clip_player.gd` (`ClipPlayer`) plays library clips on a model with no import step: `scripts/runtime_clip.gd` (`RuntimeClip`) reads `library/clips/<id>/motion.glb` with `GLTFDocument`, and a `RetargetModifier3D` on `SkeletonProfileHumanoid` drives the model. The library root is resolved as in the library panel (next section). Node layout, built in `_ready`:
 
 ```
 ClipPlayer (Node3D)

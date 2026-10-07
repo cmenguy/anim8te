@@ -21,7 +21,7 @@ signal clip_changed(clip_id: String)
 ## Clip to play on ready; empty plays nothing. A `--clip=<id>` user argument
 ## (after `--` on the command line) overrides it.
 @export var clip_id := ""
-## Library root; empty resolves ANIM8TE_LIBRARY, then `<repo>/library`.
+## Library root; empty resolves `--library=<path>`, ANIM8TE_LIBRARY, then `<repo>/library`.
 @export var library_path := ""
 @export var loop := true
 
@@ -60,12 +60,7 @@ func _ready() -> void:
 
 ## Resolved library root (absolute path).
 func library_root() -> String:
-	if library_path != "":
-		return library_path
-	var env := OS.get_environment("ANIM8TE_LIBRARY")
-	if env != "":
-		return env
-	return ProjectSettings.globalize_path("res://").path_join("../library").simplify_path()
+	return LibraryScanner.resolve_root(library_path)
 
 
 ## Drives `model` (a scene instance) from now on; its Skeleton3D and meshes
