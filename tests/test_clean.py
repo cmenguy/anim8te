@@ -166,6 +166,8 @@ def test_clean_writes_motion_and_filters_and_is_idempotent(tmp_path):
     assert first["bone_names"][0] == "Hips" and float(first["fps"]) == 30.0
     np.testing.assert_allclose(np.linalg.norm(first["rotations"], axis=-1), 1.0, atol=1e-5)
     assert 0.7 < first["hips_translation"][:, 1].mean() < 1.1  # standing hips, feet on the floor
+    # rest Hips above the soles is a standing height too (export puts the rest pose on the floor)
+    assert 0.7 < first["rest_offsets"][0, 1] - first["sole_y"] < 1.1
 
     # second run reads the filters back from meta.json and starts from the raw GVHMR output
     run_clean(tmp_path, "walk-test01")
