@@ -425,7 +425,7 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Component:** docs
 - **Effort:** S
 - **Done when:** every clip so far has been viewed in Clip Viewer and Compare; `docs/gym-findings.md` lists defects per clip (foot skate, ground penetration, jitter, root drift, limb flips) with timestamps; the list ranks which cleanup filters matter most, which sets the order of M3.A. This closes M2.
-- **Notes:** GDD §3.2: the gym with overlays is the fastest way to see what still breaks.
+- **Notes:** GDD §3.2: the gym with overlays is the fastest way to see what still breaks. The M0 clips held feasibility outputs only, so they were given a `meta.json` from `takes/log.jsonl` and re-run through `extract`, `clean` and `export` on their best still-camera take (idle 2, jog 3, vault 2, per docs/feasibility.md M0.7); all five clips now play in the Gym. `check_video_playback.gd` now takes the expected frame size from the source mp4 (the vault takes are 1344x768 landscape).
 - **Log:** 2026-10-07 todo -> in-progress
 
 ### M2.12 Export: straight-spine rest so humanoid retargeting keeps posture
@@ -444,7 +444,15 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Component:** godot
 - **Effort:** M
 - **Done when:** the mannequin on a `CharacterBody3D` in the calibration level moves with WASD relative to a third-person follow camera; an `AnimationTree` blends idle, walk and jog by speed (sprint key for jog) from the library clips imported through the editor path (`assets/sample_clips/`, canonical bone map); a key triggers the vault clip; collision with the props works; `godot/README.md` says how to play; a short capture is saved under `docs/captures/`.
-- **Notes:** Owner's request (2026-10-07): something playable in the grey box early, with the clips that exist today (idle-m05, walk-ur7zdb, jog-m05 or jog-qa61r5, vault-m05). Only walk-ur7zdb and jog-qa61r5 have a `motion.glb`; idle-m05, jog-m05 and vault-m05 hold M0 feasibility takes only, so they go through `anim8te extract`, `clean` and `export` first (the M0 outputs may need a `meta.json`). Once M2.4 is merged, `ClipPlayer` can load them at runtime instead of copying them under `assets/sample_clips/`. Uses editor imports, so it does not need M2.4. Hand-built blend tree, no motion matching; M5.3 stays the real controller over the starter set. Root motion is optional here (in-place clips plus code-driven velocity is fine).
+- **Notes:** Owner's request (2026-10-07): something playable in the grey box early, with the clips that exist today (idle-m05, walk-ur7zdb, jog-m05 or jog-qa61r5, vault-m05). Only walk-ur7zdb and jog-qa61r5 have a `motion.glb`; idle-m05, jog-m05 and vault-m05 hold M0 feasibility takes only, so they go through `anim8te extract`, `clean` and `export` first (done in M2.11: all three are exported on takes idle 2, jog 3, vault 2). Once M2.4 is merged, `ClipPlayer` can load them at runtime instead of copying them under `assets/sample_clips/`. Uses editor imports, so it does not need M2.4. Hand-built blend tree, no motion matching; M5.3 stays the real controller over the starter set. Root motion is optional here (in-place clips plus code-driven velocity is fine).
+
+### M2.14 Clip Viewer test: make the clip-switch timing check robust
+- **Status:** todo
+- **Depends on:** M2.6
+- **Component:** godot
+- **Effort:** S
+- **Done when:** `check_clip_viewer.gd` passes 10 runs in a row on the local library with all five clips playable, and the switch-time check still fails if a first load takes over a frame budget that is measured (median of several loads) rather than one sample.
+- **Notes:** Found in M2.11: the first-load switch time is one sample against a 16 ms budget; on the M1 clips it ranges 11 to 21 ms (one failure in three runs), and with the M0 clips first in the list it is 18 to 19 ms every run. The cached switch stays under 0.3 ms.
 
 ## M3: Workflow Manager, Flow A
 
