@@ -180,6 +180,9 @@ class ClipFeatures(_Model):
     # contacts filter is off
     contacts: dict[str, list[bool]] = Field(default_factory=dict)
     contact_thresholds: ContactThresholds | None = None
+    # rest height of each contact bone above the soles, metres: a joint's sole height is its
+    # height minus this (ground penetration, contacts); empty in files written before M2.8
+    rest_heights_above_sole: dict[str, float] = Field(default_factory=dict)
     root_position: list[list[float]]  # [frame][axis], the Hips joint, metres
     root_velocity: list[list[float]]  # [frame][axis], m/s
     joint_positions: list[list[list[float]]]  # [frame][joint][axis], metres
