@@ -156,18 +156,29 @@ def clean(
     ground: Annotated[
         bool | None, typer.Option("--ground/--no-ground", help="Turn ground alignment on or off.")
     ] = None,
+    contacts: Annotated[
+        bool | None,
+        typer.Option("--contacts/--no-contacts", help="Turn foot contact detection on or off."),
+    ] = None,
     set_: Annotated[
         list[str] | None,
         typer.Option(
-            "--set", help="Filter parameter, e.g. smooth.window=11 or ground.percentile=2."
+            "--set",
+            help="Filter parameter, e.g. smooth.window=11, ground.percentile=2 or "
+            "contacts.height_m=0.05.",
         ),
     ] = None,
 ) -> None:
-    """Clean the extracted motion: smoothing, ground alignment (stage 5).
+    """Clean the extracted motion: smoothing, ground alignment, contacts (stage 5).
 
-    Filter settings are saved in the clip's meta.json and reused by the next run.
+    Writes clean/motion.npz and features.json. Filter settings are saved in the clip's
+    meta.json and reused by the next run.
     """
-    toggles = {k: v for k, v in (("smooth", smooth), ("ground", ground)) if v is not None}
+    toggles = {
+        k: v
+        for k, v in (("smooth", smooth), ("ground", ground), ("contacts", contacts))
+        if v is not None
+    }
     try:
         result = run_clean(
             _settings(ctx).library,
@@ -180,14 +191,18 @@ def clean(
         typer.echo(f"error: {e}", err=True)
         raise typer.Exit(code=1) from e
     typer.echo(f"clip:      {result.meta.id}, {result.num_frames} frames at {result.fps:g} fps")
-    for name in ("smooth", "ground"):
+    for name in ("smooth", "ground", "contacts"):
         f = result.meta.filters[name]
         params = ", ".join(f"{k}={v}" for k, v in f.params.items())
         typer.echo(f"{name + ':':<10} {'on ' if f.enabled else 'off'} ({params})")
     if result.ground_offset_m is not None:
         typer.echo(f"ground:    lowered by {result.ground_offset_m * 100:+.1f} cm")
+    if result.contact_frames:
+        counts = ", ".join(f"{b} {n}" for b, n in result.contact_frames.items())
+        typer.echo(f"contacts:  frames in contact: {counts}")
     typer.echo(f"status:    {result.meta.status.value}")
     typer.echo(f"motion:    {result.motion}")
+    typer.echo(f"features:  {result.features}")
 
 
 @app.command()

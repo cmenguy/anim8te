@@ -13,6 +13,11 @@ Filters live in `meta.json` under `filters`, one entry per filter with `enabled`
 - `ground`: per frame, the lowest sole over the feet and toes, estimated from each joint's height
   minus its rest-pose height above the soles; the clip's `percentile` of that is moved to y = 0.
   A low percentile rather than the minimum, so one bad frame does not lift the whole clip.
+- `contacts`: foot and toe contact detection for `features.json` (see `anim8te.stages.features`
+  for the parameters). It changes no motion; foot locking is M3.1.
+
+Every run also writes `features.json` (per-frame contacts, root track, joint positions, jerk)
+from the cleaned motion.
 
 Missing filters and parameters are filled with the defaults and written back, so `meta.json`
 always shows what was applied. Foot lock, root motion, loop, segmentation and QC come later (M3).
@@ -35,8 +40,17 @@ from anim8te.convert import (
     rest_skeleton,
     to_gltf_frame,
 )
-from anim8te.library import ClipMeta, ClipStatus, Filter, clip_dir, read_meta, write_meta
+from anim8te.library import (
+    ClipMeta,
+    ClipStatus,
+    Filter,
+    clip_dir,
+    read_meta,
+    write_features,
+    write_meta,
+)
 from anim8te.skeleton import BONE_NAMES, PARENTS, canonical_skeleton, performer_betas
+from anim8te.stages.features import CONTACT_BONES, DEFAULT_CONTACTS, compute_features
 
 CLEAN_DIR = "clean"
 MOTION_FILE = "motion.npz"
@@ -45,8 +59,9 @@ GVHMR_RESULT = Path("gvhmr") / "hmr4d_results.pt"
 DEFAULT_FILTERS: dict[str, dict[str, Any]] = {
     "smooth": {"method": "savgol", "window": 9, "order": 3},
     "ground": {"percentile": 5.0},
+    "contacts": DEFAULT_CONTACTS,
 }
-FOOT_BONES = ("LeftFoot", "RightFoot", "LeftToes", "RightToes")
+FOOT_BONES = CONTACT_BONES
 
 _READY = {ClipStatus.extracted, ClipStatus.cleaned, ClipStatus.exported, ClipStatus.ready}
 
@@ -59,6 +74,8 @@ class CleanResult(BaseModel):
     clip: Path
     meta: ClipMeta
     motion: Path
+    features: Path
+    contact_frames: dict[str, int]  # frames in contact per foot joint; empty when contacts off
     num_frames: int
     fps: float
     ground_offset_m: float | None  # how far the clip was lowered (negative: raised)
@@ -187,7 +204,8 @@ def ground_offset(sole_heights: np.ndarray, percentile: float) -> float:
 
 
 def resolve_filters(meta: ClipMeta) -> dict[str, Filter]:
-    """The clip's `smooth` and `ground` filters with defaults filled in; other filters kept."""
+    """The clip's `smooth`, `ground` and `contacts` filters with defaults filled in; other
+    filters kept."""
     filters = dict(meta.filters)
     for name, defaults in DEFAULT_FILTERS.items():
         f = filters.get(name, Filter())
@@ -210,6 +228,22 @@ def resolve_filters(meta: ClipMeta) -> dict[str, Filter]:
     pct = filters["ground"].params["percentile"]
     if not (isinstance(pct, int | float) and 0 <= pct <= 100):
         raise CleanError(f"filters.ground.percentile must be in [0, 100], got {pct!r}")
+    cp = filters["contacts"].params
+    for key in ("height_m", "speed_mps"):
+        if not (isinstance(cp[key], int | float) and cp[key] > 0):
+            raise CleanError(f"filters.contacts.{key} must be a number > 0, got {cp[key]!r}")
+    if not (isinstance(cp["min_frames"], int) and cp["min_frames"] >= 1):
+        raise CleanError(
+            f"filters.contacts.min_frames must be an integer >= 1, got {cp['min_frames']!r}"
+        )
+    gv = cp["ground_velocity"]
+    if not (
+        gv == "auto"
+        or (isinstance(gv, list) and len(gv) == 2 and all(isinstance(v, int | float) for v in gv))
+    ):
+        raise CleanError(
+            f'filters.contacts.ground_velocity must be "auto" or [x, z] in m/s, got {gv!r}'
+        )
     return filters
 
 
@@ -316,6 +350,19 @@ def run_clean(
     )
     os.replace(tmp, motion)
 
+    positions = forward_kinematics(
+        quaternion_to_matrix(quats), hips, skel.rest_offsets(), skel.parents
+    )
+    contacts = filters["contacts"]
+    features = compute_features(
+        positions,
+        list(skel.names),
+        above_sole,
+        params.fps,
+        contacts.params if contacts.enabled else None,
+    )
+    write_features(clip, features)
+
     meta.filters = filters
     meta.status = ClipStatus.cleaned
     write_meta(clip, meta)
@@ -323,6 +370,8 @@ def run_clean(
         clip=clip,
         meta=meta,
         motion=motion,
+        features=clip / "features.json",
+        contact_frames={b: sum(c) for b, c in features.contacts.items()},
         num_frames=params.num_frames,
         fps=params.fps,
         ground_offset_m=offset,

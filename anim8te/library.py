@@ -154,6 +154,38 @@ class QCReport(_Model):
     computed_at: datetime | None = None
 
 
+class ContactThresholds(_Model):
+    """The `contacts` filter parameters a `features.json` was computed with."""
+
+    height_m: float
+    speed_mps: float
+    min_frames: int
+    ground_velocity: list[float]  # (x, z) m/s the ground moved at: the belt on a treadmill
+
+
+class ClipFeatures(_Model):
+    """`features.json`: per-frame features of the cleaned clip, written by `anim8te clean`.
+
+    Everything is in the glTF frame (Y-up, metres, the performer facing +Z) after smoothing and
+    ground alignment, one entry per frame at `fps`. The Gym overlays and QC read this file
+    instead of recomputing, so they agree. Per-frame arrays are indexed `[frame][joint][axis]`
+    with joints in `bone_names` order.
+    """
+
+    schema_version: Literal[1] = SCHEMA_VERSION
+    fps: float
+    num_frames: int
+    bone_names: list[str]
+    # `contacts[bone][frame]` for LeftFoot, RightFoot, LeftToes, RightToes; empty when the
+    # contacts filter is off
+    contacts: dict[str, list[bool]] = Field(default_factory=dict)
+    contact_thresholds: ContactThresholds | None = None
+    root_position: list[list[float]]  # [frame][axis], the Hips joint, metres
+    root_velocity: list[list[float]]  # [frame][axis], m/s
+    joint_positions: list[list[list[float]]]  # [frame][joint][axis], metres
+    joint_jerk: list[list[float]]  # [frame][joint], magnitude of the third derivative, m/s^3
+
+
 # --- ids and paths ---------------------------------------------------------------------------
 
 _ID_ALPHABET = "0123456789abcdefghijklmnopqrstuvwxyz"
@@ -213,6 +245,15 @@ def read_qc(clip: Path) -> QCReport:
 def write_qc(clip: Path, qc: QCReport) -> None:
     clip.mkdir(parents=True, exist_ok=True)
     _write_json_atomic(clip / "qc.json", qc.model_dump_json(indent=2))
+
+
+def read_features(clip: Path) -> ClipFeatures:
+    return ClipFeatures.model_validate_json((clip / "features.json").read_text())
+
+
+def write_features(clip: Path, features: ClipFeatures) -> None:
+    clip.mkdir(parents=True, exist_ok=True)
+    _write_json_atomic(clip / "features.json", features.model_dump_json())
 
 
 # --- listing ---------------------------------------------------------------------------------

@@ -98,3 +98,24 @@ godot --path docs/scratch/glb_viewer --write-movie out.avi --fixed-fps 30 --quit
 ```
 
 The capture is `docs/captures/m1-jog-qa61r5-godot.mp4`. It shows 22 bones and the `jog-qa61r5` animation (5.13 s) jogging in place, facing +Z, with the soles on y = 0. The clip stays on the spot: root motion for treadmill locomotion is synthesized later (template `root_motion = "synthesize"`). The viewer calls `AnimationPlayer.advance(0)` after `play()`; without it the first recorded frame is the T-shaped rest pose.
+
+## Per-frame features: features.json (M2.7)
+
+Every `anim8te clean` run also writes `library/clips/<id>/features.json` (schema `ClipFeatures` in `anim8te/library.py`), computed from the cleaned, grounded motion in the glTF frame at the clip's fps: joint positions per frame (metres, `bone_names` order, from forward kinematics on the SMPL-X rest offsets in `clean/motion.npz`, not the straightened GLB rest), the Hips position and velocity as the root track, the magnitude of each joint's third derivative (jerk, m/s³, central differences), and per-frame contacts for LeftFoot, RightFoot, LeftToes and RightToes. The Gym overlays (GDD §6.4), QC and segmentation read this file instead of recomputing, so they agree. About 110 KB for a 155-frame clip.
+
+**Contacts.** A joint is in contact when its sole height (its height minus its rest height above the soles, as in ground alignment) is under `height_m` and its horizontal speed relative to the ground is under `speed_mps`; runs shorter than `min_frames` are dropped. The parameters are the `contacts` filter in `meta.json` (`--no-contacts`, `--set contacts.speed_mps=0.6`); defaults `height_m` 0.04, `speed_mps` 0.8, `min_frames` 3, `ground_velocity` "auto". Detection only; foot locking is M3.1.
+
+**Treadmill clips need a moving ground.** In GVHMR's world frame a treadmill clip stays on the spot, so a planted foot slides back at belt speed: on `walk-ur7zdb` the stance foot moves at about -0.6 to -1.0 m/s along Z while the swing foot comes forward at up to +2 m/s. A world-space speed threshold finds no contacts at all. `ground_velocity: "auto"` estimates the ground's (x, z) velocity as the median velocity of the lowest foot joint per frame: (0.01, -0.79) m/s on the walk, (0.01, -0.89) on `jog-qa61r5`, and about zero for a clip that is not on a treadmill. An explicit `[x, z]` overrides it.
+
+**Tuning on the two clips.** With the default height gate, raising `speed_mps` never marks a swing foot (it is always over 4 cm up when it moves fast), so the speed threshold only sets how much of each stance is kept:
+
+| `speed_mps` | walk-ur7zdb | jog-qa61r5 |
+|---|---|---|
+| 0.4 | alternating, but some stances split in two | short stances (3 frames), several missed |
+| 0.6 | every stance, alternating | every stance, 4 frames each |
+| 0.8 (default) | every stance, plus the first 7 frames standing | every stance, 5 to 6 frames |
+| 1.0 | stances widen into double support | 6 to 7 frames |
+
+The jog needs the looser threshold because GVHMR's planted foot does not move at a steady belt speed: its speed relative to the belt dips under 0.4 m/s for only about 3 frames of each 0.25 s stance. That is foot skate against the belt, which QC (M3.5) measures and foot lock (M3.1) fixes. The default is tuned on these two treadmill clips; revisit it with the first overground and traversal clips.
+
+**Tests.** `tests/test_features.py` runs detection on a synthetic walk (1 s cycle, 60 % stance, noise on heights and velocities), on a treadmill and overground: contacts match stance in over 90 % of frames, never while the foot is up, and left and right heel strikes alternate. It also checks that a treadmill walk finds no contacts with a still ground, the ground-velocity estimate, short-run removal, the derivatives, the parameter validation, and the file written by `anim8te clean` (and emptied by `--no-contacts`).
