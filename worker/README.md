@@ -1,3 +1,3 @@
 # worker
 
-gvhmr-worker for the CUDA box: FastAPI wrapper around GVHMR behind `/extract`, plus install scripts (GDD §8). Created from M0.6.
+gvhmr-worker: FastAPI wrapper around GVHMR behind `/extract`, plus install scripts (GDD §8). Runs on the Mac through the Apple-Silicon fork (Q2); a CUDA box can take over later. Created from M1.4.
