@@ -139,12 +139,14 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-07 todo -> skipped: owner skipped it: GVHMR runs on the Mac through the Apple-Silicon fork (M0.10); Q2 decided, cloud box deferred; M0.7 repointed to overlays and metrics, M0.8 to Godot install only, M1.4 to the Mac
 
 ### M0.7 Judge the feasibility takes from overlays and motion metrics
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M0.10
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** a throwaway script under `docs/scratch/` reads each take's `hmr4d_results.pt` from M0.10 and reports per take: foot sliding while a foot is in contact (cm per frame), frame-to-frame jitter of the joints, root height over time (the vault should rise by about the block height), and treadmill drift for the jog; each take's `1_incam.mp4` and `2_global.mp4` overlays are reviewed for limb flips, missing frames and body-shape drift between takes; numbers and observations are recorded per take in `docs/feasibility.md`.
 - **Notes:** Repointed from the ComfyUI `GVHMR.json` run when M0.6 was skipped (Q2). No GLB in M0: turning `hmr4d_results.pt` into a skeleton animation is M1.6 to M1.10, and M1.11 is the first in-Godot check. Joint positions need the SMPL-X body model from M0.3; run the script with the fork's `.venv` (it has torch and the body-model code), not inside `motionai/`.
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: docs/scratch/judge_takes.py on 7 takes: no missing frames or >45° flips; foot slide idle 0.2-0.3, jog 1.1-1.6, vault 0.6-0.9 cm/frame; jog drift 5-10 cm/5 s; vault soles +0.55/+0.59 m vs ~0.53 m block; vault run-up leg swaps and ~30% overlong travel; stature 1.67-1.73 m across takes; recorded in docs/feasibility.md
 
 ### M0.8 Install Godot and pin the version
 - **Status:** todo
