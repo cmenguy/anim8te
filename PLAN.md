@@ -351,7 +351,7 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 
 ### M2.4 Spike: runtime GLB load and RetargetModifier3D onto the mannequin
 - **Status:** todo
-- **Depends on:** M2.3, M1.10
+- **Depends on:** M2.3, M1.10, M2.12
 - **Component:** godot
 - **Effort:** M
 - **Done when:** a script loads `library/clips/<id>/motion.glb` at runtime with `GLTFDocument`, finds its `Skeleton3D` and `AnimationPlayer`, and drives the mannequin through `RetargetModifier3D` using the humanoid profile; bone renaming at runtime (if needed) is handled; `godot/README.md` has a "Runtime retargeting" section with the gotchas and the chosen node layout.
@@ -412,6 +412,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Effort:** S
 - **Done when:** every clip so far has been viewed in Clip Viewer and Compare; `docs/gym-findings.md` lists defects per clip (foot skate, ground penetration, jitter, root drift, limb flips) with timestamps; the list ranks which cleanup filters matter most, which sets the order of M3.A. This closes M2.
 - **Notes:** GDD §3.2: the gym with overlays is the fastest way to see what still breaks.
+
+### M2.12 Export: straight-spine rest so humanoid retargeting keeps posture
+- **Status:** todo
+- **Depends on:** M1.10
+- **Component:** pipeline
+- **Effort:** S
+- **Done when:** `anim8te export` writes `motion.glb` with the Spine, Chest, UpperChest, Neck and Head rest offsets vertical (same lengths, rotations unchanged), documented in `docs/pipeline-notes.md` and covered by `tests/test_export.py`; the M1 clips are re-exported and `godot/assets/sample_clips/walk-ur7zdb.glb` refreshed; on the mannequin the walk's Chest>UpperChest lean is within about 15 degrees of vertical (it is 35 to 38 degrees today).
+- **Notes:** Found in M2.3. SMPL-X's rest spine is kinked (the UpperChest joint sits behind Chest: 27 degrees forward at rest, -10 at the neck). Godot's "overwrite axis" retarget transfers bone directions rather than deltas from rest, so that kink lands on the mannequin as a hunch with the head pushed forward. A scratch copy with the five spine offsets straightened walked upright (upper back 9 to 11 degrees, neck -4 to -6, head 6 to 7). M2.4 uses the same profile path, so it depends on this.
 
 ## M3: Workflow Manager, Flow A
 
