@@ -410,12 +410,13 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: Q6 decided (transcode); real extract via worker wrote selected.ogv + gvhmr/overlay.ogv, ffprobe-checked same size/rate/frames (768x960@24 124f, 768x480@30 155f); missing or theora-less ffmpeg -> clear error before upload; check_video_playback.gd passes on walk and jog (play, rate, 3 s seek, end); needs brew ffmpeg-full; 93 pytest pass
 
 ### M2.10 Compare mode: frame-synced source, overlay and 3D
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M2.8, M2.9
 - **Component:** godot
 - **Effort:** M
 - **Done when:** a split view with the source take, the GVHMR overlay video and the 3D clip; scrubbing the shared timeline seeks all three; drift stays under one frame over a 5 s clip; speed and loop apply to all three.
 - **Notes:** GDD §6.3. `VideoStreamPlayer` seeking is coarse; driving `stream_position` from the animation time every frame is the likely approach.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M2.11 Review the M0 and M1 clips in the Gym and log findings
 - **Status:** todo
