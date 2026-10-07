@@ -47,7 +47,7 @@ Since M0.1 every directory exists with a one-line README; the annotations above 
 - Godot 4.7 (Q7; `RetargetModifier3D` needs 4.4 or later), pinned in `godot/project.godot`. One unit is one metre, Y-up, right-handed.
 - Canonical skeleton: Godot `SkeletonProfileHumanoid` bone names on the 22 SMPL-X body joints (table in GDD §4 stage 5). Every library clip is a `motion.glb` on that skeleton; the mannequin and imported models are retargeted from it.
 - Library layout per GDD §8.1: `library/clips/<id>/` holds `meta.json`, `takes/`, `selected.mp4`, `gvhmr/`, `motion.glb`, `qc.json`, `features.json`. The `meta.json` and `qc.json` schemas are the pydantic models in `anim8te/library.py`; clip ids are `<slug>-<6 random chars>`.
-- Prompts for video generation end with "Static camera, full body visible." Cyclic locomotion is generated "on a treadmill"; root motion is added in cleanup.
+- Prompts for video generation end with "Static camera, full body visible." Cyclic locomotion is generated "on a treadmill"; root motion is added in cleanup. The rules live in `anim8te/templates/*.toml` (one per template); `anim8te gen` applies them, and the UI and agent assist read the same files.
 - The Godot app never calls fal or the GPU worker directly. It talks to the local `anim8te` daemon over HTTP and loads `.glb` files from the library.
 - Secrets (`FAL_KEY`, `GVHMR_WORKER_TOKEN`, `ANTHROPIC_API_KEY`) live in `.env` or the OS keychain, never in the library, logs or git. `.env.example` lists the names.
 - Anything calling Anthropic models (agent assist, M3.18) goes through the `claude-api` skill.
@@ -69,7 +69,8 @@ uv run pytest                                               # tests
 uv run ruff check . && uv run ruff format --check .         # lint
 uv run anim8te --library <path> lib path                    # resolved library root
 uv run anim8te lib ls                                       # clips and performers with status
-anim8te gen|extract|clean|export <args>                     # pipeline CLI (stubs until M1.3 to M1.10)
+uv run anim8te gen --performer perf01 --template locomotion --prompt "..." --dry-run  # final prompt + cost, no fal call
+anim8te extract|clean|export <args>                         # pipeline CLI (stubs until M1.5 to M1.10)
 anim8te serve                                               # local daemon for the Godot app (M3.7)
 ```
 

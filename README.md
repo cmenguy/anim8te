@@ -6,7 +6,7 @@ An experiment in making game animations with AI instead of a mocap suit. One bas
 base image -> AI video per movement -> 3D motion extraction -> cleanup -> canonical skeleton -> any character
 ```
 
-**Status:** October 2026. M0 (feasibility, go/no-go) passed; M1 builds the pipeline CLI. The `anim8te` package installs and its commands are stubs until their M1 tasks land.
+**Status:** October 2026. M0 (feasibility, go/no-go) passed; M1 builds the pipeline CLI. The `anim8te` package installs; `anim8te gen` generates takes on fal (M1.3), and the other pipeline commands are stubs until their M1 tasks land.
 
 ## What is being built
 
