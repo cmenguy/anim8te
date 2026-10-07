@@ -195,13 +195,14 @@ Everything here is throwaway except the base image, the takes, and the findings 
 The pipeline is a Python package with pure stage functions and a thin CLI on top, so that the daemon (M3.B) and tests reuse the same code. Stage 5 cleanup is deliberately minimal here; see the sequencing overview.
 
 ### M1.1 Python package skeleton and CLI
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M0.9
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** `motionai/` is an installable package (`pyproject.toml`, Python 3.11 or later, `uv` or `pip -e`); `motionai --help` lists `gen`, `extract`, `clean`, `export`, `lib`; configuration loads from `.env` then `~/.config/motionai/config.toml`; the library root resolves from config or `--library`; `pytest` runs one trivial test; `ruff` is configured; `tests/` and `motionai/stages/` exist.
 - **Notes:** GDD §8. Use `typer` for the CLI. Keep stage code free of CLI concerns so M3.7 can call it from a job runner.
 - **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: uv sync and pip -e install; motionai --help lists gen/extract/clean/export/lib; settings: --library > env > .env > ~/.config/motionai/config.toml (no secrets) > ./library, checked by 'lib path' and tests; pytest 3 passed; ruff check and format clean
 
 ### M1.2 Library data model: meta.json and qc.json schemas
 - **Status:** todo
