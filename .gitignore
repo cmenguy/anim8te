@@ -5,7 +5,8 @@
 .envrc
 
 # generated media, body models and checkpoints (never in git)
-library/
+library/*
+!library/README.md
 *.ckpt
 *.pt
 *.npz

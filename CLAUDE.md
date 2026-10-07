@@ -39,7 +39,7 @@ tests/            pytest; fixtures stay under 1 MB
 docs/             feasibility, pipeline notes, findings, captures
 ```
 
-Until task M0.1 runs, only the documents, the skills and `.gitignore` exist.
+Since M0.1 every directory exists with a one-line README; the annotations above say which milestone fills it in. `library/` is git-ignored except `library/README.md`. `.env.example` lists the secret names.
 
 ## Conventions
 
