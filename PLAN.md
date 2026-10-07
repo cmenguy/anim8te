@@ -440,12 +440,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: export.py STRAIGHT_BONES: Spine..Head rest offsets vertical, lengths kept, rotations unchanged; tests/test_export.py 5 pass (76 total), ruff clean; walk-ur7zdb + jog-qa61r5 re-exported, sample_clips/walk refreshed; mannequin Chest>UpperChest lean per frame 5.5-12.2 deg (median 9.8), was 32.9-39.9 (median 37.1); docs/pipeline-notes.md
 
 ### M2.13 Playable grey-box: blend-tree controller over the current clips
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M2.3, M2.2
 - **Component:** godot
 - **Effort:** M
 - **Done when:** the mannequin on a `CharacterBody3D` in the calibration level moves with WASD relative to a third-person follow camera; an `AnimationTree` blends idle, walk and jog by speed (sprint key for jog) from the library clips imported through the editor path (`assets/sample_clips/`, canonical bone map); a key triggers the vault clip; collision with the props works; `godot/README.md` says how to play; a short capture is saved under `docs/captures/`.
 - **Notes:** Owner's request (2026-10-07): something playable in the grey box early, with the clips that exist today (idle-m05, walk-ur7zdb, jog-m05 or jog-qa61r5, vault-m05). Only walk-ur7zdb and jog-qa61r5 have a `motion.glb`; idle-m05, jog-m05 and vault-m05 hold M0 feasibility takes only, so they go through `anim8te extract`, `clean` and `export` first (done in M2.11: all three are exported on takes idle 2, jog 3, vault 2). Once M2.4 is merged, `ClipPlayer` can load them at runtime instead of copying them under `assets/sample_clips/`. Uses editor imports, so it does not need M2.4. Hand-built blend tree, no motion matching; M5.3 stays the real controller over the starter set. Root motion is optional here (in-place clips plus code-driven velocity is fine).
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: scenes/greybox_play.tscn: GreyboxPlayer (CharacterBody3D, AnimationTree: idle-m05/walk-ur7zdb/jog-qa61r5 blend space by speed + vault-m05 one-shot with horizontal root motion) and FollowCamera; tests/check_greybox.gd 14/14 (camera-relative W/D, blend at 1.1 and 2.2 m/s, stops at the 1.5 m box face z -5.200, vault from 2.2 m ends on the new 0.5 m x 2 m vault block at y 0.500); README 'Playable grey box'; capture docs/captures/m2.13-greybox-play.mp4 (24.6 s)
 
 ### M2.14 Clip Viewer test: make the clip-switch timing check robust
 - **Status:** todo

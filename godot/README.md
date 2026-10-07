@@ -30,7 +30,8 @@ The editor cache `.godot/` is git-ignored and rebuilt on first open.
 - `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (a `ClipPlayer` driving the default mannequin, in its rest pose until a clip is picked), the orbit camera, `UI/LibraryPanel` (see "Library panel"), `UI/ClipViewer` (see "Clip Viewer") and `UI/CompareView` (see "Compare", hidden until toggled).
 - `mannequin_preview.tscn`: the mannequin playing the sample clip `walk-ur7zdb` in a loop through the editor import path (an `AnimationPlayer` whose `root_node` is the mannequin). Open it and press F6 to check an import setting change.
 - `runtime_retarget.tscn`: the mannequin playing a library clip loaded at runtime (`ClipPlayer`, see "Runtime retargeting"). `clip_id` defaults to `walk-ur7zdb`; `godot --path godot scenes/runtime_retarget.tscn -- --clip=jog-qa61r5` picks another.
-- `calibration_level.tscn`: the grey-box level (GDD §6.1), with a neutral procedural sky, one directional light and ACES tone mapping. `scripts/calibration_level.gd` builds the props in code (it is a `@tool` script, so they show up in the editor too). Every prop is a `StaticBody3D` with collision and a size label; the ground's grid shader (`assets/shaders/grid.gdshader`) draws 1 m and 10 cm lines in world space, with the X axis in red and the Z axis in blue.
+- `greybox_play.tscn`: the playable grey box (see "Playable grey box"): the mannequin on a `CharacterBody3D` in the calibration level, with a follow camera. `godot --path godot scenes/greybox_play.tscn` plays it.
+- `calibration_level.tscn`: the grey-box level (GDD §6.1), with a neutral procedural sky, one directional light and ACES tone mapping. `scripts/calibration_level.gd` builds the props in code (it is a `@tool` script, so they show up in the editor too). Every prop is a `StaticBody3D` with collision and a size label (the vault block, 0.5 m high and 2 m deep at x -12, is sized for the `vault-m05` clip); the ground's grid shader (`assets/shaders/grid.gdshader`) draws 1 m and 10 cm lines in world space, with the X axis in red and the Z axis in blue.
 
 Orbit camera (`scripts/orbit_camera.gd`): left or right drag orbits, middle drag or shift + drag pans, the wheel zooms, F focuses on the character and C toggles follow: the orbit centre tracks the character on the ground plane (its hips, through `ClipPlayer.focus_position()`), keeping its height so the view does not bob. A click or wheel over a GUI control is left to the control (Godot passes wheel events on even past a control that stops the mouse, so the main camera would otherwise zoom along with Compare's 3D pane).
 
@@ -46,7 +47,7 @@ Import settings (`Superhero_Male_FullBody.gltf.import`, node `Armature/Skeleton3
 
 Library clips go through the same profile. `assets/sample_clips/walk-ur7zdb.glb` is a copy of the M1 walk (`library/clips/walk-ur7zdb/motion.glb`, 66 KiB) imported as an `AnimationLibrary` with `canonical_bone_map.tres` (the identity map on the 22 canonical bones), the same retarget settings and loop on. Its tracks come out as `%GeneralSkeleton:<Bone>`, so they drive any model imported this way; the Hips position track is normalized by the clip's rest hip height and rescaled by the mannequin's (`motion_scale` 0.95 m).
 
-The sample clip is the editor-path reference only. The app loads `motion.glb` files from `library/` at runtime (next section); clips are not copied here otherwise.
+`idle-m05.glb`, `jog-qa61r5.glb` and `vault-m05.glb` are imported the same way for the playable grey box (loop on, except the vault). These four copies are the editor-path clips; the Gym loads `motion.glb` files from `library/` at runtime (next section), and clips are not copied here otherwise.
 
 ## Library panel
 
@@ -154,3 +155,31 @@ godot --headless --path godot --script tests/check_runtime_retarget.gd [-- --cli
 ```
 
 It needs the local library and exits 1 if a bone direction drifts past 1 degree or the hip height past 0.5 cm. Capture: `docs/captures/m2.4-runtime-retarget.jpg`.
+
+## Playable grey box
+
+`scenes/greybox_play.tscn` (M2.13) is something to play in the calibration level with the clips that exist today. Run it with `godot --path godot scenes/greybox_play.tscn`, or open the scene in the editor and press F6.
+
+| Key | Does |
+|---|---|
+| W A S D (or arrows) | move, relative to the camera |
+| Shift | jog instead of walk |
+| E or Space | vault (one-shot, in the facing direction) |
+| R | back to the start |
+| mouse, wheel | turn the camera (click to capture the mouse, Esc frees it), zoom |
+
+To vault onto the vault block, stand 1.8 to 2.6 m in front of it (about four grid squares from its front face), facing it, and press E. From farther away she lands short; from closer she shuffles off the back. The 1 m boxes are too shallow for this clip.
+
+`scripts/greybox_player.gd` (`GreyboxPlayer`) is the controller and `scripts/follow_camera.gd` (`FollowCamera`) the camera (a rig at chest height with a `SpringArm3D`, so props do not hide the character). The controller builds its `AnimationTree` in `_ready`. It prepares the clips from `assets/sample_clips/` first:
+
+- **Locomotion:** idle `idle-m05`, walk `walk-ur7zdb` and jog `jog-qa61r5` sit in an `AnimationNodeBlendSpace1D` by ground speed (0, `walk_speed` 1.1 m/s, `jog_speed` 2.2 m/s). A `TimeScale` after it speeds the cadence up to `jog_anim_rate` 1.3x toward the jog. The blend follows the body's real velocity after `move_and_slide`, so pushing into a prop settles to idle. The clips are made in place (the Hips' horizontal drift, 3 to 13 cm, is removed as a ramp, which also closes the root gap at the loop seam), and code moves the body. The treadmill belts ran at 0.79 m/s (walk) and 0.89 m/s (jog), so at these speeds the feet slide; the speeds and rate are exports to tune. `jog-qa61r5` was picked over `jog-m05` for its lower jitter and drift (M2.11).
+- **Vault:** `vault-m05` plays as an `AnimationNodeOneShot` over the locomotion (fade 0.2 s in, 0.4 s out). It was filmed side-on running along +X, so its Hips rotation and position keys are turned onto +Z, the model's front (the skeleton's `Root` has identity rest, so a yaw on the Hips turns the whole body). Its horizontal Hips travel is taken out of the track and applied to the body while it plays, scaled by `vault_travel_scale` 0.75 because GVHMR's travel is about 35 % too long (M2.11). The height stays in the animation. From 3 s (`vault_landing_time`) the model is lowered so the clip's soles on the block (0.70 m in the clip's frame) land on the surface under the body, found with a ray. At the start of the fade-out the body is put on that surface and the model eases back onto it. The body ignores collisions while vaulting.
+- **Inputs:** the actions (`move_*`, `sprint`, `vault`, `reset`) are added to the `InputMap` in code, on physical keys, so `project.godot` stays untouched.
+
+This is a hand-built blend tree for trying the clips, not the real controller (M5.3, motion matching over the starter set). Root motion (M3.2), foot lock (M3.1) and the vault's repair (M3.20) are not applied, so the feet slide and the vault's run-up shows the leg swaps M2.11 found. Check it with:
+
+```bash
+godot --headless --path godot --script tests/check_greybox.gd
+```
+
+It presses the actions and checks camera-relative movement (W and D with the camera turned), the blend speeds for walk, jog and idle, the stop against the 1.5 m box, and the vault from 2.2 m ending on the block with the model back on the body. It exits 1 on a failed check. `tests/capture_greybox.gd` plays a scripted run for the capture (how to record it is in its header). Capture: `docs/captures/m2.13-greybox-play.mp4`.
