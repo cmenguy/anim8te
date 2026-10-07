@@ -16,10 +16,10 @@ python3 .claude/skills/next-step/scripts/plan.py summary                  # whol
 python3 .claude/skills/next-step/scripts/plan.py summary M2               # one milestone, task by task
 python3 .claude/skills/next-step/scripts/plan.py check                    # integrity (only report problems)
 python3 .claude/skills/next-step/scripts/plan.py summary --json           # if you need to compute something
-.claude/skills/next-step/scripts/ghp pr list --state open --json number,title,headRefName,isDraft,url
+gh pr list --state open --json number,title,headRefName,isDraft,url
 ```
 
-Every task is done on its own branch and lands on `main` through a pull request (remote: https://github.com/cmenguy/anim8te), and the task's status change rides in that PR. So `main` lags the open PRs: a task with an open PR is finished but not merged (or blocked, if the PR is a draft). Always list open PRs with the `ghp` wrapper (never bare `gh`, which acts as the wrong GitHub account on this machine) and show them as **In review**. If you are not on `main`, say which branch the numbers come from.
+Every task is done on its own branch and lands on `main` through a pull request (remote: https://github.com/cmenguy/anim8te), and the task's status change rides in that PR. So `main` lags the open PRs: a task with an open PR is finished but not merged (or blocked, if the PR is a draft). List open PRs with `gh` (logged in as `cmenguy`) and show them as **In review**. If you are not on `main`, say which branch the numbers come from.
 
 ## What to produce
 

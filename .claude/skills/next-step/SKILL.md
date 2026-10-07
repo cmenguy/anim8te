@@ -8,7 +8,7 @@ argument-hint: "[start | done | block | skip] [task-id] [--note \"...\"]"
 
 PLAN.md at the repo root is the single source of truth for what to build and in what order. This skill turns it into the next concrete piece of work, does that work on a branch, opens the pull request, and writes back what happened so the next session starts from the truth rather than from memory.
 
-Everything that can be done deterministically is done by two bundled scripts. Run them from the repo root:
+Everything that can be done deterministically is done by the bundled script. Run it from the repo root:
 
 ```bash
 python3 .claude/skills/next-step/scripts/plan.py next                 # what to work on (resume first, then ready tasks)
@@ -18,8 +18,6 @@ python3 .claude/skills/next-step/scripts/plan.py set M1.3 in-progress
 python3 .claude/skills/next-step/scripts/plan.py set M1.3 done --note "what proves it: tests, files, measurements"
 python3 .claude/skills/next-step/scripts/plan.py set M1.3 blocked --note "waiting on <who>: <what>"
 python3 .claude/skills/next-step/scripts/plan.py check                # validate ids, dependencies, cycles
-
-.claude/skills/next-step/scripts/ghp pr list --state open             # gh, as the personal account
 ```
 
 `plan.py` walks up from the current directory to find PLAN.md; pass `--plan <path>` if it cannot.
@@ -28,9 +26,9 @@ python3 .claude/skills/next-step/scripts/plan.py check                # validate
 
 - Remote `origin` is https://github.com/cmenguy/anim8te. `main` is protected on GitHub: nothing lands there except through a pull request, not even for the owner.
 - **One task, one branch, one PR.** Branch names are `task/<id>-<few-words>`, for example `task/M0.2-fal-smoke-test`. Commit messages and the PR title start with the task id: `M0.2: add fal smoke-test script`.
-- This machine has two GitHub logins in `gh`, and the active one is usually the work account. The repo's local git config already carries the personal identity (`cmenguy`, menguy.charles@gmail.com) and a credential helper that pushes with the personal token, so plain `git push` is fine. `gh` has no per-repo setting, so **never run bare `gh` here**; use the wrapper `.claude/skills/next-step/scripts/ghp`, which runs `gh` as `cmenguy`.
+- The repo's local git config sets the author to the personal account (`cmenguy`, menguy.charles@gmail.com). Pushes and `gh` commands use whichever account `gh` has active, and only `cmenguy` can push here: check with `gh auth status` and run `gh auth switch -u cmenguy` if another account is active.
 - The plan's status change is part of the task's PR. Until the PR merges, `main` still says `todo` for that task. That is why step 1 scans open PRs.
-- Opening a PR is the end of a task from this skill's side. Merging is the owner's call: report the link and stop. If the user says to merge, use `ghp pr merge <n> --squash --delete-branch`.
+- Opening a PR is the end of a task from this skill's side. Merging is the owner's call: report the link and stop. If the user says to merge, use `gh pr merge <n> --squash --delete-branch`.
 
 ## Arguments
 
@@ -54,7 +52,7 @@ Start from an up-to-date `main` unless you are resuming a task branch:
 ```bash
 git status --short --branch
 git checkout main && git pull --ff-only
-.claude/skills/next-step/scripts/ghp pr list --state open --json number,title,headRefName,isDraft,url
+gh pr list --state open --json number,title,headRefName,isDraft,url
 ```
 
 Pull the task ids out of the open PR titles and branch names, then run `plan.py next --exclude <ids>` and `plan.py check`. Tasks with an open PR are in review (or blocked, if the PR is a draft); mention them in one line each with the link, and do not pick them again. If `check` prints errors or warnings, mention them in one line too, because a broken dependency graph makes the pick wrong.
@@ -99,7 +97,7 @@ With no `start` argument, end by asking whether to start. With `start`, go strai
 2. Work to the Done when, and only to it. The plan already decided the scope; neighbouring tasks exist for the things that look tempting to do "while you're here". If something outside the task turns out to be necessary, say so and either add a task (keeping the field format) or note it in the Notes line.
 3. Commit in small steps with `<id>:` prefixes. Never commit `.env`, anything under `library/`, or checkpoints; `.gitignore` covers them, keep it that way.
 4. Use the matching tool for the job: the `claude-api` skill for anything calling Anthropic models (M3.18), the Godot docs for engine questions, the GDD's install snippets for GVHMR and fal.
-5. When the user must act (create a key, accept a license, approve spend), stop at that point, say exactly what to do and where, and mark the task blocked with `--note "waiting on owner: <what>"`. Commit, push, and open a **draft** PR so the partial work is visible (`ghp pr create --draft ...`). Then go back to `main` and pick the next ready task if there is one that does not depend on it.
+5. When the user must act (create a key, accept a license, approve spend), stop at that point, say exactly what to do and where, and mark the task blocked with `--note "waiting on owner: <what>"`. Commit, push, and open a **draft** PR so the partial work is visible (`gh pr create --draft ...`). Then go back to `main` and pick the next ready task if there is one that does not depend on it.
 6. If a decision is recorded during the task, update the Decisions table row by hand: set the Status cell to `decided` and write the decision in the Decision cell. The script reads that table but does not edit it.
 
 ### 6. Finish the task
@@ -110,7 +108,7 @@ Walk through every clause of the Done when against the repo: run the tests it na
 python3 .claude/skills/next-step/scripts/plan.py set <id> done --note "<the evidence, one line>"
 git add -A && git commit -m "<id>: done"
 git push -u origin HEAD
-.claude/skills/next-step/scripts/ghp pr create --base main --title "<id>: <task title>" --body-file <body.md>
+gh pr create --base main --title "<id>: <task title>" --body-file <body.md>
 ```
 
 The note matters. "tests pass, GLB imports with 22/22 bones mapped" tells the next session more than "done". Write the PR body to a scratch file with this shape:
@@ -134,7 +132,7 @@ Report the PR link, then switch back to `main` (`git checkout main`) and run ste
 
 ### 7. Blocked and skipped
 
-- `blocked` always carries a note saying who or what unblocks it, and its branch has a draft PR. When the blocker clears, check the branch out, set the task back to `in-progress`, and continue; mark the PR ready with `ghp pr ready <n>` when it is done.
+- `blocked` always carries a note saying who or what unblocks it, and its branch has a draft PR. When the blocker clears, check the branch out, set the task back to `in-progress`, and continue; mark the PR ready with `gh pr ready <n>` when it is done.
 - `skipped` is for tasks the user has decided not to do (usually `Optional: yes` ones). It counts as finished for dependency purposes, so downstream tasks become ready. Say that when skipping something a later task relies on. A skip is a one-line PLAN.md change; it still goes through a small PR.
 
 ## Editing the plan itself

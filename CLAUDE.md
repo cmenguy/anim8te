@@ -22,7 +22,7 @@ A tool-first prototype: an AI pipeline that turns one base image plus a text pro
 
 - Remote `origin`: https://github.com/cmenguy/anim8te. `main` is protected; everything lands through a pull request, including plan status changes and one-line doc fixes.
 - One task, one branch, one PR. Branches are `task/<id>-<few-words>`; commits and PR titles start with the task id (`M0.2: add fal smoke-test script`). The next-step skill does this; follow the same shape when working by hand.
-- This repo acts as the personal GitHub account `cmenguy` (menguy.charles@gmail.com), not the work account. The local git config carries that identity and a credential helper pinned to the personal token, so `git push` is fine. `gh` has no per-repo setting: never run bare `gh` here, use `.claude/skills/next-step/scripts/ghp` instead.
+- This repo uses the personal GitHub account `cmenguy` (menguy.charles@gmail.com); the local git config sets that author. Pushes and `gh` go through whichever account `gh` has active, and only `cmenguy` has push rights, so run `gh auth switch -u cmenguy` first if `gh auth status` shows another account.
 - Open the PR and report the link; merging is the owner's call. After a merge, `git checkout main && git pull --ff-only` before anything else.
 - Never commit `.env`, `library/`, body models or checkpoints. `.gitignore` already covers them.
 
@@ -64,7 +64,6 @@ Until task M0.1 runs, only the documents, the skills and `.gitignore` exist.
 python3 .claude/skills/next-step/scripts/plan.py next        # what to work on
 python3 .claude/skills/next-step/scripts/plan.py summary     # progress
 python3 .claude/skills/next-step/scripts/plan.py check       # validate PLAN.md
-.claude/skills/next-step/scripts/ghp pr list --state open   # gh as cmenguy
 pytest                                                      # once motionai exists (M1.1)
 motionai gen|extract|clean|export <args>                    # pipeline CLI (M1)
 motionai serve                                              # local daemon for the Godot app (M3.7)
