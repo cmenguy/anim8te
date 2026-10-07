@@ -110,12 +110,13 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-06 in-progress -> done: 10 files (6.2 GB) in ~/motion-ai-checkpoints/ mirroring GVHMR inputs/checkpoints; SMPLX_NEUTRAL.npz loads (10475 verts, 400 shape+expr dirs); GVHMR ckpts from HF mirror camenduru/GVHMR (Drive quota hit), SHA256 match; sizes and hashes in docs/checkpoints.md
 
 ### M0.4 Choose the performer and make the base image
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M0.1
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** Q3 is decided; `library/performers/<performer_id>/base.png` exists and meets the stage 1 rules (full body with margin, locked-off camera at waist height, plain background, one person, fitted clothing); `library/performers/README.md` has the checklist and how the image was made.
 - **Notes:** GDD §4 stage 1. Generating the image with an image model is fine; a photo is fine too. One performer for the whole library keeps body proportions constant across clips (GDD §11, identity drift risk).
+- **Log:** 2026-10-06 todo -> in-progress
 
 ### M0.5 Generate the feasibility takes: idle, jog, vault
 - **Status:** todo
