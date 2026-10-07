@@ -370,13 +370,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: tests/check_library_scanner.gd PASS (17 checks: complete, no-qc, no-glb, no-meta, corrupt meta/qc, empty dir, missing root, refresh, selection); real library lists 5 clips, 3 partial; --library/ANIM8TE_LIBRARY/path field verified; check_runtime_retarget still PASS; capture docs/captures/m2.5-library-panel.jpg
 
 ### M2.6 Clip Viewer mode
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M2.5
 - **Component:** godot
 - **Effort:** M
 - **Done when:** selecting a clip plays it on the mannequin in the calibration level; timeline scrub, play/pause, speed from 0.1x to 2x, loop toggle, frame step forward/back, current frame and time shown; the camera can follow the character; switching clips is instant.
 - **Notes:** GDD §6.3.
 - **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: tests/check_clip_viewer.gd PASS (36 checks: play/pause, step +/-1 with loop wrap and end clamp, scrub to frame 77 moves the hips, 0.1x-2x speed, loop off stops on last frame, follow keeps the orbit centre on the hips within 2 mm, switch 10 ms first load / 0.15 ms cached); retarget and scanner checks still PASS; capture docs/captures/m2.6-clip-viewer.jpg
 
 ### M2.7 Pipeline: per-frame features for overlays (features.json)
 - **Status:** todo
