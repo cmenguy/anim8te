@@ -9,7 +9,7 @@ from typer.testing import CliRunner
 from anim8te.cli import app
 from anim8te.library import ClipMeta, ClipStatus, read_meta, write_meta
 from anim8te.skeleton import BONE_NAMES, PARENTS
-from anim8te.stages.export import ExportError, Motion, build_gltf, run_export
+from anim8te.stages.export import STRAIGHT_BONES, ExportError, Motion, build_gltf, run_export
 
 FIXTURES = Path(__file__).parent / "fixtures"
 FPS = 30.0
@@ -70,7 +70,9 @@ def test_skeleton_nodes_and_skin(tmp_path):
         assert gltf.nodes[i + 1].rotation is None  # identity rest rotation
 
     rest = np.array([n.translation for n in gltf.nodes[1:]])
-    np.testing.assert_allclose(rest[1:], motion.rest_offsets[1:], atol=1e-6)
+    straight = [BONE_NAMES.index(b) for b in STRAIGHT_BONES]
+    kept = [i for i in range(1, 22) if i not in straight]
+    np.testing.assert_allclose(rest[kept], motion.rest_offsets[kept], atol=1e-6)
     np.testing.assert_allclose(rest[0], [0.0, -0.35 + 1.3, 0.0], atol=1e-6)  # soles at y = 0
 
     (skin,) = gltf.skins
@@ -82,6 +84,21 @@ def test_skeleton_nodes_and_skin(tmp_path):
             world[i] += world[p]
     np.testing.assert_allclose(ibm[:, :3, 3], -world, atol=1e-5)
     np.testing.assert_allclose(ibm[:, :3, :3], np.tile(np.eye(3), (22, 1, 1)))
+
+
+def test_spine_rest_is_straight(tmp_path):
+    np.savez(tmp_path / "m.npz", **_motion_arrays())
+    motion = Motion.load(tmp_path / "m.npz")
+    rest = np.array([n.translation for n in build_gltf(motion, "walk").nodes[1:]])
+
+    for name in STRAIGHT_BONES:
+        i = BONE_NAMES.index(name)
+        assert rest[i][0] == 0.0 and rest[i][2] == 0.0  # vertical
+        assert rest[i][1] == pytest.approx(np.linalg.norm(motion.rest_offsets[i]), abs=1e-6)
+    # the shoulders hang off UpperChest with their own offsets, so they follow the straight spine
+    for name in ("LeftShoulder", "RightShoulder"):
+        i = BONE_NAMES.index(name)
+        np.testing.assert_allclose(rest[i], motion.rest_offsets[i], atol=1e-6)
 
 
 def test_animation_channels_and_timing(tmp_path):

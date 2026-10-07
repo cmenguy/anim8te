@@ -414,12 +414,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Notes:** GDD §3.2: the gym with overlays is the fastest way to see what still breaks.
 
 ### M2.12 Export: straight-spine rest so humanoid retargeting keeps posture
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M1.10
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** `anim8te export` writes `motion.glb` with the Spine, Chest, UpperChest, Neck and Head rest offsets vertical (same lengths, rotations unchanged), documented in `docs/pipeline-notes.md` and covered by `tests/test_export.py`; the M1 clips are re-exported and `godot/assets/sample_clips/walk-ur7zdb.glb` refreshed; on the mannequin the walk's Chest>UpperChest lean is within about 15 degrees of vertical (it is 35 to 38 degrees today).
 - **Notes:** Found in M2.3. SMPL-X's rest spine is kinked (the UpperChest joint sits behind Chest: 27 degrees forward at rest, -10 at the neck). Godot's "overwrite axis" retarget transfers bone directions rather than deltas from rest, so that kink lands on the mannequin as a hunch with the head pushed forward. A scratch copy with the five spine offsets straightened walked upright (upper back 9 to 11 degrees, neck -4 to -6, head 6 to 7). M2.4 uses the same profile path, so it depends on this.
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: export.py STRAIGHT_BONES: Spine..Head rest offsets vertical, lengths kept, rotations unchanged; tests/test_export.py 5 pass (76 total), ruff clean; walk-ur7zdb + jog-qa61r5 re-exported, sample_clips/walk refreshed; mannequin Chest>UpperChest lean per frame 5.5-12.2 deg (median 9.8), was 32.9-39.9 (median 37.1); docs/pipeline-notes.md
 
 ## M3: Workflow Manager, Flow A
 
