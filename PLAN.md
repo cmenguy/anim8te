@@ -88,7 +88,7 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-06 in-progress -> done: 6 dirs with one-line READMEs; .env.example has the 4 names; .gitignore verified with check-ignore (library/* ignored except README); README/CLAUDE layout updated
 
 ### M0.2 fal account, API key and first H3 Max smoke test
-- **Status:** blocked
+- **Status:** in-progress
 - **Depends on:** M0.1
 - **Component:** pipeline
 - **Effort:** S
@@ -96,6 +96,7 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Notes:** Needs the owner: create the key at https://fal.ai/dashboard/keys. Inputs and pricing in GDD §4 stage 2.
 - **Log:** 2026-10-06 todo -> in-progress
 - **Log:** 2026-10-06 in-progress -> blocked: waiting on owner: top up fal balance at https://fal.ai/dashboard/billing (key works, account locked: exhausted balance); then run docs/scratch/fal_smoke_test.py --gen-image
+- **Log:** 2026-10-06 blocked -> in-progress
 
 ### M0.3 Register for SMPL-X and SMPL, download body models and GVHMR checkpoints
 - **Status:** todo
