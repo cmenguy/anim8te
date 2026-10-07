@@ -139,12 +139,13 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-07 todo -> skipped: owner skipped it: GVHMR runs on the Mac through the Apple-Silicon fork (M0.10); Q2 decided, cloud box deferred; M0.7 repointed to overlays and metrics, M0.8 to Godot install only, M1.4 to the Mac
 
 ### M0.7 Judge the feasibility takes from overlays and motion metrics
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M0.10
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** a throwaway script under `docs/scratch/` reads each take's `hmr4d_results.pt` from M0.10 and reports per take: foot sliding while a foot is in contact (cm per frame), frame-to-frame jitter of the joints, root height over time (the vault should rise by about the block height), and treadmill drift for the jog; each take's `1_incam.mp4` and `2_global.mp4` overlays are reviewed for limb flips, missing frames and body-shape drift between takes; numbers and observations are recorded per take in `docs/feasibility.md`.
 - **Notes:** Repointed from the ComfyUI `GVHMR.json` run when M0.6 was skipped (Q2). No GLB in M0: turning `hmr4d_results.pt` into a skeleton animation is M1.6 to M1.10, and M1.11 is the first in-Godot check. Joint positions need the SMPL-X body model from M0.3; run the script with the fork's `.venv` (it has torch and the body-model code), not inside `motionai/`.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M0.8 Install Godot and pin the version
 - **Status:** todo
