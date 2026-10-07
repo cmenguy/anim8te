@@ -9,6 +9,7 @@ import typer
 
 from anim8te.config import Settings, load_settings
 from anim8te.library import Template, list_clips, list_performers
+from anim8te.stages.extract import DEFAULT_WORKER_URL, ExtractError, WorkerClient, run_extract
 from anim8te.stages.gen import FalBackend, GenError, GenRequest, plan_gen, run_gen
 
 app = typer.Typer(help="Motion AI pipeline: gen, extract, clean, export.", no_args_is_help=True)
@@ -99,9 +100,36 @@ def gen(
 
 
 @app.command()
-def extract(ctx: typer.Context) -> None:
+def extract(
+    ctx: typer.Context,
+    clip_id: Annotated[str, typer.Argument(help="Clip id under library/clips/.")],
+    take: Annotated[
+        int | None,
+        typer.Option(help="Take to extract; defaults to the selected take, or the only one."),
+    ] = None,
+) -> None:
     """Extract 3D motion from the selected take through gvhmr-worker (stage 4)."""
-    _not_yet("M1.5")
+    settings = _settings(ctx)
+    if settings.gvhmr_worker_token is None:
+        typer.echo("error: GVHMR_WORKER_TOKEN is not set (see worker/README.md)", err=True)
+        raise typer.Exit(code=1)
+    client = WorkerClient(
+        settings.gvhmr_worker_url or DEFAULT_WORKER_URL,
+        settings.gvhmr_worker_token.get_secret_value(),
+    )
+    try:
+        result = run_extract(
+            settings.library, clip_id, client, take=take, log=lambda m: typer.echo(m, err=True)
+        )
+    except ExtractError as e:
+        typer.echo(f"error: {e}", err=True)
+        raise typer.Exit(code=1) from e
+    finally:
+        client.close()
+    typer.echo(f"clip:      {result.meta.id}, take {result.take}, job {result.job_id}")
+    typer.echo(f"status:    {result.meta.status.value} in {result.elapsed_s:.0f} s")
+    for name, path in result.files.items():
+        typer.echo(f"{name + ':':<10} {path}")
 
 
 @app.command()
