@@ -149,12 +149,13 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-07 in-progress -> done: docs/scratch/judge_takes.py on 7 takes: no missing frames or >45° flips; foot slide idle 0.2-0.3, jog 1.1-1.6, vault 0.6-0.9 cm/frame; jog drift 5-10 cm/5 s; vault soles +0.55/+0.59 m vs ~0.53 m block; vault run-up leg swaps and ~30% overlong travel; stature 1.67-1.73 m across takes; recorded in docs/feasibility.md
 
 ### M0.8 Install Godot and pin the version
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M0.1
 - **Component:** godot
 - **Effort:** S
 - **Done when:** Q7 decided and Godot installed on the Mac; an empty project under `godot/` opens with the version pinned in `godot/project.godot`, one unit one metre, Y-up.
 - **Notes:** The feasibility GLB import was dropped when M0.6 was skipped; the first motion in Godot is M1.11. M2.1 to M2.3 start from this project.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M0.9 Go/no-go decision
 - **Status:** todo
