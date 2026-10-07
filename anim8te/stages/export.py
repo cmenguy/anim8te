@@ -5,7 +5,8 @@
 
 - one node per canonical bone, parented as in the SMPL-X tree, under a scene root node named
   `Armature`. Rest rotations are the identity; rest translations are the offsets from M1.8, with
-  Hips moved so the rest pose stands with its soles at y = 0.
+  Hips moved so the rest pose stands with its soles at y = 0, and the spine and neck offsets
+  (`STRAIGHT_BONES`) turned vertical with their lengths kept.
 - one skin over those 22 joints, so importers (Godot included) build a skeleton from it. The
   inverse bind matrices are the inverse rest world transforms, pure translations here.
 - one animation named after the clip id: a rotation channel for every bone and a translation
@@ -13,6 +14,12 @@
 
 Everything is in the glTF frame already (Y-up, right-handed, metres, facing +Z), so values are
 written as they come out of `anim8te clean`.
+
+Why the straight spine (M2.12): SMPL-X's rest spine is kinked (UpperChest sits behind Chest, the
+neck leans back). Godot's humanoid retarget ("overwrite axis") transfers bone directions, not
+rotations from rest, so the kink reached the mannequin as a hunch with the head pushed forward.
+With vertical rest offsets the rest spine points straight up like a game rig's, and the
+unchanged local rotations bend it as GVHMR measured. Arms and legs keep their SMPL-X offsets.
 """
 
 from __future__ import annotations
@@ -32,6 +39,9 @@ from anim8te.stages.clean import CLEAN_DIR, MOTION_FILE
 GLB_FILE = "motion.glb"
 ROOT_NODE = "Armature"
 GENERATOR = "anim8te export"
+
+# bones whose rest offset from their parent is made vertical (same length), see the docstring
+STRAIGHT_BONES = ("Spine", "Chest", "UpperChest", "Neck", "Head")
 
 _READY = {ClipStatus.cleaned, ClipStatus.exported, ClipStatus.ready}
 
@@ -83,9 +93,13 @@ class Motion:
             )
 
     def rest_translations(self) -> np.ndarray:
-        """(J, 3) node rest translations: parent offsets, Hips lifted so the soles sit at y = 0."""
+        """(J, 3) node rest translations: parent offsets, Hips lifted so the soles sit at y = 0,
+        the `STRAIGHT_BONES` offsets turned to +Y with their lengths kept."""
         out = self.rest_offsets.astype(np.float32).copy()
         out[0, 1] -= self.sole_y
+        for name in STRAIGHT_BONES:
+            i = self.bone_names.index(name)
+            out[i] = (0.0, np.linalg.norm(out[i]), 0.0)
         return out
 
 
