@@ -60,7 +60,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 
 | ID | Question | Status | Decision | Needed by |
 |---|---|---|---|---|
-| Q1 | Which CC0 mannequin becomes the default character? | open | | M2.3 |
+| Q1 | Which CC0 mannequin becomes the default character? | decided | Quaternius Universal Base Characters (Standard, CC0), the male full-body glTF: UE-style 65-bone rig with fingers, every required `SkeletonProfileHumanoid` bone mappable; textures downscaled to 1024 px. Kenney's Animated Characters were the lighter alternative but coarser and less neutral | M2.3 |
 | Q2 | GPU host for `gvhmr-worker`: always-on box vs spin-up per batch? | decided | Neither for now: GVHMR runs locally on the Mac through the Apple-Silicon fork (M0.10, about 30 s per static-camera take). A cloud CUDA box is deferred until moving-camera clips or batch volume need it, and would then be spin-up per batch | M0.6 |
 | Q3 | Performer: one generic base image, or a Lara-like character from day one? | decided | One generic performer, `perf01` (woman in black tee and joggers standing on a treadmill deck), reused for every clip; a stylized character comes later by retargeting from the canonical skeleton | M0.4 |
 | Q4 | Root-motion policy for treadmill loops: synthesized constant speed, or speed-matched to stride length? | open | | M3.2 |

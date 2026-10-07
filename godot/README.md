@@ -26,9 +26,22 @@ The editor cache `.godot/` is git-ignored and rebuilt on first open.
 
 ## Scenes
 
-- `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (a capsule placeholder until the M2.3 mannequin) and the orbit camera.
+- `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (the default mannequin, in its rest pose) and the orbit camera.
+- `mannequin_preview.tscn`: the mannequin playing the sample clip `walk-ur7zdb` in a loop through the editor import path (an `AnimationPlayer` whose `root_node` is the mannequin). Open it and press F6 to check an import setting change.
 - `calibration_level.tscn`: the grey-box level (GDD §6.1), with a neutral procedural sky, one directional light and ACES tone mapping. `scripts/calibration_level.gd` builds the props in code (it is a `@tool` script, so they show up in the editor too). Every prop is a `StaticBody3D` with collision and a size label; the ground's grid shader (`assets/shaders/grid.gdshader`) draws 1 m and 10 cm lines in world space, with the X axis in red and the Z axis in blue.
 
 Orbit camera (`scripts/orbit_camera.gd`): left or right drag orbits, middle drag or shift + drag pans, the wheel zooms, and F focuses on the character.
 
-Library clips are not copied here: the app loads `motion.glb` files from `library/` at runtime.
+## Default mannequin
+
+`assets/mannequin/` holds Quaternius' *Universal Base Characters* (Standard pack, CC0, `LICENSE.txt` next to it): the male full-body glTF with its eyes and eyebrows. Its textures are downscaled from 2048 to 1024 px, and two texture URIs in the `.gltf` that pointed at missing `*_png.png` files are corrected. The rig is Unreal-style (`root`, `pelvis`, `spine_01` ... `ball_r`, 65 bones with fingers).
+
+Import settings (`Superhero_Male_FullBody.gltf.import`, node `Armature/Skeleton3D`):
+
+- `retarget/bone_map`: `mannequin_bone_map.tres`, a `BoneMap` on `SkeletonProfileHumanoid`. 53 of the 56 profile bones are mapped (`pelvis` -> Hips, `spine_01/02/03` -> Spine/Chest/UpperChest, `clavicle_*` -> Shoulder, `thigh/calf/foot/ball_*` -> UpperLeg/LowerLeg/Foot/Toes, fingers 01/02/03 -> Proximal/Intermediate/Distal, thumb 01/02/03 -> Metacarpal/Proximal/Distal); only LeftEye, RightEye and Jaw are unmapped, and none of the three is required.
+- Bones renamed to the profile names, skeleton made unique as `%GeneralSkeleton`.
+- Rest fixer: retarget method "Overwrite Axis", fix silhouette on, apply node transforms, normalize position tracks, reset bone poses after import.
+
+Library clips go through the same profile. `assets/sample_clips/walk-ur7zdb.glb` is a copy of the M1 walk (`library/clips/walk-ur7zdb/motion.glb`, 66 KiB) imported as an `AnimationLibrary` with `canonical_bone_map.tres` (the identity map on the 22 canonical bones), the same retarget settings and loop on. Its tracks come out as `%GeneralSkeleton:<Bone>`, so they drive any model imported this way; the Hips position track is normalized by the clip's rest hip height and rescaled by the mannequin's (`motion_scale` 0.95 m).
+
+The sample clip is the editor-path reference only. The app loads `motion.glb` files from `library/` at runtime (M2.4); clips are not copied here otherwise.

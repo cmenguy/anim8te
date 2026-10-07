@@ -257,7 +257,7 @@ A single Godot scene for judging animation quality, not for gameplay.
 ### 6.2 Default character
 
 - **Skeleton:** Godot `SkeletonProfileHumanoid`, the canonical skeleton for the whole library.
-- **Mesh:** a neutral, CC0-licensed mannequin rigged to that profile (candidate: a Quaternius CC0 humanoid; see open question Q1). Using the SMPL-X mesh for the gym is avoided for licensing reasons.
+- **Mesh:** a neutral, CC0-licensed mannequin rigged to that profile (Quaternius Universal Base Characters, male full body; Q1, decided in M2.3). Using the SMPL-X mesh for the gym is avoided for licensing reasons.
 
 ### 6.3 Modes
 
@@ -430,7 +430,7 @@ motion-ai/
 
 ### Open questions
 
-- **Q1.** Which CC0 mannequin becomes the default character?
+- **Q1.** Which CC0 mannequin becomes the default character? *Decided: Quaternius Universal Base Characters (see PLAN.md).*
 - **Q2.** Which GPU host for `gvhmr-worker` (always-on vs spin-up per batch)?
 - **Q3.** Performer: one generic base image, or a Lara-like character from day one?
 - **Q4.** Root-motion policy for treadmill loops: synthesized constant speed, or speed-matched to the stride length?
