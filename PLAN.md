@@ -350,13 +350,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: Q1 decided (Quaternius Universal Base Characters, male, CC0, LICENSE.txt alongside); import: BoneMap on SkeletonProfileHumanoid, 53/56 bones mapped, all 17 required, renamed, %GeneralSkeleton, Overwrite Axis + fix silhouette; walk-ur7zdb imported as AnimationLibrary (23 tracks on %GeneralSkeleton) loops on the mannequin in scenes/mannequin_preview.tscn, checked on Movie Maker frames
 
 ### M2.4 Spike: runtime GLB load and RetargetModifier3D onto the mannequin
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M2.3, M1.10, M2.12
 - **Component:** godot
 - **Effort:** M
 - **Done when:** a script loads `library/clips/<id>/motion.glb` at runtime with `GLTFDocument`, finds its `Skeleton3D` and `AnimationPlayer`, and drives the mannequin through `RetargetModifier3D` using the humanoid profile; bone renaming at runtime (if needed) is handled; `godot/README.md` has a "Runtime retargeting" section with the gotchas and the chosen node layout.
 - **Notes:** This is the main Godot risk for the Clip Viewer and for Flow B (M4). Do it before building UI on top. If runtime retargeting fails, the fallback is to bake clips onto the mannequin's skeleton in the pipeline, which changes M1.10 and M4.5.
 - **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: ClipPlayer: GLTFDocument load + clip re-expressed on the model's rest + RetargetModifier3D (local, model Skeleton3D as direct child); no renaming needed; tests/check_runtime_retarget.gd PASS on walk-ur7zdb + jog-qa61r5: bone directions 0.00 deg and hip height change 0.00 cm vs the clip (editor path 3-14 deg off); README Runtime retargeting; capture docs/captures/m2.4-runtime-retarget.jpg
 
 ### M2.5 Library scanner and clip list
 - **Status:** todo
