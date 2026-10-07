@@ -68,7 +68,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 | Q6 | Video playback in Godot for Compare mode: transcode takes to Ogg Theora, or add a video GDExtension? | proposed | Transcode with ffmpeg in the pipeline (Godot 4 plays .ogv natively; keep mp4 as the source of truth) | M2.9 |
 | Q7 | Which Godot version to pin? `RetargetModifier3D` needs 4.4 or later | decided | Godot 4.7 (4.7.2 stable installed via Homebrew), pinned in `godot/project.godot` `config/features` | M0.8 |
 | Q8 | Extract backend for M1: native GVHMR wrapper or ComfyUI workflow API? | proposed | Native (GDD §8 default, returns `hmr4d_results.pt` directly); ComfyUI stays optional | M1.4 |
-| G0 | Go/no-go after M0: is GVHMR on H3 Max video good enough to build on? | open | | M1.1 |
+| G0 | Go/no-go after M0: is GVHMR on H3 Max video good enough to build on? | decided | Go with conditions (owner, 2026-10-07): own contact detection and foot lock (M2.7, M3.1); one body shape per performer (M1.8, M3.5); leg-swap repair and travel rescale for dynamic clips (M3.20); still-camera clips only on the Mac worker (M1.4). See `docs/feasibility.md` "M0.9 Go/no-go" | M1.1 |
 
 ## M0: Accounts, GPU box, feasibility test
 
@@ -223,7 +223,7 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Component:** worker
 - **Effort:** M
 - **Done when:** Q8 decided; `worker/` has a `Dockerfile` or `setup.sh` that installs GVHMR and expects the M0.3 checkpoints at a mounted path; `POST /extract` (multipart video, bearer token, `static_camera=true`) returns a job id; `GET /jobs/{id}` returns `queued|running|done|failed`, log tail, and when done the download URLs for `hmr4d_results.pt` and `overlay.mp4`; one M0 take runs through it on the Mac (Apple-Silicon fork, MPS); `worker/README.md` documents start-up and the API.
-- **Notes:** GDD §8. Runs the fork's `gvhmr demo <video> -s` on the Mac (Q2; install notes in `docs/feasibility.md`, M0.10), or upstream `tools/demo/demo.py --video ... -s` on a CUDA box later. Keep the API tiny so a commercial service (Move.ai, Rokoko, DeepMotion) can replace it later (GDD §10). No GPL code in here.
+- **Notes:** GDD §8. Runs the fork's `gvhmr demo <video> -s` on the Mac (Q2; install notes in `docs/feasibility.md`, M0.10), or upstream `tools/demo/demo.py --video ... -s` on a CUDA box later. Keep the API tiny so a commercial service (Move.ai, Rokoko, DeepMotion) can replace it later (GDD §10). No GPL code in here. Per G0, the Mac worker accepts still-camera takes only: a moving-camera request is refused with a clear error, never run through VGGT or DUSt3R at their defaults (that crashed the Mac in M0.10); those go to a CUDA box or are avoided through framing.
 
 ### M1.5 motionai extract: worker client
 - **Status:** todo
@@ -255,7 +255,7 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** `motionai/skeleton.py` defines the hierarchy of the 22 SMPL-X body joints renamed with the humanoid names from the GDD table (Hips, Spine, Chest, UpperChest, Neck, Head, Left/Right Shoulder, UpperArm, LowerArm, Hand, UpperLeg, LowerLeg, Foot, Toes), rest pose built from the performer's `betas`, parent indices; a test checks every SMPL-X joint maps to exactly one humanoid name and the parent table forms a single tree rooted at Hips.
-- **Notes:** GDD §4 stage 5.3. Rest pose is the SMPL-X zero pose with the performer's shape, so GVHMR's local rotations transfer without re-expression. Godot's humanoid retarget (import-time "overwrite axis" and "fix silhouette", runtime `RetargetModifier3D`) absorbs the difference to the mannequin's rest. No fingers.
+- **Notes:** GDD §4 stage 5.3. Rest pose is the SMPL-X zero pose with the performer's shape, so GVHMR's local rotations transfer without re-expression. Godot's humanoid retarget (import-time "overwrite axis" and "fix silhouette", runtime `RetargetModifier3D`) absorbs the difference to the mannequin's rest. No fingers. Per G0, `betas` are fixed per performer (stored once with the performer, reused by every clip), not taken from each clip: M0.7 measured a 6 cm stature spread across clips of the same performer.
 
 ### M1.9 Minimal motionai clean: smoothing and ground alignment
 - **Status:** todo
@@ -432,12 +432,20 @@ Three phases. **M3.A** finishes the stage 5 cleanup in the pipeline, tuned again
 - **Done when:** `qc.json` has foot skate (cm of slide during contact), ground penetration (cm), joint jerk, loop seam error, root drift, and `betas` variance against the performer's reference; thresholds in config; an overall `status` of `ok`, `warn` or `fail`; `motionai qc <clip_id>` prints a table; the Gym's clip list badge reads it.
 - **Notes:** GDD §4 stage 5.6, goal G5.
 
+### M3.20 Leg-swap repair and root-travel rescale
+- **Status:** todo
+- **Depends on:** M1.9, M3.5
+- **Component:** pipeline
+- **Effort:** M
+- **Done when:** a clean filter detects left/right leg swaps (mesh legs out of phase with the 2D leg keypoints) and repairs them, and a travel-rescale filter scales root translation to match the hips' image-space travel at the clip's metres-per-pixel; on `vault-m05/2` and `vault-m05/3` the run-up's leg power above 6 Hz drops from 12 to 13% to under 3%, root travel lands within 10% of the image-based estimate (about 3.8 m and 3.5 m), and idle and jog clips come out unchanged; both filters are toggles in `meta.json`.
+- **Notes:** Condition 3 of G0 (`docs/feasibility.md`, M0.7 vault problems and M0.9). Needs the 2D keypoints and the input video next to `hmr4d_results.pt`, so `/extract` (M1.4, M1.5) has to return them. If repair is not reliable, the fallback is a base image with her larger in frame for side-on clips.
+
 ### M3.6 clean orchestration: ordered, toggleable, re-runnable filters
 - **Status:** todo
-- **Depends on:** M3.5
+- **Depends on:** M3.5, M3.20
 - **Component:** pipeline
 - **Effort:** S
-- **Done when:** the filter order is fixed (smooth, contacts, foot lock, ground align, root motion, trim and loop, segment, QC, features); each filter can be toggled and parametrised from `meta.json` or CLI flags; re-running from saved parameters is idempotent; a 5 s clip cleans in under about 10 s; `motionai clean --explain` prints what ran and the QC deltas.
+- **Done when:** the filter order is fixed (leg-swap repair, smooth, contacts, foot lock, ground align, travel rescale, root motion, trim and loop, segment, QC, features); each filter can be toggled and parametrised from `meta.json` or CLI flags; re-running from saved parameters is idempotent; a 5 s clip cleans in under about 10 s; `motionai clean --explain` prints what ran and the QC deltas.
 - **Notes:** This is what the Clean panel (M3.14) drives.
 
 **Phase M3.B: the motionai daemon**
