@@ -159,7 +159,7 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-07 in-progress -> done: Godot 4.7.2 stable installed (Homebrew cask); godot/project.godot pins features 4.7 and opens headless in the 4.7.2 editor with no errors; runtime check: Vector3.UP=(0,1,0), right-handed; Q7 decided
 
 ### M0.9 Go/no-go decision
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M0.7
 - **Component:** decision
 - **Effort:** S
@@ -167,6 +167,7 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Done when:** `docs/feasibility.md` has a "Go/no-go" section stating go or no-go, the evidence, and if no-go which of stages 2 (video) or 4 (extraction) to rethink and with what alternatives; decision G0 in the table above is set to `decided`. Only the owner makes this call; the agent prepares the evidence.
 - **Notes:** GDD §9 M0 and §11. Alternatives if no-go: a different video model, stricter prompts, or a commercial video-to-mocap service behind the same `/extract` interface (GDD §10).
 - **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: owner call 2026-10-07: go with conditions; G0 decided; docs/feasibility.md 'M0.9 Go/no-go' section; conditions mapped to M2.7, M3.1, M1.8, M3.5, new M3.20, M1.4
 
 ### M0.10 Spike: run the Apple-Silicon GVHMR fork on the Mac
 - **Status:** done
