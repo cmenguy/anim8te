@@ -334,7 +334,7 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Depends on:** M2.1
 - **Component:** godot
 - **Effort:** M
-- **Done when:** a 40 x 40 m ground plane with a 1 m grid and 10 cm sub-grid shader; boxes at 0.5, 1.0 and 1.5 m; a 2.2 m ledge wall; gaps of 1.5, 2.5 and 3.5 m between platforms; 20° and 35° ramps; a staircase with 0.18 m risers; a 0.3 m beam; every prop labelled with its size; neutral HDRI sky, one directional light, ACES tone mapping; an orbit camera with focus-on-character.
+- **Done when:** a 40 x 40 m ground plane with a 1 m grid and 10 cm sub-grid shader; boxes at 0.5, 1.0 and 1.5 m; a 2.2 m ledge wall; gaps of 1.5, 2.5 and 3.5 m between platforms; 20° and 35° ramps; a staircase with 0.18 m risers; a 0.3 m beam; every prop labelled with its size; neutral sky (a `ProceduralSkyMaterial`; the owner chose the simplest option over an HDRI asset), one directional light, ACES tone mapping; an orbit camera with focus-on-character.
 - **Notes:** GDD §6.1. One Godot unit is one metre. Build props from `CSGBox3D` or `MeshInstance3D` with collision so M5's controller can use them.
 - **Log:** 2026-10-07 todo -> in-progress
 
