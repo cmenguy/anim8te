@@ -162,3 +162,21 @@ All takes: 124 frames, 5.2 s at 24 fps. No frames are missing in the results or 
 
 - Idle and jog are usable after cleanup: foot locking, root motion for the jog, and light smoothing. No missing frames and no flips.
 - The vault is usable for its height and its key poses (hands on the block, the crouch on top). Its run-up has left/right leg swaps and about 30% too much travel, so it needs either cleanup that detects swaps and rescales root travel, or a base image where she is larger in frame.
+
+## M0.9 Go/no-go (2026-10-07)
+
+**Decision: go, with conditions.** The owner made the call on the M0.7 evidence above. GVHMR on H3 Max video is good enough to build the pipeline on; stages 2 (video) and 4 (extraction) stay as designed.
+
+Evidence:
+
+- GVHMR runs on the Mac (Apple-Silicon fork) in about 30 s per still-camera take, at no cost (M0.10).
+- Idle and jog: no missing frames, no flips over 45°, high-frequency power under 1%; overlays track arm swing and knee lift. Remaining faults are the ones stage 5 cleanup is designed for: foot creep (idle 5 to 8 cm/s, jog 26 to 38 cm/s during contact), treadmill drift of 5 to 10 cm, and GVHMR's own contact head firing on too few frames.
+- Vault: key poses and height are right (soles rise 0.55 to 0.59 m for a block of about 0.53 m). The run-up has left/right leg swaps (9% power above 6 Hz), travel about 30 to 35% too long, and in one take a floor tilted about 2°.
+- Stature varies 1.67 to 1.73 m across clips of the same performer.
+
+Conditions, and where each one lives in the plan:
+
+1. Cleanup does its own contact detection and foot locking rather than relying on GVHMR's contact head: M2.7 (contacts in `features.json`) and M3.1 (foot lock).
+2. One body shape per performer, chosen once and reused by every clip, rather than each clip's own `betas`: M1.8 (Notes) and M3.5 (`betas` variance in QC).
+3. Dynamic clips with side-on run-ups get leg-swap repair and root-travel rescaling, or a base image where she is larger in frame: new task M3.20.
+4. The Mac worker takes still-camera clips only. Moving-camera takes are flagged, not run through VGGT or DUSt3R at their defaults (that crashed the Mac in M0.10); they go to a cloud box or are avoided through framing: M1.4 (Notes).
