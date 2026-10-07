@@ -420,13 +420,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: tests/check_compare.gd passes headless and with a renderer: drift 0.1 ms on every frame of a 5.13 s jog at 1x, 0.5x and 2x, across a loop and to the end, 0 corrective seeks while playing; on screen 99.4-100 % of video frames match ffmpeg's frame for the clip time (rest ±1), paused scrubs exact; capture docs/captures/m2.10-compare.jpg
 
 ### M2.11 Review the M0 and M1 clips in the Gym and log findings
-- **Status:** in-progress
+- **Status:** done
 - **Depends on:** M2.10
 - **Component:** docs
 - **Effort:** S
 - **Done when:** every clip so far has been viewed in Clip Viewer and Compare; `docs/gym-findings.md` lists defects per clip (foot skate, ground penetration, jitter, root drift, limb flips) with timestamps; the list ranks which cleanup filters matter most, which sets the order of M3.A. This closes M2.
 - **Notes:** GDD §3.2: the gym with overlays is the fastest way to see what still breaks. The M0 clips held feasibility outputs only, so they were given a `meta.json` from `takes/log.jsonl` and re-run through `extract`, `clean` and `export` on their best still-camera take (idle 2, jog 3, vault 2, per docs/feasibility.md M0.7); all five clips now play in the Gym. `check_video_playback.gd` now takes the expected frame size from the source mp4 (the vault takes are 1344x768 landscape).
 - **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: all 5 clips play in the Gym (M0 clips re-run on idle 2, jog 3, vault 2); docs/gym-findings.md: skate 0/35/56/59/27 %, penetration <=9 mm except vault 40 mm at 1.63 s, no flips (max 17.7 deg), vault swaps 1.47-2.53 s; M3.A order foot lock, root motion, leg-swap repair, loop, segmentation; capture docs/captures/m2.11-gym-review.jpg
 
 ### M2.12 Export: straight-spine rest so humanoid retargeting keeps posture
 - **Status:** done
