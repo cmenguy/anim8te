@@ -33,7 +33,7 @@ GDD.md  PLAN.md  README.md  CLAUDE.md
 .claude/skills/   next-step, roadmap (and the plan parser)
 godot/            Godot 4.x project: Gym + Workflow Manager         (from M2)
 anim8te/          Python package: CLI, pipeline stages, daemon      (from M1)
-worker/           gvhmr-worker around GVHMR (Mac fork), install     (from M1.4)
+worker/           gvhmr-worker around GVHMR (Mac fork), own uv project (from M1.4)
 library/          performers, clips, models; git-ignored
 tests/            pytest; fixtures stay under 1 MB
 docs/             feasibility, pipeline notes, findings, captures
@@ -72,6 +72,9 @@ uv run anim8te lib ls                                       # clips and performe
 uv run anim8te gen --performer perf01 --template locomotion --prompt "..." --dry-run  # final prompt + cost, no fal call
 anim8te extract|clean|export <args>                         # pipeline CLI (stubs until M1.5 to M1.10)
 anim8te serve                                               # local daemon for the Godot app (M3.7)
+worker/setup.sh                                             # install GVHMR (pinned Mac fork) + the worker
+uv run --project worker gvhmr-worker                        # GVHMR worker on 127.0.0.1:8765 (API in worker/README.md)
+cd worker && uv run pytest                                  # worker tests (fake gvhmr CLI)
 ```
 
 ## Keeping the docs current
