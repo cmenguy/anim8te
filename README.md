@@ -59,7 +59,7 @@ Collected as the plan progresses; none are needed to read the documents.
 
 - A Mac for development with Python 3.11 or later and Godot 4.7 (`brew install --cask godot`).
 - A fal.ai account and API key for video generation (about $0.40 per 5-second take at 768p).
-- SMPL-X and SMPL research licenses, for the body models GVHMR and the converter use.
+- SMPL-X and SMPL research licenses, for the body models GVHMR and the converter use. The converter reads `SMPLX_NEUTRAL.npz` from `$GVHMR_BODY_MODELS/smplx/` (default `~/motion-ai-checkpoints/body_models`, see `docs/checkpoints.md`); tests that need it skip when it is missing.
 - An Apple Silicon Mac with 32 GB or more for GVHMR, through the fork at https://github.com/ryanrudes/gvhmr (`worker/setup.sh` installs it; see `worker/README.md`). A cloud NVIDIA GPU is only needed later, for moving-camera clips or batch runs.
 - ffmpeg, to transcode takes to Ogg Theora for Godot's video player; GVHMR also needs its `ffprobe` to read frame rates.
 - Optional: an Anthropic API key for the agent-assist features.

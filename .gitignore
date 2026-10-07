@@ -14,6 +14,8 @@ library/performers/*
 *.pt
 *.npz
 *.pkl
+# small test fixtures trimmed from real outputs (under 1 MB, no model weights)
+!tests/fixtures/*.pt
 
 # godot
 .godot/

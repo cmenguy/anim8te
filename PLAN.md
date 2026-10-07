@@ -245,12 +245,14 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: 43 tests pass (fake worker: happy path, rerun, failed job, failed download, 401, unreachable, timeout); real run on walk-ur7zdb take 1: 32 s on the Mac worker, gvhmr/hmr4d_results.pt (155 frames) + overlay.mp4, meta status extracted; real 401, unreachable and failed-job messages checked, failures leave meta.json untouched
 
 ### M1.6 Load SMPL-X parameters and rebuild joints
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M1.5, M0.3
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** `anim8te.convert.load_gvhmr(path)` returns per-frame `global_orient`, `body_pose`, `transl`, `betas` and the frame rate as numpy arrays; the `smplx` package rebuilds the 22 body joint positions and parent table from `betas`; a test on a small fixture (`tests/fixtures/*.pt`, under 1 MB, trimmed from a real output) checks shapes, joint count and frame rate.
-- **Notes:** GDD §4 stage 5.1. We only use `smpl_params_global`. Frame rate equals the source video's.
+- **Notes:** GDD §4 stage 5.1. We only use `smpl_params_global`. GVHMR's demo resamples every input to 30 fps (it is a 30 fps model), so the parameters are always 30 fps, not the source video's rate (a 124-frame 24 fps take gives 155 frames).
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: load_gvhmr on real walk-ur7zdb output: 155 frames at 30 fps (GVHMR resamples the 24 fps take), body_pose (T,21,3), betas (10,); rest_skeleton via smplx gives 22 joints with SMPL parents, ankle-to-head 1.47 m; tests/test_convert.py on a 5.5 KB 10-frame fixture, 47 tests pass
 
 ### M1.7 Axis conventions: GVHMR world frame to glTF
 - **Status:** todo
