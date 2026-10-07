@@ -420,12 +420,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: tests/check_compare.gd passes headless and with a renderer: drift 0.1 ms on every frame of a 5.13 s jog at 1x, 0.5x and 2x, across a loop and to the end, 0 corrective seeks while playing; on screen 99.4-100 % of video frames match ffmpeg's frame for the clip time (rest ±1), paused scrubs exact; capture docs/captures/m2.10-compare.jpg
 
 ### M2.11 Review the M0 and M1 clips in the Gym and log findings
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M2.10
 - **Component:** docs
 - **Effort:** S
 - **Done when:** every clip so far has been viewed in Clip Viewer and Compare; `docs/gym-findings.md` lists defects per clip (foot skate, ground penetration, jitter, root drift, limb flips) with timestamps; the list ranks which cleanup filters matter most, which sets the order of M3.A. This closes M2.
-- **Notes:** GDD §3.2: the gym with overlays is the fastest way to see what still breaks.
+- **Notes:** GDD §3.2: the gym with overlays is the fastest way to see what still breaks. The M0 clips held feasibility outputs only, so they were given a `meta.json` from `takes/log.jsonl` and re-run through `extract`, `clean` and `export` on their best still-camera take (idle 2, jog 3, vault 2, per docs/feasibility.md M0.7); all five clips now play in the Gym. `check_video_playback.gd` now takes the expected frame size from the source mp4 (the vault takes are 1344x768 landscape).
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: all 5 clips play in the Gym (M0 clips re-run on idle 2, jog 3, vault 2); docs/gym-findings.md: skate 0/35/56/59/27 %, penetration <=9 mm except vault 40 mm at 1.63 s, no flips (max 17.7 deg), vault swaps 1.47-2.53 s; M3.A order foot lock, root motion, leg-swap repair, loop, segmentation; capture docs/captures/m2.11-gym-review.jpg
 
 ### M2.12 Export: straight-spine rest so humanoid retargeting keeps posture
 - **Status:** done
@@ -443,7 +445,15 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Component:** godot
 - **Effort:** M
 - **Done when:** the mannequin on a `CharacterBody3D` in the calibration level moves with WASD relative to a third-person follow camera; an `AnimationTree` blends idle, walk and jog by speed (sprint key for jog) from the library clips imported through the editor path (`assets/sample_clips/`, canonical bone map); a key triggers the vault clip; collision with the props works; `godot/README.md` says how to play; a short capture is saved under `docs/captures/`.
-- **Notes:** Owner's request (2026-10-07): something playable in the grey box early, with the clips that exist today (idle-m05, walk-ur7zdb, jog-m05 or jog-qa61r5, vault-m05). Only walk-ur7zdb and jog-qa61r5 have a `motion.glb`; idle-m05, jog-m05 and vault-m05 hold M0 feasibility takes only, so they go through `anim8te extract`, `clean` and `export` first (the M0 outputs may need a `meta.json`). Once M2.4 is merged, `ClipPlayer` can load them at runtime instead of copying them under `assets/sample_clips/`. Uses editor imports, so it does not need M2.4. Hand-built blend tree, no motion matching; M5.3 stays the real controller over the starter set. Root motion is optional here (in-place clips plus code-driven velocity is fine).
+- **Notes:** Owner's request (2026-10-07): something playable in the grey box early, with the clips that exist today (idle-m05, walk-ur7zdb, jog-m05 or jog-qa61r5, vault-m05). Only walk-ur7zdb and jog-qa61r5 have a `motion.glb`; idle-m05, jog-m05 and vault-m05 hold M0 feasibility takes only, so they go through `anim8te extract`, `clean` and `export` first (done in M2.11: all three are exported on takes idle 2, jog 3, vault 2). Once M2.4 is merged, `ClipPlayer` can load them at runtime instead of copying them under `assets/sample_clips/`. Uses editor imports, so it does not need M2.4. Hand-built blend tree, no motion matching; M5.3 stays the real controller over the starter set. Root motion is optional here (in-place clips plus code-driven velocity is fine).
+
+### M2.14 Clip Viewer test: make the clip-switch timing check robust
+- **Status:** todo
+- **Depends on:** M2.6
+- **Component:** godot
+- **Effort:** S
+- **Done when:** `check_clip_viewer.gd` passes 10 runs in a row on the local library with all five clips playable, and the switch-time check still fails if a first load takes over a frame budget that is measured (median of several loads) rather than one sample.
+- **Notes:** Found in M2.11: the first-load switch time is one sample against a 16 ms budget; on the M1 clips it ranges 11 to 21 ms (one failure in three runs), and with the M0 clips first in the list it is 18 to 19 ms every run. The cached switch stays under 0.3 ms.
 
 ## M3: Workflow Manager, Flow A
 
@@ -459,7 +469,7 @@ Three phases. **M3.A** finishes the stage 5 cleanup in the pipeline, tuned again
 - **Component:** pipeline
 - **Effort:** L
 - **Done when:** during each detected contact the foot is pinned to its first-contact position with two-bone IK on hip, knee and ankle (pole vector from the original knee direction), with blend-in and blend-out windows; toggle and parameters in `meta.json`; on the jog and vault clips the foot-skate metric (M3.5) drops clearly and joint jerk does not rise (no knee pops); visible in the Gym overlays.
-- **Notes:** GDD §4 stage 5.4 and §11 foot skate risk.
+- **Notes:** GDD §4 stage 5.4 and §11 foot skate risk. First in M3.A per `docs/gym-findings.md` (M2.11): skate is 27 to 59 % of contact frames on every moving clip. Two gaps found there: contacts are measured against y = 0 only, so the vault's crouch on the block (soles about 0.7 m up after 3 s) gets none; and `ground_velocity` auto picks up a spurious 0.13 m/s on the vault, so non-treadmill templates should use 0.
 
 ### M3.2 Root motion: hips extraction and treadmill synthesis
 - **Status:** todo
@@ -499,7 +509,7 @@ Three phases. **M3.A** finishes the stage 5 cleanup in the pipeline, tuned again
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** a clean filter detects left/right leg swaps (mesh legs out of phase with the 2D leg keypoints) and repairs them, and a travel-rescale filter scales root translation to match the hips' image-space travel at the clip's metres-per-pixel; on `vault-m05/2` and `vault-m05/3` the run-up's leg power above 6 Hz drops from 12 to 13% to under 3%, root travel lands within 10% of the image-based estimate (about 3.8 m and 3.5 m), and idle and jog clips come out unchanged; both filters are toggles in `meta.json`.
-- **Notes:** Condition 3 of G0 (`docs/feasibility.md`, M0.7 vault problems and M0.9). Needs the 2D keypoints and the input video next to `hmr4d_results.pt`, so `/extract` (M1.4, M1.5) has to return them. If repair is not reliable, the fallback is a base image with her larger in frame for side-on clips.
+- **Notes:** Condition 3 of G0 (`docs/feasibility.md`, M0.7 vault problems and M0.9). Needs the 2D keypoints and the input video next to `hmr4d_results.pt`, so `/extract` (M1.4, M1.5) has to return them. If repair is not reliable, the fallback is a base image with her larger in frame for side-on clips. Measure the 6 Hz target with `smooth` off: the default savgol already brings the vault run-up from 17.3 % to 1.2 % without fixing the swaps (`docs/gym-findings.md`).
 
 ### M3.6 clean orchestration: ordered, toggleable, re-runnable filters
 - **Status:** todo

@@ -2,7 +2,7 @@ extends SceneTree
 ## Video playback check (M2.9). Plays a library clip's `selected.ogv` and
 ## `gvhmr/overlay.ogv` (the Ogg Theora copies `anim8te extract` writes) in a
 ## VideoStreamPlayer: each loads, reports its length, advances while playing,
-## seeks, and decodes frames of the source's size.
+## seeks, and decodes frames of the source mp4's size (ffprobe).
 ##
 ##   godot --headless --path godot --script tests/check_video_playback.gd [-- --clip=<id>]
 ##
@@ -46,6 +46,19 @@ func _has_all(dir: String) -> bool:
 	return true
 
 
+## Frame size of the mp4 the .ogv was made from (portrait takes are 768x960,
+## side-on ones 1344x768), read with ffprobe (`ANIM8TE_FFPROBE`, else on PATH).
+func _source_size(mp4: String) -> Vector2:
+	var ffprobe := OS.get_environment("ANIM8TE_FFPROBE") if OS.has_environment("ANIM8TE_FFPROBE") else "ffprobe"
+	var out: Array = []
+	var code := OS.execute(ffprobe, ["-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0", mp4], out)
+	var wh: PackedStringArray = (out[0] as String).strip_edges().split(",") if code == 0 and out.size() > 0 else PackedStringArray()
+	if wh.size() != 2:
+		_expect(false, "ffprobe (%s) reads the size of %s" % [ffprobe, mp4])
+		return Vector2.ZERO
+	return Vector2(int(wh[0]), int(wh[1]))
+
+
 func _check_file(path: String) -> void:
 	var stream := VideoStreamTheora.new()
 	stream.file = path
@@ -69,7 +82,7 @@ func _check_file(path: String) -> void:
 
 	var tex := player.get_video_texture()
 	var size := tex.get_size() if tex else Vector2.ZERO
-	var want := Vector2(768, 960) if name == "selected.ogv" else Vector2(768, 480)
+	var want := _source_size(path.get_basename() + ".mp4")
 	_expect(size == want, "%s: frames are %s (source %s)" % [name, size, want])
 
 	# Seek, as Compare mode's shared timeline will.
