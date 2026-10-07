@@ -66,7 +66,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 | Q4 | Root-motion policy for treadmill loops: synthesized constant speed, or speed-matched to stride length? | open | | M3.2 |
 | Q5 | Does the @MrCollison open-source parkour controller change the Controller plan? | open | | M5.2 |
 | Q6 | Video playback in Godot for Compare mode: transcode takes to Ogg Theora, or add a video GDExtension? | proposed | Transcode with ffmpeg in the pipeline (Godot 4 plays .ogv natively; keep mp4 as the source of truth) | M2.9 |
-| Q7 | Which Godot version to pin? `RetargetModifier3D` needs 4.4 or later | proposed | Latest stable 4.x at M0.8, pinned in `godot/project.godot` | M0.8 |
+| Q7 | Which Godot version to pin? `RetargetModifier3D` needs 4.4 or later | decided | Godot 4.7 (4.7.2 stable installed via Homebrew), pinned in `godot/project.godot` `config/features` | M0.8 |
 | Q8 | Extract backend for M1: native GVHMR wrapper or ComfyUI workflow API? | proposed | Native (GDD §8 default, returns `hmr4d_results.pt` directly); ComfyUI stays optional | M1.4 |
 | G0 | Go/no-go after M0: is GVHMR on H3 Max video good enough to build on? | open | | M1.1 |
 
