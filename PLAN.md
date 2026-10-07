@@ -120,12 +120,13 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-06 in-progress -> done: Q3 decided (generic perf01); library/performers/perf01/base.png (owner's GPT image, woman on a treadmill deck, 1122x1402, prompt in README) checked against stage 1: ~13%/30% margins top/bottom, straight-on but camera ~10 deg above eye level, one person, fitted clothes; textured concrete backdrop accepted; black-on-black feet flagged for M0.7-M0.9; README has checklist and provenance
 
 ### M0.5 Generate the feasibility takes: idle, jog, vault
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M0.2, M0.4
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** two or three takes each for idle (standing with subtle weight shifts), jog ("on a treadmill") and vault (waist-high block), 5 s at 768P with `prompt_expansion_mode` disabled and every prompt ending in "Static camera, full body visible."; files under `library/clips/<clip_id>/takes/<n>.mp4`; prompts, seeds, durations and cost logged in `docs/feasibility.md`.
 - **Notes:** Prompting rules in GDD §4 stage 2. Budget is about $0.40 per take, so under $5 for the set. Keep the three movements: idle (static pose quality), jog (cyclic, loop quality), vault (dynamic, foot contact and root height).
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M0.6 Provision the cloud GPU box and install ComfyUI + ComfyUI-MotionCapture
 - **Status:** todo
