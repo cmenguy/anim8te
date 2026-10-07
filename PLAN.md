@@ -295,12 +295,13 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: anim8te export walk-ur7zdb -> 66 KiB skeleton-only motion.glb (155 frames, 30 fps, 23 channels); Khronos glTF-Validator 2.0.0-dev.3.10: 0 errors, 0 warnings (1 info: skin unused, no mesh); Godot 4.7 headless import: 22-bone Skeleton3D matching SkeletonProfileHumanoid, animation walk-ur7zdb 5.13 s; owner confirmed in the editor: auto bone map 22/22, plays; 75 tests pass
 
 ### M1.11 End-to-end: one prompt to motion.glb in Godot
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M1.10
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** a fresh clip goes `gen`, `extract`, `clean`, `export` from the CLI in under about 20 minutes wall-clock; a short capture of the GLB playing in Godot is saved under `docs/captures/`; per-stage timings and costs are written in `docs/pipeline-notes.md`. This closes M1.
 - **Notes:** GDD goal G1.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M1.12 ComfyUI backend for gvhmr-worker
 - **Status:** todo
