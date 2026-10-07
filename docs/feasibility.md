@@ -61,3 +61,26 @@ In all three the body stays in frame from head to feet, because the camera follo
 Vault v2 cost: $0.90 for the image edits (6 images) + $0.45 for the 3 takes.
 
 **M0.5 total: $2.55 at list price** (11 video takes $1.65, image edits $0.90), under the $5 budget.
+
+### Vault v3: wide base image (M0.11)
+
+The v2 takes pan because she fills about 80% of the frame and runs out of it, so the video model follows her. v3 starts from a wide base image with her whole path in frame.
+
+`comp7.png` places her and the block from `cand5` 4 m apart at 38% of the frame height on a 1376x768 canvas; `comp7_mask.png` keeps the two cut-outs (inset 6 px) and fills the rest. Both fill calls use `fal-ai/flux-pro/v1/fill` ($0.05 per megapixel, about $0.05 per image), seeds 1 and 2, PNG; prompts and URLs are in `candidates/manifest.json`.
+
+| Call | Prompt | Result |
+|---|---|---|
+| 1 (`cand8`, `cand9`) | Studio wall and floor, "empty space between the woman on the left and the grey block on the right" | Both add a second block and extra women. Naming the subjects makes the fill paint copies of them. |
+| 2 (`cand10`, `cand11`) | Same studio, no person or object named: "Empty room, nothing on the floor, nothing in front of the wall." | `cand10`: clean, one woman, one block, continuous wall and floor line. `cand11`: four extra people. |
+
+The owner picked `cand10`; it is now `perf01/vault/base.png` (the v2 base was a copy of `cand6`). Fill cost: about $0.22.
+
+Takes: same model, prompt and settings as v2 (5 s, 768P, expansion off, seeds 1 to 3), 1344x768 at 24 fps, 124 frames. The v2 takes moved to `takes/v2/`.
+
+| Take (seed) | File | Wall clock | Cost (list) | Camera | First look |
+|---|---|---|---|---|---|
+| 1 | `takes/1.mp4` | 4.7 s | $0.15 | Moves: pushes in and follows her from about 2 s, ends close on her crouch | Run, hands on the block, crouch on top. Dynamic, but the push-in breaks the static assumption. |
+| 2 | `takes/2.mp4` | 4.7 s | $0.15 | Still: wall seams and block fixed in every frame | Walk-run, hands on, knee up, crouch on top. A climb more than a jump. |
+| 3 | `takes/3.mp4` | 4.4 s | $0.15 | Still | Same as 2, slightly lower crouch at the end. |
+
+With her whole path in frame, two of three takes keep the camera still, against none of three in v2. She is about a third of the frame height, smaller than in the other clips; GVHMR will show whether that costs pose detail. Takes 2 and 3 can run with `-s`. Vault v3 cost: $0.22 for the fills + $0.45 for the takes.
