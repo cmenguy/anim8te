@@ -88,13 +88,14 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Log:** 2026-10-06 in-progress -> done: 6 dirs with one-line READMEs; .env.example has the 4 names; .gitignore verified with check-ignore (library/* ignored except README); README/CLAUDE layout updated
 
 ### M0.2 fal account, API key and first H3 Max smoke test
-- **Status:** in-progress
+- **Status:** blocked
 - **Depends on:** M0.1
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** `FAL_KEY` set in `.env`; a throwaway script under `docs/scratch/` generates one 5 s, 768P image-to-video clip from any full-body image with `fal_client.subscribe("minimax/h3-max/image-to-video", ...)` and saves the mp4; the real cost of that call is written in the Notes of this task.
 - **Notes:** Needs the owner: create the key at https://fal.ai/dashboard/keys. Inputs and pricing in GDD §4 stage 2.
 - **Log:** 2026-10-06 todo -> in-progress
+- **Log:** 2026-10-06 in-progress -> blocked: waiting on owner: top up fal balance at https://fal.ai/dashboard/billing (key works, account locked: exhausted balance); then run docs/scratch/fal_smoke_test.py --gen-image
 
 ### M0.3 Register for SMPL-X and SMPL, download body models and GVHMR checkpoints
 - **Status:** todo
