@@ -27,12 +27,12 @@ The editor cache `.godot/` is git-ignored and rebuilt on first open.
 
 ## Scenes
 
-- `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (the default mannequin, in its rest pose), the orbit camera and `UI/LibraryPanel` (see "Library panel").
+- `main.tscn`: the entry scene. It instances the calibration level, holds `Character` (a `ClipPlayer` driving the default mannequin, in its rest pose until a clip is picked), the orbit camera, `UI/LibraryPanel` (see "Library panel") and `UI/ClipViewer` (see "Clip Viewer").
 - `mannequin_preview.tscn`: the mannequin playing the sample clip `walk-ur7zdb` in a loop through the editor import path (an `AnimationPlayer` whose `root_node` is the mannequin). Open it and press F6 to check an import setting change.
 - `runtime_retarget.tscn`: the mannequin playing a library clip loaded at runtime (`ClipPlayer`, see "Runtime retargeting"). `clip_id` defaults to `walk-ur7zdb`; `godot --path godot scenes/runtime_retarget.tscn -- --clip=jog-qa61r5` picks another.
 - `calibration_level.tscn`: the grey-box level (GDD §6.1), with a neutral procedural sky, one directional light and ACES tone mapping. `scripts/calibration_level.gd` builds the props in code (it is a `@tool` script, so they show up in the editor too). Every prop is a `StaticBody3D` with collision and a size label; the ground's grid shader (`assets/shaders/grid.gdshader`) draws 1 m and 10 cm lines in world space, with the X axis in red and the Z axis in blue.
 
-Orbit camera (`scripts/orbit_camera.gd`): left or right drag orbits, middle drag or shift + drag pans, the wheel zooms, and F focuses on the character.
+Orbit camera (`scripts/orbit_camera.gd`): left or right drag orbits, middle drag or shift + drag pans, the wheel zooms, F focuses on the character and C toggles follow: the orbit centre tracks the character on the ground plane (its hips, through `ClipPlayer.focus_position()`), keeping its height so the view does not bob.
 
 ## Default mannequin
 
@@ -59,6 +59,18 @@ godot --headless --path godot --script tests/check_library_scanner.gd
 ```
 
 It builds a throwaway library under `user://` (complete, partial and broken clips), checks the scan and the panel, prints the real library's list and exits 1 on a mismatch. Capture: `docs/captures/m2.5-library-panel.jpg`.
+
+## Clip Viewer
+
+`scripts/clip_viewer.gd` (`ClipViewer`, the bar along the bottom of `main.tscn`) is the Clip Viewer mode (GDD §6.3). Selecting a playable clip in the library panel plays it on the mannequin from frame 0; a partial clip is named in the bar and not played. The bar has frame step back and forward, play/pause, a timeline (one step per frame) to scrub, speed from 0.1x to 2x with a 1x reset, Loop and Follow (the camera, as C does), and shows the clip id, its frame count and rate, the current frame and the time. Keys: Space plays or pauses, Left/Right (or `,`/`.`) step a frame and pause, L toggles loop.
+
+The transport lives in `ClipPlayer` (`set_playing`, `seek`, `seek_frame`, `step`, `speed`, `loop`, `current_clip`), so other modes can reuse it. A clip has one key per frame; `RuntimeClip.frame_count` and `fps` come from the keys (30 fps for GVHMR). Stepping wraps around when looping and stops at the ends otherwise; a non-looping clip stops on its last frame and Play starts it over. A looping animation wraps a seek to its length back to 0, so the last frame of a looping clip is shown 0.1 ms before it. Clips load in about 10 ms the first time and 0.2 ms from the cache, so switching needs no preloading. Check with:
+
+```bash
+godot --headless --path godot --script tests/check_clip_viewer.gd
+```
+
+It loads the main scene against the local library (needs two clips with a `motion.glb`), drives the bar and the player, and exits 1 on a failed check. Capture: `docs/captures/m2.6-clip-viewer.jpg`.
 
 ## Runtime retargeting
 

@@ -1,4 +1,6 @@
 extends Node3D
-## Entry scene: the calibration level (M2.2), the character the camera focuses
-## on (the default mannequin, M2.3), the orbit camera and the library panel
-## (M2.5, `UI/LibraryPanel`). The app modes (M2.6, M2.10) attach here.
+## Entry scene: the calibration level (M2.2), the character (a ClipPlayer
+## driving the default mannequin, M2.3/M2.4), the orbit camera, the library
+## panel (M2.5, `UI/LibraryPanel`) and the Clip Viewer bar (M2.6,
+## `UI/ClipViewer`), which plays the panel's selection. Compare (M2.10)
+## attaches here.

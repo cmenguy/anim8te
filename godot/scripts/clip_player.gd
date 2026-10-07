@@ -13,6 +13,10 @@ extends Node3D
 ##
 ## RetargetModifier3D only drives Skeleton3D nodes that are its direct
 ## children, so the model's skeleton is taken out of the model scene.
+##
+## Transport for the Clip Viewer (M2.6): `set_playing`, `seek`, `seek_frame`,
+## `step`, `speed` and `loop` act on the current clip; `focus_position` is
+## the hips, for the orbit camera's follow mode.
 
 signal clip_changed(clip_id: String)
 
@@ -23,7 +27,14 @@ signal clip_changed(clip_id: String)
 @export var clip_id := ""
 ## Library root; empty resolves `--library=<path>`, ANIM8TE_LIBRARY, then `<repo>/library`.
 @export var library_path := ""
-@export var loop := true
+@export var loop := true:
+	set = set_loop
+## Playback speed, 0.1x to 2x.
+@export_range(0.1, 2.0, 0.05) var speed := 1.0:
+	set = set_speed
+
+## Seconds before the end that stand for the last frame of a looping clip.
+const LOOP_END_EPSILON := 1e-4
 
 var profile := SkeletonProfileHumanoid.new()
 var source: Skeleton3D
@@ -49,6 +60,7 @@ func _ready() -> void:
 	add_child(player)
 	player.root_node = player.get_path_to(self)
 	player.add_animation_library("", AnimationLibrary.new())
+	player.speed_scale = speed
 	if model_scene:
 		set_model(model_scene.instantiate())
 	for arg in OS.get_cmdline_user_args():
@@ -127,6 +139,88 @@ func play(id: String) -> bool:
 	clip_id = id
 	clip_changed.emit(id)
 	return true
+
+
+## The clip being played (or paused), or null.
+func current_clip() -> RuntimeClip:
+	return _clips.get(clip_id) if player and player.assigned_animation == clip_id else null
+
+
+func is_playing() -> bool:
+	return player != null and player.is_playing()
+
+
+## Plays or pauses the current clip; playing from the last frame of a
+## non-looping clip starts it over.
+func set_playing(on: bool) -> void:
+	var clip := current_clip()
+	if clip == null or on == player.is_playing():
+		return
+	if not on:
+		player.pause()
+		return
+	var at_end := get_time() >= clip.animation.length - 0.5 / clip.fps
+	if at_end and not loop:
+		player.seek(0.0, true)
+	player.play(clip.id)
+
+
+## Current time in the clip, in seconds.
+func get_time() -> float:
+	return player.current_animation_position if current_clip() else 0.0
+
+
+## Current frame, 0 to frame_count - 1.
+func get_frame() -> int:
+	var clip := current_clip()
+	return clampi(roundi(get_time() * clip.fps), 0, clip.frame_count - 1) if clip else 0
+
+
+## Moves to `time` seconds (clamped to the clip) and poses the skeleton.
+## A looping animation wraps a seek to its length back to 0, so the last
+## frame of a looping clip is shown from just before it.
+func seek(time: float) -> void:
+	var clip := current_clip()
+	if clip:
+		var end := clip.animation.length - (LOOP_END_EPSILON if loop else 0.0)
+		player.seek(clampf(time, 0.0, end), true)
+
+
+func seek_frame(frame: int) -> void:
+	var clip := current_clip()
+	if clip:
+		seek(clampi(frame, 0, clip.frame_count - 1) / clip.fps)
+
+
+## Pauses and moves `frames` frames; wraps around when looping.
+func step(frames: int) -> void:
+	var clip := current_clip()
+	if clip == null:
+		return
+	set_playing(false)
+	var frame := get_frame() + frames
+	frame = posmod(frame, clip.frame_count) if loop else clampi(frame, 0, clip.frame_count - 1)
+	seek_frame(frame)
+
+
+func set_speed(value: float) -> void:
+	speed = clampf(value, 0.1, 2.0)
+	if player:
+		player.speed_scale = speed
+
+
+func set_loop(on: bool) -> void:
+	loop = on
+	for clip in _clips.values():
+		clip.animation.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+
+
+## Where the orbit camera looks and follows: the driven model's hips.
+func focus_position() -> Vector3:
+	var hips := target.find_bone("Hips") if target else -1
+	if hips < 0:
+		return global_position + Vector3.UP
+	return target.global_transform * target.get_bone_global_pose(hips).origin
 
 
 func _build_source(clip: RuntimeClip) -> void:

@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
 [ext_resource type="PackedScene" path="res://scenes/calibration_level.tscn" id="2_level"]
 [ext_resource type="Script" path="res://scripts/orbit_camera.gd" id="3_orbit"]
-[ext_resource type="PackedScene" uid="uid://cs52ii4oejybr" path="res://assets/mannequin/Superhero_Male_FullBody.gltf" id="4_mannequin"]
+[ext_resource type="Script" path="res://scripts/clip_player.gd" id="4_player"]
 [ext_resource type="Script" path="res://scripts/library_panel.gd" id="5_library"]
+[ext_resource type="Script" path="res://scripts/clip_viewer.gd" id="6_viewer"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
@@ -12,13 +13,14 @@ script = ExtResource("1_main")
 [node name="CalibrationLevel" parent="." instance=ExtResource("2_level")]
 
 [node name="Character" type="Node3D" parent="."]
-
-[node name="Mannequin" parent="Character" instance=ExtResource("4_mannequin")]
+script = ExtResource("4_player")
 
 [node name="Camera3D" type="Camera3D" parent="."]
 current = true
 script = ExtResource("3_orbit")
 focus_target = NodePath("../Character")
+target = Vector3(0, 0.9, 0)
+distance = 4.0
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -28,3 +30,17 @@ anchor_bottom = 1.0
 offset_right = 380.0
 grow_vertical = 2
 script = ExtResource("5_library")
+
+[node name="ClipViewer" type="PanelContainer" parent="UI"]
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 380.0
+offset_top = -76.0
+grow_horizontal = 2
+grow_vertical = 0
+script = ExtResource("6_viewer")
+clip_player = NodePath("../../Character")
+library_panel = NodePath("../LibraryPanel")
+camera = NodePath("../../Camera3D")
