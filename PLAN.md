@@ -420,12 +420,13 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: tests/check_compare.gd passes headless and with a renderer: drift 0.1 ms on every frame of a 5.13 s jog at 1x, 0.5x and 2x, across a loop and to the end, 0 corrective seeks while playing; on screen 99.4-100 % of video frames match ffmpeg's frame for the clip time (rest ±1), paused scrubs exact; capture docs/captures/m2.10-compare.jpg
 
 ### M2.11 Review the M0 and M1 clips in the Gym and log findings
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M2.10
 - **Component:** docs
 - **Effort:** S
 - **Done when:** every clip so far has been viewed in Clip Viewer and Compare; `docs/gym-findings.md` lists defects per clip (foot skate, ground penetration, jitter, root drift, limb flips) with timestamps; the list ranks which cleanup filters matter most, which sets the order of M3.A. This closes M2.
 - **Notes:** GDD §3.2: the gym with overlays is the fastest way to see what still breaks.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M2.12 Export: straight-spine rest so humanoid retargeting keeps posture
 - **Status:** done
