@@ -78,6 +78,7 @@ uv run anim8te extract <clip_id> [--take n]                 # stage 4 through gv
 uv run anim8te clean <clip_id> [--no-smooth] [--set smooth.window=11]  # smoothing + ground -> clean/motion.npz, status cleaned
 uv run anim8te export <clip_id>                             # clean/motion.npz -> motion.glb (skeleton, skin, one animation), status exported
 anim8te serve                                               # local daemon for the Godot app (M3.7)
+godot --editor --path godot                                 # open the Godot project (main scene: scenes/main.tscn)
 worker/setup.sh                                             # install GVHMR (pinned Mac fork) + the worker
 uv run --project worker gvhmr-worker                        # GVHMR worker on 127.0.0.1:8765 (API in worker/README.md)
 cd worker && uv run pytest                                  # worker tests (fake gvhmr CLI)
