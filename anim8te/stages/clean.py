@@ -312,6 +312,7 @@ def run_clean(
         hips_translation=hips,
         fps=np.float32(params.fps),
         betas=skel.betas,
+        sole_y=np.float32(skel.sole_y),
     )
     os.replace(tmp, motion)
 

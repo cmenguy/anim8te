@@ -11,6 +11,7 @@ import typer
 from anim8te.config import Settings, load_settings
 from anim8te.library import Template, list_clips, list_performers
 from anim8te.stages.clean import CleanError, run_clean
+from anim8te.stages.export import ExportError, run_export
 from anim8te.stages.extract import DEFAULT_WORKER_URL, ExtractError, WorkerClient, run_extract
 from anim8te.stages.gen import FalBackend, GenError, GenRequest, plan_gen, run_gen
 
@@ -32,11 +33,6 @@ def main(
     ] = None,
 ) -> None:
     ctx.obj = load_settings(library=library)
-
-
-def _not_yet(task: str) -> None:
-    typer.echo(f"not implemented yet ({task})", err=True)
-    raise typer.Exit(code=2)
 
 
 @app.command()
@@ -195,9 +191,23 @@ def clean(
 
 
 @app.command()
-def export(ctx: typer.Context) -> None:
-    """Write motion.glb on the canonical skeleton (stage 5)."""
-    _not_yet("M1.10")
+def export(
+    ctx: typer.Context,
+    clip_id: Annotated[str, typer.Argument(help="Clip id under library/clips/.")],
+) -> None:
+    """Write motion.glb on the canonical skeleton from clean/motion.npz (stage 5)."""
+    try:
+        result = run_export(_settings(ctx).library, clip_id, log=lambda m: typer.echo(m, err=True))
+    except ExportError as e:
+        typer.echo(f"error: {e}", err=True)
+        raise typer.Exit(code=1) from e
+    typer.echo(
+        f"clip:      {result.meta.id}, {result.num_frames} frames at {result.fps:g} fps "
+        f"({result.duration_s:.2f} s)"
+    )
+    typer.echo(f"animation: {result.animation}")
+    typer.echo(f"status:    {result.meta.status.value}")
+    typer.echo(f"glb:       {result.glb} ({result.size_bytes / 1024:.0f} KiB)")
 
 
 @lib_app.command("path")
