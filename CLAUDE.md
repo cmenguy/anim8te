@@ -23,7 +23,7 @@ A tool-first prototype: an AI pipeline that turns one base image plus a text pro
 - Remote `origin`: https://github.com/cmenguy/anim8te. `main` is protected; everything lands through a pull request, including plan status changes and one-line doc fixes.
 - One task, one branch, one PR. Branches are `task/<id>-<few-words>`; commits and PR titles start with the task id (`M0.2: add fal smoke-test script`). The next-step skill does this; follow the same shape when working by hand.
 - This repo uses the personal GitHub account `cmenguy` (menguy.charles@gmail.com); the local git config sets that author. The machine's active `gh` login is the work account, which cannot push here, so `GH_TOKEN` must carry the personal token: a git-ignored `.envrc` exports it (`export GH_TOKEN=$(gh auth token --hostname github.com --user cmenguy)`) and direnv loads it in the terminal. Claude Code's shell does not load direnv: when `echo ${GH_TOKEN:+set}` prints nothing, prefix `gh` and `git push` with `GH_TOKEN=$(gh auth token --hostname github.com --user cmenguy)`.
-- Open the PR and report the link; merging is the owner's call. After a merge, `git checkout main && git pull --ff-only` before anything else.
+- Open the PR, report the link, and ask the owner whether to merge it now; merge (`gh pr merge <n> --squash --delete-branch`) only on a yes. After a merge, `git checkout main && git pull --ff-only` before anything else.
 - Never commit `.env`, `library/`, body models or checkpoints. `.gitignore` already covers them.
 
 ## Layout (GDD §8.2)
