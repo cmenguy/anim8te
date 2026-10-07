@@ -62,7 +62,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 |---|---|---|---|---|
 | Q1 | Which CC0 mannequin becomes the default character? | open | | M2.3 |
 | Q2 | GPU host for `gvhmr-worker`: always-on box vs spin-up per batch? | open | | M0.6 |
-| Q3 | Performer: one generic base image, or a Lara-like character from day one? | decided | One generic performer, `perf01` (man in black tee and joggers standing on a treadmill deck), reused for every clip; a stylized character comes later by retargeting from the canonical skeleton | M0.4 |
+| Q3 | Performer: one generic base image, or a Lara-like character from day one? | decided | One generic performer, `perf01` (woman in black tee and joggers standing on a treadmill deck), reused for every clip; a stylized character comes later by retargeting from the canonical skeleton | M0.4 |
 | Q4 | Root-motion policy for treadmill loops: synthesized constant speed, or speed-matched to stride length? | open | | M3.2 |
 | Q5 | Does the @MrCollison open-source parkour controller change the Controller plan? | open | | M5.2 |
 | Q6 | Video playback in Godot for Compare mode: transcode takes to Ogg Theora, or add a video GDExtension? | proposed | Transcode with ffmpeg in the pipeline (Godot 4 plays .ogv natively; keep mp4 as the source of truth) | M2.9 |
@@ -117,7 +117,7 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Done when:** Q3 is decided; `library/performers/<performer_id>/base.png` exists and meets the stage 1 rules (full body with margin, locked-off camera at waist height, plain background, one person, fitted clothing); `library/performers/README.md` has the checklist and how the image was made.
 - **Notes:** GDD §4 stage 1. Generating the image with an image model is fine; a photo is fine too. One performer for the whole library keeps body proportions constant across clips (GDD §11, identity drift risk).
 - **Log:** 2026-10-06 todo -> in-progress
-- **Log:** 2026-10-06 in-progress -> done: Q3 decided (generic perf01); library/performers/perf01/base.png (owner's AI image, man on a treadmill deck, 1122x1402) checked against stage 1: ~20%/25% margins top/bottom, straight-on, one person, fitted clothes; textured concrete backdrop accepted; black-on-black feet flagged for M0.7-M0.9; README has checklist and provenance
+- **Log:** 2026-10-06 in-progress -> done: Q3 decided (generic perf01); library/performers/perf01/base.png (owner's GPT image, woman on a treadmill deck, 1122x1402, prompt in README) checked against stage 1: ~13%/30% margins top/bottom, straight-on but camera ~10 deg above eye level, one person, fitted clothes; textured concrete backdrop accepted; black-on-black feet flagged for M0.7-M0.9; README has checklist and provenance
 
 ### M0.5 Generate the feasibility takes: idle, jog, vault
 - **Status:** todo
