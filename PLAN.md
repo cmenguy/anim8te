@@ -245,12 +245,13 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Log:** 2026-10-07 in-progress -> done: 43 tests pass (fake worker: happy path, rerun, failed job, failed download, 401, unreachable, timeout); real run on walk-ur7zdb take 1: 32 s on the Mac worker, gvhmr/hmr4d_results.pt (155 frames) + overlay.mp4, meta status extracted; real 401, unreachable and failed-job messages checked, failures leave meta.json untouched
 
 ### M1.6 Load SMPL-X parameters and rebuild joints
-- **Status:** todo
+- **Status:** in-progress
 - **Depends on:** M1.5, M0.3
 - **Component:** pipeline
 - **Effort:** M
 - **Done when:** `anim8te.convert.load_gvhmr(path)` returns per-frame `global_orient`, `body_pose`, `transl`, `betas` and the frame rate as numpy arrays; the `smplx` package rebuilds the 22 body joint positions and parent table from `betas`; a test on a small fixture (`tests/fixtures/*.pt`, under 1 MB, trimmed from a real output) checks shapes, joint count and frame rate.
 - **Notes:** GDD §4 stage 5.1. We only use `smpl_params_global`. Frame rate equals the source video's.
+- **Log:** 2026-10-07 todo -> in-progress
 
 ### M1.7 Axis conventions: GVHMR world frame to glTF
 - **Status:** todo
