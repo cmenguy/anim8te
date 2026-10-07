@@ -14,6 +14,7 @@ from anim8te.stages.clean import CleanError, run_clean
 from anim8te.stages.export import ExportError, run_export
 from anim8te.stages.extract import DEFAULT_WORKER_URL, ExtractError, WorkerClient, run_extract
 from anim8te.stages.gen import FalBackend, GenError, GenRequest, plan_gen, run_gen
+from anim8te.video import VideoError, run_transcode
 
 app = typer.Typer(help="Motion AI pipeline: gen, extract, clean, export.", no_args_is_help=True)
 lib_app = typer.Typer(help="Inspect the clip library.", no_args_is_help=True)
@@ -128,6 +129,25 @@ def extract(
     typer.echo(f"status:    {result.meta.status.value} in {result.elapsed_s:.0f} s")
     for name, path in result.files.items():
         typer.echo(f"{name + ':':<10} {path}")
+
+
+@app.command()
+def transcode(
+    ctx: typer.Context,
+    clip_id: Annotated[str, typer.Argument(help="Clip id under library/clips/.")],
+) -> None:
+    """Write the Ogg Theora copies Godot plays (selected.ogv, gvhmr/overlay.ogv).
+
+    `extract` already does this; use it for clips extracted before M2.9.
+    """
+    settings = _settings(ctx)
+    try:
+        written = run_transcode(settings.library, clip_id, log=lambda m: typer.echo(m, err=True))
+    except VideoError as e:
+        typer.echo(f"error: {e}", err=True)
+        raise typer.Exit(code=1) from e
+    for path in written:
+        typer.echo(str(path))
 
 
 def _parse_params(items: list[str]) -> dict[str, dict[str, object]]:

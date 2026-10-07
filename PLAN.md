@@ -65,7 +65,7 @@ Open questions from GDD §11 plus the ones this plan surfaced. Status is `open`,
 | Q3 | Performer: one generic base image, or a Lara-like character from day one? | decided | One generic performer, `perf01` (woman in black tee and joggers standing on a treadmill deck), reused for every clip; a stylized character comes later by retargeting from the canonical skeleton | M0.4 |
 | Q4 | Root-motion policy for treadmill loops: synthesized constant speed, or speed-matched to stride length? | open | | M3.2 |
 | Q5 | Does the @MrCollison open-source parkour controller change the Controller plan? | open | | M5.2 |
-| Q6 | Video playback in Godot for Compare mode: transcode takes to Ogg Theora, or add a video GDExtension? | proposed | Transcode with ffmpeg in the pipeline (Godot 4 plays .ogv natively; keep mp4 as the source of truth) | M2.9 |
+| Q6 | Video playback in Godot for Compare mode: transcode takes to Ogg Theora, or add a video GDExtension? | decided | Transcode with ffmpeg in the pipeline (owner, 2026-10-07): `anim8te extract` writes `selected.ogv` and `gvhmr/overlay.ogv`, video only, mp4 stays the source of truth. Godot 4.7 still decodes only Theora. Needs an ffmpeg with libtheora; Homebrew's lacks it, so `brew install ffmpeg-full` (keg-only) | M2.9 |
 | Q7 | Which Godot version to pin? `RetargetModifier3D` needs 4.4 or later | decided | Godot 4.7 (4.7.2 stable installed via Homebrew), pinned in `godot/project.godot` `config/features` | M0.8 |
 | Q8 | Extract backend for M1: native GVHMR wrapper or ComfyUI workflow API? | decided | Native (owner, 2026-10-07): `worker/` wraps the fork's `gvhmr demo -s` as a subprocess and returns `hmr4d_results.pt` directly; ComfyUI stays optional and out of the pipeline | M1.4 |
 | G0 | Go/no-go after M0: is GVHMR on H3 Max video good enough to build on? | decided | Go with conditions (owner, 2026-10-07): own contact detection and foot lock (M2.7, M3.1); one body shape per performer (M1.8, M3.5); leg-swap repair and travel rescale for dynamic clips (M3.20); still-camera clips only on the Mac worker (M1.4). See `docs/feasibility.md` "M0.9 Go/no-go" | M1.1 |
@@ -400,12 +400,14 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Log:** 2026-10-07 in-progress -> done: 6 overlays (contacts, trajectory, velocity, penetration, wireframe, jerk) each a DebugOverlay node on features.json; check_overlays.gd matches the file on every frame of walk and jog, toggles kept across clip change and a new session (user://gym_settings.cfg), keys 1-6; jog 56% sliding vs walk 35%, jog toes 8 mm under on f86-87; features.json gains rest_heights_above_sole; capture docs/captures/m2.8-debug-overlays.jpg
 
 ### M2.9 Video for Godot: transcode takes and the GVHMR overlay to Ogg Theora
-- **Status:** todo
+- **Status:** done
 - **Depends on:** M1.5
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** Q6 decided; `anim8te extract` writes `selected.ogv` and `gvhmr/overlay.ogv` with ffmpeg (libtheora, same frame rate and size as the source); a missing ffmpeg gives a clear error; Godot's `VideoStreamPlayer` plays both files.
 - **Notes:** Godot 4 only decodes Ogg Theora out of the box. The mp4 files stay the source of truth.
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: Q6 decided (transcode); real extract via worker wrote selected.ogv + gvhmr/overlay.ogv, ffprobe-checked same size/rate/frames (768x960@24 124f, 768x480@30 155f); missing or theora-less ffmpeg -> clear error before upload; check_video_playback.gd passes on walk and jog (play, rate, 3 s seek, end); needs brew ffmpeg-full; 93 pytest pass
 
 ### M2.10 Compare mode: frame-synced source, overlay and 3D
 - **Status:** todo

@@ -8,6 +8,7 @@ from typer.testing import CliRunner
 from anim8te.cli import app
 from anim8te.library import ClipMeta, ClipStatus, Take, read_meta, write_meta
 from anim8te.stages.extract import ExtractError, WorkerClient, choose_take, run_extract
+from anim8te.video import VideoError
 
 TOKEN = "secret"
 CLIP = "walk-abc123"
@@ -72,8 +73,15 @@ class FakeWorker:
         return WorkerClient("http://worker", token, transport=httpx.MockTransport(self.handler))
 
 
+def fake_ogv(src: Path, dest: Path, ffmpeg: Path) -> None:
+    """Stands in for anim8te.video.to_ogv: the worker's files here are not real videos."""
+    dest.write_bytes(b"ogv of " + src.read_bytes())
+
+
 def run(library: Path, worker: FakeWorker, **kwargs):
     logs: list[str] = []
+    kwargs.setdefault("ffmpeg", Path("/fake/ffmpeg"))
+    kwargs.setdefault("transcode", fake_ogv)
     result = run_extract(
         library, CLIP, worker.client(), sleep=lambda _: None, log=logs.append, **kwargs
     )
@@ -107,6 +115,9 @@ def test_extract_happy_path(tmp_path: Path):
     assert b'name="static_camera"' in worker.uploads[0][0]
     for name in ("hmr4d_results.pt", "overlay.mp4"):
         assert (clip / "gvhmr" / name).read_bytes() == f"contents of {name}".encode()
+    assert (clip / "selected.ogv").read_bytes() == b"ogv of take 2"
+    assert (clip / "gvhmr" / "overlay.ogv").read_bytes() == b"ogv of contents of overlay.mp4"
+    assert result.files["selected.ogv"] == clip / "selected.ogv"
     meta = read_meta(clip)
     assert meta.selected_take == 2 and meta.status is ClipStatus.extracted
     assert any("running" in line for line in logs)
@@ -122,7 +133,36 @@ def test_rerun_uses_selected_take_and_replaces_results(tmp_path: Path):
     assert sorted(p.name for p in (clip / "gvhmr").iterdir()) == [
         "hmr4d_results.pt",
         "overlay.mp4",
+        "overlay.ogv",
     ]
+
+
+def test_missing_ffmpeg_fails_before_upload(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    clip = make_clip(tmp_path, [1])
+    worker = FakeWorker()
+
+    def no_ffmpeg():
+        raise VideoError("ffmpeg not found; `brew install ffmpeg-full`")
+
+    monkeypatch.setattr("anim8te.stages.extract.find_ffmpeg", no_ffmpeg)
+    with pytest.raises(ExtractError, match="ffmpeg not found"):
+        run(tmp_path, worker, ffmpeg=None)
+    assert worker.uploads == [] and not (clip / "gvhmr").exists()
+
+
+def test_failed_transcode_leaves_previous_results(tmp_path: Path):
+    clip = make_clip(tmp_path, [1, 2], selected=1)
+    run(tmp_path, FakeWorker())
+
+    def broken(src: Path, dest: Path, ffmpeg: Path) -> None:
+        raise VideoError(f"ffmpeg could not transcode {src.name}")
+
+    with pytest.raises(ExtractError, match="could not transcode"):
+        run(tmp_path, FakeWorker(), take=2, transcode=broken)
+    assert (clip / "selected.mp4").read_bytes() == b"take 1"
+    assert (clip / "selected.ogv").read_bytes() == b"ogv of take 1"
+    assert read_meta(clip).selected_take == 1
+    assert not list(clip.glob(".*"))
 
 
 def test_failed_job_reports_error_and_leaves_clip_rerunnable(tmp_path: Path):
@@ -196,6 +236,7 @@ def test_cli_unreachable_worker_message(tmp_path: Path, monkeypatch: pytest.Monk
     monkeypatch.chdir(tmp_path)  # no .env here
     monkeypatch.setenv("GVHMR_WORKER_TOKEN", TOKEN)
     monkeypatch.setenv("GVHMR_WORKER_URL", "http://127.0.0.1:9")  # discard port: refused
+    monkeypatch.setattr("anim8te.stages.extract.find_ffmpeg", lambda: Path("/fake/ffmpeg"))
     r = CliRunner().invoke(app, ["--library", str(tmp_path), "extract", CLIP])
     assert r.exit_code == 1
     assert "unreachable at http://127.0.0.1:9" in r.output

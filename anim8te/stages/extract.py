@@ -5,6 +5,8 @@ downloads `hmr4d_results.pt` and `overlay.mp4`. Only once both files are complet
 replace `gvhmr/`, copy the take to `selected.mp4` and record `selected_take` and status
 `extracted` in `meta.json`, so a failure at any point leaves the clip exactly as it was (its
 `gvhmr/` always matches its `selected_take`) and the command can be re-run.
+It also writes `selected.ogv` and `gvhmr/overlay.ogv`, the Ogg Theora copies the Godot app plays
+(`anim8te.video`, M2.9), in the same commit; ffmpeg is checked before anything is uploaded.
 The worker API is documented in worker/README.md.
 """
 
@@ -19,6 +21,7 @@ import httpx
 from pydantic import BaseModel
 
 from anim8te.library import ClipMeta, ClipStatus, clip_dir, read_meta, write_meta
+from anim8te.video import VideoError, find_ffmpeg, to_ogv
 
 DEFAULT_WORKER_URL = "http://127.0.0.1:8765"
 RESULT_FILES = ("hmr4d_results.pt", "overlay.mp4")
@@ -145,6 +148,8 @@ def run_extract(
     sleep: Callable[[float], None] = time.sleep,
     clock: Callable[[], float] = time.monotonic,
     log: Callable[[str], None] = lambda _: None,
+    ffmpeg: Path | None = None,
+    transcode: Callable[[Path, Path, Path], object] = to_ogv,
 ) -> ExtractResult:
     clip = clip_dir(library, clip_id)
     if not (clip / "meta.json").is_file():
@@ -154,6 +159,10 @@ def run_extract(
     video = clip / "takes" / f"{n}.mp4"
     if not video.is_file():
         raise ExtractError(f"take {n} is listed in meta.json but {video} is missing")
+    try:
+        ffmpeg = ffmpeg or find_ffmpeg()
+    except VideoError as e:
+        raise ExtractError(str(e)) from e
 
     start = clock()
     job_id = client.submit(video)
@@ -191,9 +200,16 @@ def run_extract(
         for name in RESULT_FILES:
             client.download(job_id, name, scratch / name)
             log(f"downloaded {name} ({(scratch / name).stat().st_size / 1e6:.1f} MB)")
-        # Results are complete: commit the take, its results and meta.json together.
         shutil.copyfile(video, scratch / ".selected.mp4")
+        try:
+            transcode(scratch / "overlay.mp4", scratch / "overlay.ogv", ffmpeg)
+            transcode(scratch / ".selected.mp4", scratch / ".selected.ogv", ffmpeg)
+        except VideoError as e:
+            raise ExtractError(str(e)) from e
+        log("wrote the Ogg Theora copies for Godot (selected.ogv, overlay.ogv)")
+        # Results are complete: commit the take, its results and meta.json together.
         (scratch / ".selected.mp4").replace(clip / "selected.mp4")
+        (scratch / ".selected.ogv").replace(clip / "selected.ogv")
         out = clip / "gvhmr"
         old = clip / ".gvhmr.old"
         shutil.rmtree(old, ignore_errors=True)
@@ -212,6 +228,10 @@ def run_extract(
         meta=meta,
         take=n,
         job_id=job_id,
-        files={name: out / name for name in RESULT_FILES},
+        files={
+            **{name: out / name for name in RESULT_FILES},
+            "overlay.ogv": out / "overlay.ogv",
+            "selected.ogv": clip / "selected.ogv",
+        },
         elapsed_s=clock() - start,
     )
