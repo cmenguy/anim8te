@@ -87,7 +87,7 @@ With her whole path in frame, two of three takes keep the camera still, against 
 
 ## M0.10 GVHMR on the Mac (Apple Silicon fork)
 
-Fork: https://github.com/ryanrudes/gvhmr at `e3876097a9c4d9c1758d058d9e70c64f0cdba4c4` (2026-07-18), cloned to `~/motion-ai-tools/gvhmr`, outside the repo. Same non-commercial GVHMR license; nothing from it is copied into `motionai/`.
+Fork: https://github.com/ryanrudes/gvhmr at `e3876097a9c4d9c1758d058d9e70c64f0cdba4c4` (2026-07-18), cloned to `~/motion-ai-tools/gvhmr`, outside the repo. Same non-commercial GVHMR license; nothing from it is copied into `anim8te/`.
 
 Install and run (MacBook Pro M3 Max, 48 GB, macOS 26.6):
 

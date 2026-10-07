@@ -184,14 +184,14 @@ Output: `outputs/demo/<clip>/hmr4d_results.pt`, a torch dict. We use `smpl_param
 How we use it:
 
 1. **M0 feasibility test bench.** Run the first H3 Max takes through its bundled `workflows/GVHMR.json`, export GLB, and inspect the result in Godot before writing any pipeline code. This answers the key question early: is GVHMR on AI-generated video good enough?
-2. **Reference code** for SMPL to BVH/GLB conversion and joint naming. Read it, don't copy it: copying GPL-3.0 code into `motionai` would make that package GPL.
+2. **Reference code** for SMPL to BVH/GLB conversion and joint naming. Read it, don't copy it: copying GPL-3.0 code into `anim8te` would make that package GPL.
 3. **Optional `gvhmr-worker` backend.** ComfyUI exposes a workflow API, so the GPU box can run ComfyUI with this pack instead of our own GVHMR wrapper (see [section 8](#8-technical-architecture)).
 
 It does not replace the Workflow Manager or the stage 5 cleanup, and it doesn't change licensing: it still runs GVHMR and SMPL-X under their non-commercial terms. It also needs an NVIDIA CUDA GPU, and its one-click installer is marked experimental (manual install is the reliable path).
 
 ### Stage 5: Convert and clean
 
-This is our own code (Python package `motionai`). The steps:
+This is our own code (Python package `anim8te`). The steps:
 
 1. **Load** `smpl_params_global`; rebuild SMPL-X joint positions from `betas` with the `smplx` Python package.
 2. **Axis fix.** Convert to glTF/Godot conventions (Y-up, right-handed, meters). Verify GVHMR's world-frame up axis on the first clip and lock it in with a unit test.
@@ -340,7 +340,7 @@ An LLM (Claude via the Anthropic API) is used for three narrow jobs, each shown 
 |  Godot app: Gym + Workflow Manager                             |      |  gvhmr-worker     |
 |      |  HTTP (localhost)                                       |      |  FastAPI + GVHMR  |
 |      v                                                         | HTTPS|  POST /extract    |
-|  motionai daemon (Python, FastAPI)  --------------------------------->|  GET  /jobs/{id}  |
+|  anim8te daemon (Python, FastAPI)  ---------------------------------->|  GET  /jobs/{id}  |
 |      |-- fal_client --------------------> fal.ai (H3 Max)       |      +-------------------+
 |      |-- convert / clean / QC (numpy, smplx, scipy, pygltflib)  |
 |      |-- Anthropic API (agent assist, optional)                 |
@@ -350,10 +350,10 @@ An LLM (Claude via the Anthropic API) is used for three narrow jobs, each shown 
 ```
 
 - **Godot app** owns the UI and 3D preview and never calls external services directly. It talks to the local daemon over HTTP and loads `.glb` files from the library at runtime.
-- **`motionai` daemon** (Python) owns the job queue, fal calls, conversion, cleanup, QC and the library on disk. It also runs as a CLI (`motionai gen|extract|clean|export`) so every stage can be scripted and tested without the UI.
+- **`anim8te` daemon** (Python) owns the job queue, fal calls, conversion, cleanup, QC and the library on disk. It also runs as a CLI (`anim8te gen|extract|clean|export`) so every stage can be scripted and tested without the UI.
 - **`gvhmr-worker`** runs on a CUDA box. It takes a video and returns `hmr4d_results.pt` (or equivalent SMPL params) and the overlay video. Two interchangeable backends behind the same `/extract` API:
   - **Native (default):** a thin FastAPI wrapper around GVHMR's `tools/demo/demo.py`. Fewest dependencies, no GPL code.
-  - **ComfyUI:** ComfyUI with [ComfyUI-MotionCapture](https://github.com/PozzettiAndrea/ComfyUI-MotionCapture), driven through ComfyUI's workflow API. Faster to stand up for M0 and comes with viewers for debugging. Run it as a separate service so its GPL-3.0 code stays out of `motionai`.
+  - **ComfyUI:** ComfyUI with [ComfyUI-MotionCapture](https://github.com/PozzettiAndrea/ComfyUI-MotionCapture), driven through ComfyUI's workflow API. Faster to stand up for M0 and comes with viewers for debugging. Run it as a separate service so its GPL-3.0 code stays out of `anim8te`.
 - **Secrets** (fal key, worker token, Anthropic key) live in the OS keychain or `.env`, never in the library or git.
 
 ### 8.1 Library layout
@@ -380,7 +380,7 @@ library/
 motion-ai/
 ├── GDD.md
 ├── godot/            # Godot project: Gym + Workflow Manager
-├── motionai/         # Python package: daemon + CLI + pipeline stages
+├── anim8te/          # Python package: daemon + CLI + pipeline stages
 ├── worker/           # gvhmr-worker (Dockerfile + FastAPI)
 ├── library/          # git-ignored or git-LFS
 └── tests/            # pipeline unit tests (axis conventions, bone map, QC metrics)
@@ -391,7 +391,7 @@ motion-ai/
 | # | Milestone | Done when |
 |---|---|---|
 | M0 | Accounts, GPU box, feasibility test | fal key works; ComfyUI + ComfyUI-MotionCapture runs on the cloud GPU; 3 to 5 H3 Max takes (idle, jog, vault) go through its `GVHMR.json` workflow to GLB and are judged by eye in Godot. **Go/no-go:** if GVHMR output on AI video is unusable, stop and rethink stages 2 and 4 before building anything else |
-| M1 | Pipeline CLI, one clip | `motionai gen && extract && clean && export` turns one prompt into `motion.glb` that imports into Godot on the humanoid profile |
+| M1 | Pipeline CLI, one clip | `anim8te gen && extract && clean && export` turns one prompt into `motion.glb` that imports into Godot on the humanoid profile |
 | M2 | Gym: Clip Viewer + Compare | Library clips play on the default mannequin with overlays; Compare view is frame-synced to source video |
 | M3 | Workflow Manager: Flow A | A new animation goes from prompt to library entirely from the UI; Jobs screen shows cost and status |
 | M4 | Workflow Manager: Flow B | An imported third-party humanoid plays and exports any library clip |
@@ -405,7 +405,7 @@ motion-ai/
 | GVHMR | "Educational, research and non-profit purposes only"; derivatives must be open-source and non-commercial; commercial use by request to the authors (email in [LICENSE](https://github.com/zju3dv/GVHMR/blob/main/LICENSE)) | Prototype only unless a commercial license is obtained |
 | SMPL / SMPL-X body models | Non-commercial research license; commercial licensing via Meshcapade | Same: fine for prototyping, not for shipping |
 | fal / H3 Max outputs | fal terms of service | Check commercial-use terms before shipping |
-| ComfyUI-MotionCapture | GPL-3.0 (plus the GVHMR and SMPL terms it inherits) | Use as a separate service or as reading material; don't copy its code into `motionai` |
+| ComfyUI-MotionCapture | GPL-3.0 (plus the GVHMR and SMPL terms it inherits) | Use as a separate service or as reading material; don't copy its code into `anim8te` |
 | Godot | MIT | No restrictions |
 | Default mannequin | Must be CC0 or similarly permissive | Pick accordingly (Q1) |
 

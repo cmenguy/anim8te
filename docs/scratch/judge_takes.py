@@ -10,7 +10,7 @@ Reads library/clips/<clip>/feasibility/<take>/hmr4d_results.pt, poses the SMPL-X
 demo's world render does (Y up, metres, floor at the clip's lowest vertex), and prints per take:
 foot sliding in contact, joint jitter (acceleration and power above 6 Hz), root and feet height over time, horizontal drift, body shape,
 large per-frame joint rotations (limb-flip candidates) and frame counts of the overlays. Writes
-metrics.json and heights.png next to each take's results (git-ignored). Not part of motionai/.
+metrics.json and heights.png next to each take's results (git-ignored). Not part of anim8te/.
 """
 
 import json

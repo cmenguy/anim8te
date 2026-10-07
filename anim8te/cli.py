@@ -1,4 +1,4 @@
-"""`motionai` command line. Thin wrappers: the work lives in `motionai.stages`."""
+"""`anim8te` command line. Thin wrappers: the work lives in `anim8te.stages`."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import Annotated
 
 import typer
 
-from motionai.config import Settings, load_settings
+from anim8te.config import Settings, load_settings
 
 app = typer.Typer(help="Motion AI pipeline: gen, extract, clean, export.", no_args_is_help=True)
 lib_app = typer.Typer(help="Inspect the clip library.", no_args_is_help=True)
@@ -23,7 +23,7 @@ def main(
     ctx: typer.Context,
     library: Annotated[
         Path | None,
-        typer.Option(help="Library root. Defaults to MOTIONAI_LIBRARY, config.toml, or ./library."),
+        typer.Option(help="Library root. Defaults to ANIM8TE_LIBRARY, config.toml, or ./library."),
     ] = None,
 ) -> None:
     ctx.obj = load_settings(library=library)

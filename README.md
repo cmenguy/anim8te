@@ -6,11 +6,11 @@ An experiment in making game animations with AI instead of a mocap suit. One bas
 base image -> AI video per movement -> 3D motion extraction -> cleanup -> canonical skeleton -> any character
 ```
 
-**Status:** October 2026. M0 (feasibility, go/no-go) passed; M1 builds the pipeline CLI. The `motionai` package installs and its commands are stubs until their M1 tasks land.
+**Status:** October 2026. M0 (feasibility, go/no-go) passed; M1 builds the pipeline CLI. The `anim8te` package installs and its commands are stubs until their M1 tasks land.
 
 ## What is being built
 
-- **Pipeline** (`motionai`, Python): fal H3 Max for video, GVHMR for motion extraction on a rented CUDA GPU, our own cleanup (smoothing, foot locking, root motion, auto-loop, segmentation, quality checks), glTF export.
+- **Pipeline** (`anim8te`, Python): fal H3 Max for video, GVHMR for motion extraction on a rented CUDA GPU, our own cleanup (smoothing, foot locking, root motion, auto-loop, segmentation, quality checks), glTF export.
 - **The Gym** (Godot 4): a metric calibration level and a default mannequin, with clip playback, debug overlays (foot contacts, root trajectory, jitter), side-by-side comparison with the source video, retarget preview, and a motion-matched test controller.
 - **The Workflow Manager** (Godot 4, same app): add a new animation from a prompt in a few clicks; import a humanoid model, map its bones once, then play or export any library clip on it.
 
@@ -68,11 +68,11 @@ Install the package and dev tools with [uv](https://docs.astral.sh/uv/) (`pip in
 
 ```bash
 uv sync
-uv run motionai --help
+uv run anim8te --help
 uv run pytest
 ```
 
-The library root defaults to `./library`; override it with `--library`, `MOTIONAI_LIBRARY`, or `library = "..."` in `~/.config/motionai/config.toml`.
+The library root defaults to `./library`; override it with `--library`, `ANIM8TE_LIBRARY`, or `library = "..."` in `~/.config/anim8te/config.toml`.
 
 Secrets go in `.env` (names listed in `.env.example`), never in git; `.gitignore` already excludes `.env`, `.envrc`, the library and all model checkpoints.
 
@@ -94,7 +94,7 @@ Shells without direnv (Claude Code's tool shell, for one) prefix `gh` and `git p
 GDD.md  PLAN.md  README.md  CLAUDE.md
 .claude/skills/   next-step and roadmap skills, plan parser
 godot/            Godot project: Gym + Workflow Manager
-motionai/         Python package: CLI, pipeline stages, local daemon
+anim8te/         Python package: CLI, pipeline stages, local daemon
 worker/           gvhmr-worker: FastAPI wrapper around GVHMR (Mac fork now, GPU box later)
 library/          performers, clips and models on disk (git-ignored)
 tests/            pipeline unit tests (axis conventions, bone map, QC metrics)

@@ -32,7 +32,7 @@ A tool-first prototype: an AI pipeline that turns one base image plus a text pro
 GDD.md  PLAN.md  README.md  CLAUDE.md
 .claude/skills/   next-step, roadmap (and the plan parser)
 godot/            Godot 4.x project: Gym + Workflow Manager         (from M2)
-motionai/         Python package: CLI, pipeline stages, daemon      (from M1)
+anim8te/          Python package: CLI, pipeline stages, daemon      (from M1)
 worker/           gvhmr-worker around GVHMR (Mac fork), install     (from M1.4)
 library/          performers, clips, models; git-ignored
 tests/            pytest; fixtures stay under 1 MB
@@ -43,19 +43,19 @@ Since M0.1 every directory exists with a one-line README; the annotations above 
 
 ## Conventions
 
-- Python 3.11 or later, `uv`, `typer` CLI, `pydantic` models, `pytest`, `ruff`. Settings resolve in this order: `--library`, environment, `.env`, `~/.config/motionai/config.toml` (non-secret keys only: `library`, `gvhmr_worker_url`), then `./library`. Stage code under `motionai/stages/` has no CLI or HTTP concerns, so the CLI, the daemon and the tests share it.
+- Python 3.11 or later, `uv`, `typer` CLI, `pydantic` models, `pytest`, `ruff`. Settings resolve in this order: `--library`, environment, `.env`, `~/.config/anim8te/config.toml` (non-secret keys only: `library`, `gvhmr_worker_url`), then `./library`. Stage code under `anim8te/stages/` has no CLI or HTTP concerns, so the CLI, the daemon and the tests share it.
 - Godot 4.7 (Q7; `RetargetModifier3D` needs 4.4 or later), pinned in `godot/project.godot`. One unit is one metre, Y-up, right-handed.
 - Canonical skeleton: Godot `SkeletonProfileHumanoid` bone names on the 22 SMPL-X body joints (table in GDD §4 stage 5). Every library clip is a `motion.glb` on that skeleton; the mannequin and imported models are retargeted from it.
 - Library layout per GDD §8.1: `library/clips/<id>/` holds `meta.json`, `takes/`, `selected.mp4`, `gvhmr/`, `motion.glb`, `qc.json`, `features.json`.
 - Prompts for video generation end with "Static camera, full body visible." Cyclic locomotion is generated "on a treadmill"; root motion is added in cleanup.
-- The Godot app never calls fal or the GPU worker directly. It talks to the local `motionai` daemon over HTTP and loads `.glb` files from the library.
+- The Godot app never calls fal or the GPU worker directly. It talks to the local `anim8te` daemon over HTTP and loads `.glb` files from the library.
 - Secrets (`FAL_KEY`, `GVHMR_WORKER_TOKEN`, `ANTHROPIC_API_KEY`) live in `.env` or the OS keychain, never in the library, logs or git. `.env.example` lists the names.
 - Anything calling Anthropic models (agent assist, M3.18) goes through the `claude-api` skill.
 
 ## Licensing guardrails
 
 - GVHMR and SMPL-X are non-commercial research licenses. This is a prototype. Stage 4 stays behind the worker's `/extract` API so a licensed or commercial service can replace it.
-- ComfyUI-MotionCapture is GPL-3.0: read it for reference, run it as a separate service, never copy its code into `motionai/`.
+- ComfyUI-MotionCapture is GPL-3.0: read it for reference, run it as a separate service, never copy its code into `anim8te/`.
 - The mannequin and any bundled asset must be CC0 or similarly permissive, with the license file stored next to the asset.
 
 ## Commands
@@ -64,12 +64,12 @@ Since M0.1 every directory exists with a one-line README; the annotations above 
 python3 .claude/skills/next-step/scripts/plan.py next        # what to work on
 python3 .claude/skills/next-step/scripts/plan.py summary     # progress
 python3 .claude/skills/next-step/scripts/plan.py check       # validate PLAN.md
-uv sync                                                     # install motionai and dev tools into .venv
+uv sync                                                     # install anim8te and dev tools into .venv
 uv run pytest                                               # tests
 uv run ruff check . && uv run ruff format --check .         # lint
-uv run motionai --library <path> lib path                   # resolved library root
-motionai gen|extract|clean|export <args>                    # pipeline CLI (stubs until M1.3 to M1.10)
-motionai serve                                              # local daemon for the Godot app (M3.7)
+uv run anim8te --library <path> lib path                    # resolved library root
+anim8te gen|extract|clean|export <args>                     # pipeline CLI (stubs until M1.3 to M1.10)
+anim8te serve                                               # local daemon for the Godot app (M3.7)
 ```
 
 ## Keeping the docs current

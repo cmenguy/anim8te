@@ -2,8 +2,8 @@ from pathlib import Path
 
 from typer.testing import CliRunner
 
-from motionai.cli import app
-from motionai.config import load_settings
+from anim8te.cli import app
+from anim8te.config import load_settings
 
 
 def test_help_lists_commands():
@@ -15,7 +15,7 @@ def test_help_lists_commands():
 
 def test_settings_precedence(tmp_path: Path):
     env_file = tmp_path / ".env"
-    env_file.write_text("FAL_KEY=from-dotenv\nMOTIONAI_LIBRARY=/dotenv/lib\n")
+    env_file.write_text("FAL_KEY=from-dotenv\nANIM8TE_LIBRARY=/dotenv/lib\n")
     config = tmp_path / "config.toml"
     config.write_text(
         'library = "/toml/lib"\ngvhmr_worker_url = "http://toml:8000"\nfal_key = "ignored"\n'
@@ -34,7 +34,7 @@ def test_settings_precedence(tmp_path: Path):
         library=tmp_path / "cli",
         env_file=env_file,
         config_file=config,
-        environ={"MOTIONAI_LIBRARY": "/environ/lib"},
+        environ={"ANIM8TE_LIBRARY": "/environ/lib"},
     )
     assert s.library == (tmp_path / "cli").resolve()
 

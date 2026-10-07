@@ -7,7 +7,7 @@ Usage (from the repo root, FAL_KEY in .env):
 
 Takes land in library/clips/<clip_id>/takes/<n>.mp4 (git-ignored); each run appends
 one JSON line per take to library/clips/<clip_id>/takes/log.jsonl. Existing takes are
-skipped, so a re-run only fills gaps. Not part of motionai/.
+skipped, so a re-run only fills gaps. Not part of anim8te/.
 """
 
 import argparse
