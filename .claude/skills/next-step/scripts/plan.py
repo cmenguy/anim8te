@@ -57,7 +57,7 @@ TASK_ID_RE = re.compile(r"M\d+\.\d+")
 def find_plan(explicit=None):
     if explicit:
         return explicit
-    env = os.environ.get("MOTIONAI_PLAN")
+    env = os.environ.get("ANIM8TE_PLAN")
     if env:
         return env
     here = os.path.abspath(os.getcwd())

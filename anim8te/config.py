@@ -1,4 +1,4 @@
-"""Configuration: environment, then `.env`, then `~/.config/motionai/config.toml`, then defaults.
+"""Configuration: environment, then `.env`, then `~/.config/anim8te/config.toml`, then defaults.
 
 Secrets (`FAL_KEY`, `GVHMR_WORKER_TOKEN`, `ANTHROPIC_API_KEY`) are read from the environment or
 `.env` only, never from the TOML file, so the config file can be shared without leaking them.
@@ -13,11 +13,11 @@ from pathlib import Path
 from dotenv import dotenv_values
 from pydantic import BaseModel, SecretStr
 
-DEFAULT_CONFIG_PATH = Path.home() / ".config" / "motionai" / "config.toml"
+DEFAULT_CONFIG_PATH = Path.home() / ".config" / "anim8te" / "config.toml"
 
 # setting name -> environment variable
 _ENV_NAMES = {
-    "library": "MOTIONAI_LIBRARY",
+    "library": "ANIM8TE_LIBRARY",
     "gvhmr_worker_url": "GVHMR_WORKER_URL",
     "fal_key": "FAL_KEY",
     "gvhmr_worker_token": "GVHMR_WORKER_TOKEN",

@@ -6,7 +6,7 @@ Usage (from the repo root, FAL_KEY in .env):
     .venv/bin/python docs/scratch/fal_smoke_test.py --gen-image   # no image at hand
 
 --gen-image first makes a placeholder full-body image with a cheap fal text-to-image
-model. Output goes to library/scratch/m0.2/ (git-ignored). Not part of motionai/.
+model. Output goes to library/scratch/m0.2/ (git-ignored). Not part of anim8te/.
 """
 
 import argparse

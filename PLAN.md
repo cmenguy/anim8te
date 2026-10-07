@@ -16,7 +16,7 @@ This file is the single source of truth for *what to do next*. The GDD says what
 - A **task** (`### M1.3 Title`) is a unit of work of half a day to a few days. Every task has:
   - **Status:** one of `todo`, `in-progress`, `done`, `blocked`, `skipped`.
   - **Depends on:** task IDs that must be `done` (or `skipped`) first. A task is *ready* when all its dependencies are finished.
-  - **Component:** `repo`, `pipeline` (Python `motionai` package), `worker` (GPU box), `godot` (Gym + Workflow Manager), `docs`, `decision`.
+  - **Component:** `repo`, `pipeline` (Python `anim8te` package), `worker` (GPU box), `godot` (Gym + Workflow Manager), `docs`, `decision`.
   - **Effort:** `S` under half a day, `M` one to two days, `L` three days or more, assuming an AI coding agent does most of the typing.
   - **Done when:** the acceptance check. Do not mark a task done without meeting it.
   - **Optional:** `yes` on tasks that can be skipped without blocking a milestone.
@@ -82,7 +82,7 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Depends on:** none
 - **Component:** repo
 - **Effort:** S
-- **Done when:** `godot/`, `motionai/`, `worker/`, `library/`, `tests/`, `docs/` exist with a one-line README each; `.gitignore` still covers `library/`, `.env`, `.godot/`, `__pycache__/`, `*.ckpt`, `*.pt`, `*.npz`, `*.pkl` plus anything the scaffold adds; `.env.example` lists `FAL_KEY`, `GVHMR_WORKER_URL`, `GVHMR_WORKER_TOKEN`, `ANTHROPIC_API_KEY`; the layout sections of `README.md` and `CLAUDE.md` match what now exists on disk; merged to `main` through a PR.
+- **Done when:** `godot/`, `anim8te/`, `worker/`, `library/`, `tests/`, `docs/` exist with a one-line README each; `.gitignore` still covers `library/`, `.env`, `.godot/`, `__pycache__/`, `*.ckpt`, `*.pt`, `*.npz`, `*.pkl` plus anything the scaffold adds; `.env.example` lists `FAL_KEY`, `GVHMR_WORKER_URL`, `GVHMR_WORKER_TOKEN`, `ANTHROPIC_API_KEY`; the layout sections of `README.md` and `CLAUDE.md` match what now exists on disk; merged to `main` through a PR.
 - **Notes:** Layout from GDD §8.2. Git was initialised, `.gitignore` written and the remote set on 2026-10-06, so this task is only the directories and `.env.example`. `README.md` and `CLAUDE.md` already describe the target layout; this task makes the repo match them. The library stays git-ignored for now; revisit git-LFS once clips exist.
 - **Log:** 2026-10-06 todo -> in-progress
 - **Log:** 2026-10-06 in-progress -> done: 6 dirs with one-line READMEs; .env.example has the 4 names; .gitignore verified with check-ignore (library/* ignored except README); README/CLAUDE layout updated
@@ -144,7 +144,7 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Component:** pipeline
 - **Effort:** S
 - **Done when:** a throwaway script under `docs/scratch/` reads each take's `hmr4d_results.pt` from M0.10 and reports per take: foot sliding while a foot is in contact (cm per frame), frame-to-frame jitter of the joints, root height over time (the vault should rise by about the block height), and treadmill drift for the jog; each take's `1_incam.mp4` and `2_global.mp4` overlays are reviewed for limb flips, missing frames and body-shape drift between takes; numbers and observations are recorded per take in `docs/feasibility.md`.
-- **Notes:** Repointed from the ComfyUI `GVHMR.json` run when M0.6 was skipped (Q2). No GLB in M0: turning `hmr4d_results.pt` into a skeleton animation is M1.6 to M1.10, and M1.11 is the first in-Godot check. Joint positions need the SMPL-X body model from M0.3; run the script with the fork's `.venv` (it has torch and the body-model code), not inside `motionai/`.
+- **Notes:** Repointed from the ComfyUI `GVHMR.json` run when M0.6 was skipped (Q2). No GLB in M0: turning `hmr4d_results.pt` into a skeleton animation is M1.6 to M1.10, and M1.11 is the first in-Godot check. Joint positions need the SMPL-X body model from M0.3; run the script with the fork's `.venv` (it has torch and the body-model code), not inside `anim8te/`.
 - **Log:** 2026-10-07 todo -> in-progress
 - **Log:** 2026-10-07 in-progress -> done: docs/scratch/judge_takes.py on 7 takes: no missing frames or >45° flips; foot slide idle 0.2-0.3, jog 1.1-1.6, vault 0.6-0.9 cm/frame; jog drift 5-10 cm/5 s; vault soles +0.55/+0.59 m vs ~0.53 m block; vault run-up leg swaps and ~30% overlong travel; stature 1.67-1.73 m across takes; recorded in docs/feasibility.md
 
@@ -175,7 +175,7 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Component:** worker
 - **Effort:** S
 - **Done when:** `ryanrudes/gvhmr` is installed on the Mac outside the repo at a recorded commit, using the M0.3 checkpoints and body models, and `gvhmr info` reports MPS with no missing assets; every M0.5 take has `hmr4d_results.pt` and an overlay video under `library/clips/<clip_id>/feasibility/` (idle and jog with `-s`; vault on the M0.11 still-camera takes 2 and 3 with `-s`, since the v2 takes pan and `--camera vggt` exhausted the Mac's 48 GB); per-take wall time, flags and failures are recorded in `docs/feasibility.md` with a recommendation on whether the Mac replaces the cloud box (Q2, M0.6).
-- **Notes:** The fork (https://github.com/ryanrudes/gvhmr) claims MPS support end to end and byte-identical results to upstream on the default path; only DPVO is CUDA-only. Same non-commercial GVHMR license; run it as a separate tool, never copy its code into `motionai/`. If the spike works, M0.6 is skipped and M0.7 is repointed at the local run (it loses ComfyUI's GLB node; overlays are enough to judge quality, and GLB export is M1 work). If it fails, M0.6 goes ahead as planned.
+- **Notes:** The fork (https://github.com/ryanrudes/gvhmr) claims MPS support end to end and byte-identical results to upstream on the default path; only DPVO is CUDA-only. Same non-commercial GVHMR license; run it as a separate tool, never copy its code into `anim8te/`. If the spike works, M0.6 is skipped and M0.7 is repointed at the local run (it loses ComfyUI's GLB node; overlays are enough to judge quality, and GLB export is M1 work). If it fails, M0.6 goes ahead as planned.
 - **Log:** 2026-10-07 todo -> in-progress
 - **Log:** 2026-10-07 in-progress -> done: fork e387609 at ~/motion-ai-tools/gvhmr, gvhmr info MPS; hmr4d_results.pt + overlays for idle 2-3, jog 1-3, vault 2-3 (-s, ~30 s each); VGGT on panning vault v2/3 hit 50 GB and panicked the Mac; recommendation in docs/feasibility.md: Mac replaces the cloud box for static-camera clips
 
@@ -190,7 +190,7 @@ Everything here is throwaway except the base image, the takes, and the findings 
 
 ## M1: Pipeline CLI, one clip
 
-**Done when:** `motionai gen && motionai extract && motionai clean && motionai export` turns one prompt into `motion.glb` that imports into Godot on the humanoid profile.
+**Done when:** `anim8te gen && anim8te extract && anim8te clean && anim8te export` turns one prompt into `motion.glb` that imports into Godot on the humanoid profile.
 
 The pipeline is a Python package with pure stage functions and a thin CLI on top, so that the daemon (M3.B) and tests reuse the same code. Stage 5 cleanup is deliberately minimal here; see the sequencing overview.
 
@@ -199,26 +199,26 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Depends on:** M0.9
 - **Component:** pipeline
 - **Effort:** M
-- **Done when:** `motionai/` is an installable package (`pyproject.toml`, Python 3.11 or later, `uv` or `pip -e`); `motionai --help` lists `gen`, `extract`, `clean`, `export`, `lib`; configuration loads from `.env` then `~/.config/motionai/config.toml`; the library root resolves from config or `--library`; `pytest` runs one trivial test; `ruff` is configured; `tests/` and `motionai/stages/` exist.
+- **Done when:** `anim8te/` is an installable package (`pyproject.toml`, Python 3.11 or later, `uv` or `pip -e`); `anim8te --help` lists `gen`, `extract`, `clean`, `export`, `lib`; configuration loads from `.env` then `~/.config/anim8te/config.toml`; the library root resolves from config or `--library`; `pytest` runs one trivial test; `ruff` is configured; `tests/` and `anim8te/stages/` exist.
 - **Notes:** GDD §8. Use `typer` for the CLI. Keep stage code free of CLI concerns so M3.7 can call it from a job runner.
 - **Log:** 2026-10-07 todo -> in-progress
-- **Log:** 2026-10-07 in-progress -> done: uv sync and pip -e install; motionai --help lists gen/extract/clean/export/lib; settings: --library > env > .env > ~/.config/motionai/config.toml (no secrets) > ./library, checked by 'lib path' and tests; pytest 3 passed; ruff check and format clean
+- **Log:** 2026-10-07 in-progress -> done: uv sync and pip -e install; anim8te --help lists gen/extract/clean/export/lib; settings: --library > env > .env > ~/.config/anim8te/config.toml (no secrets) > ./library, checked by 'lib path' and tests; pytest 3 passed; ruff check and format clean
 
 ### M1.2 Library data model: meta.json and qc.json schemas
 - **Status:** todo
 - **Depends on:** M1.1
 - **Component:** pipeline
 - **Effort:** S
-- **Done when:** `pydantic` models for `meta.json` (name, tags, performer, template, prompt, final prompt, takes with seed/cost/duration/resolution, selected take, filters, segments, loop, root-motion mode, status, parent clip) and a placeholder `qc.json`; `motionai lib ls` lists clips and performers with status; a test round-trips a meta.json through the model.
+- **Done when:** `pydantic` models for `meta.json` (name, tags, performer, template, prompt, final prompt, takes with seed/cost/duration/resolution, selected take, filters, segments, loop, root-motion mode, status, parent clip) and a placeholder `qc.json`; `anim8te lib ls` lists clips and performers with status; a test round-trips a meta.json through the model.
 - **Notes:** Layout from GDD §8.1. Clip IDs: short slug plus a timestamp or random suffix, so re-generating "vault" never collides.
 
-### M1.3 motionai gen: fal client, prompt templates and takes
+### M1.3 anim8te gen: fal client, prompt templates and takes
 - **Status:** todo
 - **Depends on:** M1.2, M0.2
 - **Component:** pipeline
 - **Effort:** M
-- **Done when:** `motionai gen --performer <id> --template locomotion|traversal|combat|custom --prompt "..." --takes 3 --duration 5 --resolution 768P [--seed N]` creates a clip directory, uploads the base image once, generates takes concurrently, writes `takes/<n>.mp4` and `meta.json` with seeds and cost; templates append the camera rule and (locomotion) the treadmill rule; `--dry-run` prints the final prompt and estimated cost; failures retry with backoff and leave meta.json consistent.
-- **Notes:** GDD §4 stage 2. Templates live in `motionai/templates/*.toml` so the UI (M3.12) and the agent assist (M3.18) read the same rules.
+- **Done when:** `anim8te gen --performer <id> --template locomotion|traversal|combat|custom --prompt "..." --takes 3 --duration 5 --resolution 768P [--seed N]` creates a clip directory, uploads the base image once, generates takes concurrently, writes `takes/<n>.mp4` and `meta.json` with seeds and cost; templates append the camera rule and (locomotion) the treadmill rule; `--dry-run` prints the final prompt and estimated cost; failures retry with backoff and leave meta.json consistent.
+- **Notes:** GDD §4 stage 2. Templates live in `anim8te/templates/*.toml` so the UI (M3.12) and the agent assist (M3.18) read the same rules.
 
 ### M1.4 gvhmr-worker: native FastAPI wrapper around GVHMR demo.py
 - **Status:** todo
@@ -228,12 +228,12 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Done when:** Q8 decided; `worker/` has a `Dockerfile` or `setup.sh` that installs GVHMR and expects the M0.3 checkpoints at a mounted path; `POST /extract` (multipart video, bearer token, `static_camera=true`) returns a job id; `GET /jobs/{id}` returns `queued|running|done|failed`, log tail, and when done the download URLs for `hmr4d_results.pt` and `overlay.mp4`; one M0 take runs through it on the Mac (Apple-Silicon fork, MPS); `worker/README.md` documents start-up and the API.
 - **Notes:** GDD §8. Runs the fork's `gvhmr demo <video> -s` on the Mac (Q2; install notes in `docs/feasibility.md`, M0.10), or upstream `tools/demo/demo.py --video ... -s` on a CUDA box later. Keep the API tiny so a commercial service (Move.ai, Rokoko, DeepMotion) can replace it later (GDD §10). No GPL code in here. Per G0, the Mac worker accepts still-camera takes only: a moving-camera request is refused with a clear error, never run through VGGT or DUSt3R at their defaults (that crashed the Mac in M0.10); those go to a CUDA box or are avoided through framing.
 
-### M1.5 motionai extract: worker client
+### M1.5 anim8te extract: worker client
 - **Status:** todo
 - **Depends on:** M1.3, M1.4
 - **Component:** pipeline
 - **Effort:** S
-- **Done when:** `motionai extract <clip_id> [--take n]` marks the selected take, uploads it, polls with progress, downloads to `gvhmr/hmr4d_results.pt` and `gvhmr/overlay.mp4`, and updates `meta.json`; worker unreachable, bad token and failed jobs produce clear messages and leave the clip re-runnable.
+- **Done when:** `anim8te extract <clip_id> [--take n]` marks the selected take, uploads it, polls with progress, downloads to `gvhmr/hmr4d_results.pt` and `gvhmr/overlay.mp4`, and updates `meta.json`; worker unreachable, bad token and failed jobs produce clear messages and leave the clip re-runnable.
 - **Notes:** GDD §4 stage 4.
 
 ### M1.6 Load SMPL-X parameters and rebuild joints
@@ -241,7 +241,7 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Depends on:** M1.5, M0.3
 - **Component:** pipeline
 - **Effort:** M
-- **Done when:** `motionai.convert.load_gvhmr(path)` returns per-frame `global_orient`, `body_pose`, `transl`, `betas` and the frame rate as numpy arrays; the `smplx` package rebuilds the 22 body joint positions and parent table from `betas`; a test on a small fixture (`tests/fixtures/*.pt`, under 1 MB, trimmed from a real output) checks shapes, joint count and frame rate.
+- **Done when:** `anim8te.convert.load_gvhmr(path)` returns per-frame `global_orient`, `body_pose`, `transl`, `betas` and the frame rate as numpy arrays; the `smplx` package rebuilds the 22 body joint positions and parent table from `betas`; a test on a small fixture (`tests/fixtures/*.pt`, under 1 MB, trimmed from a real output) checks shapes, joint count and frame rate.
 - **Notes:** GDD §4 stage 5.1. We only use `smpl_params_global`. Frame rate equals the source video's.
 
 ### M1.7 Axis conventions: GVHMR world frame to glTF
@@ -257,23 +257,23 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Depends on:** M1.7
 - **Component:** pipeline
 - **Effort:** M
-- **Done when:** `motionai/skeleton.py` defines the hierarchy of the 22 SMPL-X body joints renamed with the humanoid names from the GDD table (Hips, Spine, Chest, UpperChest, Neck, Head, Left/Right Shoulder, UpperArm, LowerArm, Hand, UpperLeg, LowerLeg, Foot, Toes), rest pose built from the performer's `betas`, parent indices; a test checks every SMPL-X joint maps to exactly one humanoid name and the parent table forms a single tree rooted at Hips.
+- **Done when:** `anim8te/skeleton.py` defines the hierarchy of the 22 SMPL-X body joints renamed with the humanoid names from the GDD table (Hips, Spine, Chest, UpperChest, Neck, Head, Left/Right Shoulder, UpperArm, LowerArm, Hand, UpperLeg, LowerLeg, Foot, Toes), rest pose built from the performer's `betas`, parent indices; a test checks every SMPL-X joint maps to exactly one humanoid name and the parent table forms a single tree rooted at Hips.
 - **Notes:** GDD §4 stage 5.3. Rest pose is the SMPL-X zero pose with the performer's shape, so GVHMR's local rotations transfer without re-expression. Godot's humanoid retarget (import-time "overwrite axis" and "fix silhouette", runtime `RetargetModifier3D`) absorbs the difference to the mannequin's rest. No fingers. Per G0, `betas` are fixed per performer (stored once with the performer, reused by every clip), not taken from each clip: M0.7 measured a 6 cm stature spread across clips of the same performer.
 
-### M1.9 Minimal motionai clean: smoothing and ground alignment
+### M1.9 Minimal anim8te clean: smoothing and ground alignment
 - **Status:** todo
 - **Depends on:** M1.8
 - **Component:** pipeline
 - **Effort:** S
-- **Done when:** `motionai clean <clip_id>` applies One-Euro (or Savitzky-Golay) smoothing to rotations and hips translation, then ground alignment (lowest foot or toe height over the clip, using a low percentile, moved to y = 0); filter toggles and parameters are read from and written to `meta.json`; re-running is idempotent; a test shows a jittered synthetic signal gets smoother and the minimum foot height is about 0.
+- **Done when:** `anim8te clean <clip_id>` applies One-Euro (or Savitzky-Golay) smoothing to rotations and hips translation, then ground alignment (lowest foot or toe height over the clip, using a low percentile, moved to y = 0); filter toggles and parameters are read from and written to `meta.json`; re-running is idempotent; a test shows a jittered synthetic signal gets smoother and the minimum foot height is about 0.
 - **Notes:** GDD §4 stage 5.4. The rest of the filters (foot lock, root motion, loop, segmentation, QC) are M3.A.
 
-### M1.10 motionai export: write motion.glb
+### M1.10 anim8te export: write motion.glb
 - **Status:** todo
 - **Depends on:** M1.9
 - **Component:** pipeline
 - **Effort:** M
-- **Done when:** `motionai export <clip_id>` writes `motion.glb` with `pygltflib`: skin, nodes with rest transforms from M1.8, one animation named after the clip with rotation channels for every bone and a translation channel for Hips, correct frame timing; the file passes the Khronos glTF-Validator with no errors; dragging it into a Godot project auto-detects the humanoid bone map with all 22 bones mapped and plays on a `Skeleton3D`.
+- **Done when:** `anim8te export <clip_id>` writes `motion.glb` with `pygltflib`: skin, nodes with rest transforms from M1.8, one animation named after the clip with rotation channels for every bone and a translation channel for Hips, correct frame timing; the file passes the Khronos glTF-Validator with no errors; dragging it into a Godot project auto-detects the humanoid bone map with all 22 bones mapped and plays on a `Skeleton3D`.
 - **Notes:** GDD §4 stage 5.7. No mesh is required in the library GLB; a skeleton-only glTF is valid and keeps files small. Add a tiny placeholder mesh only if Godot's importer needs one. Reference only: GVHMR issue #84 (https://github.com/zju3dv/GVHMR/issues/84) shares a `bpy` script that exports `smpl_params_global` to GLB; useful to cross-check our SMPL-to-rotation conversion on one clip, not to adopt (needs `bpy` 4.4 on Python 3.11 against GVHMR's 3.10, patches GVHMR, ships the SMPL mesh, no stated license).
 
 ### M1.11 End-to-end: one prompt to motion.glb in Godot
@@ -291,7 +291,7 @@ The pipeline is a Python package with pure stage functions and a thin CLI on top
 - **Effort:** M
 - **Optional:** yes
 - **Done when:** `GVHMR_WORKER_BACKEND=comfyui` makes the worker submit the M0 `GVHMR.json` workflow through ComfyUI's `/prompt` API and return the same outputs as the native backend; both backends pass the same smoke test.
-- **Notes:** GDD §8. Only worth doing if the native wrapper proves fragile, or for its debugging viewers. Must run as a separate service so GPL-3.0 code stays out of `motionai`.
+- **Notes:** GDD §8. Only worth doing if the native wrapper proves fragile, or for its debugging viewers. Must run as a separate service so GPL-3.0 code stays out of `anim8te`.
 
 ## M2: Gym, Clip Viewer and Compare
 
@@ -352,7 +352,7 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Depends on:** M1.9
 - **Component:** pipeline
 - **Effort:** M
-- **Done when:** `motionai clean` also writes `features.json` with per-frame foot and toe contacts (height plus velocity thresholds, per side), root position and velocity, joint positions in the canonical frame (metres), per-joint jerk; thresholds live in config; a test on a synthetic walking signal detects alternating contacts.
+- **Done when:** `anim8te clean` also writes `features.json` with per-frame foot and toe contacts (height plus velocity thresholds, per side), root position and velocity, joint positions in the canonical frame (metres), per-joint jerk; thresholds live in config; a test on a synthetic walking signal detects alternating contacts.
 - **Notes:** GDD §4 stage 5.4 contact detection and §6.4. Detection only; the foot-lock fix is M3.1. The Gym reads this file instead of recomputing, so the UI and the QC numbers agree.
 
 ### M2.8 Debug overlays
@@ -368,7 +368,7 @@ The Gym reads the library straight from disk in this milestone; the daemon comes
 - **Depends on:** M1.5
 - **Component:** pipeline
 - **Effort:** S
-- **Done when:** Q6 decided; `motionai extract` writes `selected.ogv` and `gvhmr/overlay.ogv` with ffmpeg (libtheora, same frame rate and size as the source); a missing ffmpeg gives a clear error; Godot's `VideoStreamPlayer` plays both files.
+- **Done when:** Q6 decided; `anim8te extract` writes `selected.ogv` and `gvhmr/overlay.ogv` with ffmpeg (libtheora, same frame rate and size as the source); a missing ffmpeg gives a clear error; Godot's `VideoStreamPlayer` plays both files.
 - **Notes:** Godot 4 only decodes Ogg Theora out of the box. The mp4 files stay the source of truth.
 
 ### M2.10 Compare mode: frame-synced source, overlay and 3D
@@ -432,7 +432,7 @@ Three phases. **M3.A** finishes the stage 5 cleanup in the pipeline, tuned again
 - **Depends on:** M3.1, M3.3, M3.4
 - **Component:** pipeline
 - **Effort:** M
-- **Done when:** `qc.json` has foot skate (cm of slide during contact), ground penetration (cm), joint jerk, loop seam error, root drift, and `betas` variance against the performer's reference; thresholds in config; an overall `status` of `ok`, `warn` or `fail`; `motionai qc <clip_id>` prints a table; the Gym's clip list badge reads it.
+- **Done when:** `qc.json` has foot skate (cm of slide during contact), ground penetration (cm), joint jerk, loop seam error, root drift, and `betas` variance against the performer's reference; thresholds in config; an overall `status` of `ok`, `warn` or `fail`; `anim8te qc <clip_id>` prints a table; the Gym's clip list badge reads it.
 - **Notes:** GDD §4 stage 5.6, goal G5.
 
 ### M3.20 Leg-swap repair and root-travel rescale
@@ -448,17 +448,17 @@ Three phases. **M3.A** finishes the stage 5 cleanup in the pipeline, tuned again
 - **Depends on:** M3.5, M3.20
 - **Component:** pipeline
 - **Effort:** S
-- **Done when:** the filter order is fixed (leg-swap repair, smooth, contacts, foot lock, ground align, travel rescale, root motion, trim and loop, segment, QC, features); each filter can be toggled and parametrised from `meta.json` or CLI flags; re-running from saved parameters is idempotent; a 5 s clip cleans in under about 10 s; `motionai clean --explain` prints what ran and the QC deltas.
+- **Done when:** the filter order is fixed (leg-swap repair, smooth, contacts, foot lock, ground align, travel rescale, root motion, trim and loop, segment, QC, features); each filter can be toggled and parametrised from `meta.json` or CLI flags; re-running from saved parameters is idempotent; a 5 s clip cleans in under about 10 s; `anim8te clean --explain` prints what ran and the QC deltas.
 - **Notes:** This is what the Clean panel (M3.14) drives.
 
-**Phase M3.B: the motionai daemon**
+**Phase M3.B: the anim8te daemon**
 
-### M3.7 motionai daemon: FastAPI job queue and library API
+### M3.7 anim8te daemon: FastAPI job queue and library API
 - **Status:** todo
 - **Depends on:** M3.6, M1.11
 - **Component:** pipeline
 - **Effort:** L
-- **Done when:** `motionai serve` runs on localhost; endpoints `GET /library/clips`, `GET /library/clips/{id}`, `GET /library/performers`, `POST /jobs` (gen, extract, clean, export, extend, with parameters), `GET /jobs`, `GET /jobs/{id}` (status, progress, log tail, cost), `POST /jobs/{id}/retry`, `POST /jobs/{id}/cancel`; jobs run in a background worker with state persisted (SQLite) so a restart keeps history; the CLI and the daemon call the same stage functions; an OpenAPI page is served.
+- **Done when:** `anim8te serve` runs on localhost; endpoints `GET /library/clips`, `GET /library/clips/{id}`, `GET /library/performers`, `POST /jobs` (gen, extract, clean, export, extend, with parameters), `GET /jobs`, `GET /jobs/{id}` (status, progress, log tail, cost), `POST /jobs/{id}/retry`, `POST /jobs/{id}/cancel`; jobs run in a background worker with state persisted (SQLite) so a restart keeps history; the CLI and the daemon call the same stage functions; an OpenAPI page is served.
 - **Notes:** GDD §8. The Godot app never calls fal or the worker directly.
 
 ### M3.8 Settings and secrets
@@ -550,7 +550,7 @@ Three phases. **M3.A** finishes the stage 5 cleanup in the pipeline, tuned again
 - **Effort:** M
 - **Optional:** yes
 - **Done when:** with an Anthropic key set and the toggle on, the daemon offers three suggestions, each shown with Accept and Dismiss and never applied silently: a prompt written from a short intent using the template rules, segment cut points and names from per-frame features, and an explanation of a QC failure with a suggested fix.
-- **Notes:** GDD §7.3. Load the `claude-api` skill when implementing; default to the latest Sonnet model and keep the prompts in `motionai/agent/prompts/`.
+- **Notes:** GDD §7.3. Load the `claude-api` skill when implementing; default to the latest Sonnet model and keep the prompts in `anim8te/agent/prompts/`.
 
 ### M3.19 End-to-end: a new animation from the UI
 - **Status:** todo
