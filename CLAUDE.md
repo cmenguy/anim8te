@@ -70,7 +70,8 @@ uv run ruff check . && uv run ruff format --check .         # lint
 uv run anim8te --library <path> lib path                    # resolved library root
 uv run anim8te lib ls                                       # clips and performers with status
 uv run anim8te gen --performer perf01 --template locomotion --prompt "..." --dry-run  # final prompt + cost, no fal call
-anim8te extract|clean|export <args>                         # pipeline CLI (stubs until M1.5 to M1.10)
+uv run anim8te extract <clip_id> [--take n]                 # stage 4 through gvhmr-worker -> gvhmr/, status extracted
+anim8te clean|export <args>                                 # pipeline CLI (stubs until M1.9, M1.10)
 anim8te serve                                               # local daemon for the Godot app (M3.7)
 worker/setup.sh                                             # install GVHMR (pinned Mac fork) + the worker
 uv run --project worker gvhmr-worker                        # GVHMR worker on 127.0.0.1:8765 (API in worker/README.md)
