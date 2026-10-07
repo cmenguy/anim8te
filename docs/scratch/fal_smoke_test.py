@@ -29,7 +29,7 @@ IMAGE_PROMPT = (
     "standing in a neutral A-pose, entire body from head to feet in frame, "
     "plain light studio background, even lighting, front view."
 )
-PRICE_PER_S_768P = 0.08  # GDD §4 stage 2 list price; confirm on the fal billing page
+PRICE_PER_S_768P = 0.03  # fal pricing API, 2026-10-06 (GDD estimated 0.08)
 
 
 def download(url: str, dest: Path) -> None:
