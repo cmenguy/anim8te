@@ -162,6 +162,16 @@ Everything here is throwaway except the base image, the takes, and the findings 
 - **Done when:** `docs/feasibility.md` has a "Go/no-go" section stating go or no-go, the evidence, and if no-go which of stages 2 (video) or 4 (extraction) to rethink and with what alternatives; decision G0 in the table above is set to `decided`. Only the owner makes this call; the agent prepares the evidence.
 - **Notes:** GDD §9 M0 and §11. Alternatives if no-go: a different video model, stricter prompts, or a commercial video-to-mocap service behind the same `/extract` interface (GDD §10).
 
+### M0.10 Spike: run the Apple-Silicon GVHMR fork on the Mac
+- **Status:** done
+- **Depends on:** M0.3, M0.5, M0.11
+- **Component:** worker
+- **Effort:** S
+- **Done when:** `ryanrudes/gvhmr` is installed on the Mac outside the repo at a recorded commit, using the M0.3 checkpoints and body models, and `gvhmr info` reports MPS with no missing assets; every M0.5 take has `hmr4d_results.pt` and an overlay video under `library/clips/<clip_id>/feasibility/` (idle and jog with `-s`; vault on the M0.11 still-camera takes 2 and 3 with `-s`, since the v2 takes pan and `--camera vggt` exhausted the Mac's 48 GB); per-take wall time, flags and failures are recorded in `docs/feasibility.md` with a recommendation on whether the Mac replaces the cloud box (Q2, M0.6).
+- **Notes:** The fork (https://github.com/ryanrudes/gvhmr) claims MPS support end to end and byte-identical results to upstream on the default path; only DPVO is CUDA-only. Same non-commercial GVHMR license; run it as a separate tool, never copy its code into `motionai/`. If the spike works, M0.6 is skipped and M0.7 is repointed at the local run (it loses ComfyUI's GLB node; overlays are enough to judge quality, and GLB export is M1 work). If it fails, M0.6 goes ahead as planned.
+- **Log:** 2026-10-07 todo -> in-progress
+- **Log:** 2026-10-07 in-progress -> done: fork e387609 at ~/motion-ai-tools/gvhmr, gvhmr info MPS; hmr4d_results.pt + overlays for idle 2-3, jog 1-3, vault 2-3 (-s, ~30 s each); VGGT on panning vault v2/3 hit 50 GB and panicked the Mac; recommendation in docs/feasibility.md: Mac replaces the cloud box for static-camera clips
+
 ### M0.11 Wide vault base image so the camera can stay still
 - **Status:** done
 - **Depends on:** M0.5

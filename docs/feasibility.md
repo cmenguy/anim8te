@@ -84,3 +84,39 @@ Takes: same model, prompt and settings as v2 (5 s, 768P, expansion off, seeds 1 
 | 3 | `takes/3.mp4` | 4.4 s | $0.15 | Still | Same as 2, slightly lower crouch at the end. |
 
 With her whole path in frame, two of three takes keep the camera still, against none of three in v2. She is about a third of the frame height, smaller than in the other clips; GVHMR will show whether that costs pose detail. Takes 2 and 3 can run with `-s`. Vault v3 cost: $0.22 for the fills + $0.45 for the takes.
+
+## M0.10 GVHMR on the Mac (Apple Silicon fork)
+
+Fork: https://github.com/ryanrudes/gvhmr at `e3876097a9c4d9c1758d058d9e70c64f0cdba4c4` (2026-07-18), cloned to `~/motion-ai-tools/gvhmr`, outside the repo. Same non-commercial GVHMR license; nothing from it is copied into `motionai/`.
+
+Install and run (MacBook Pro M3 Max, 48 GB, macOS 26.6):
+
+```bash
+cd ~/motion-ai-tools/gvhmr
+unset VIRTUAL_ENV                     # a pyenv venv otherwise shadows the project's .venv
+uv sync --frozen --extra preproc      # plain `uv sync` tries to rebuild pytorch3d from source and fails; it is only needed for an optional extra
+export GVHMR_CHECKPOINTS=~/motion-ai-checkpoints GVHMR_BODY_MODELS=~/motion-ai-checkpoints/body_models
+.venv/bin/gvhmr info                  # Python 3.13.5, torch 2.12.1, device MPS
+.venv/bin/gvhmr demo library/clips/<clip>/takes/<n>.mp4 -s -o library/clips/<clip>/feasibility
+```
+
+`gvhmr info` reports MPS and every demo asset present from the M0.3 checkpoints. Only DPVO (CUDA-only, optional) is missing. Each output folder holds `hmr4d_results.pt` (`smpl_params_global` with `body_pose` (124, 63), `betas`, `global_orient`, `transl`) and the overlays `1_incam.mp4`, `2_global.mp4` and `<n>_3_incam_global_horiz.mp4`.
+
+| Take | Flags | Wall time | Result |
+|---|---|---|---|
+| `idle-m05/2` | `-s` | 89 s | OK; includes one-time model loading |
+| `idle-m05/3` | `-s` | 30 s | OK |
+| `jog-m05/1` | `-s` | 30 s | OK |
+| `jog-m05/2` | `-s` | 31 s | OK |
+| `jog-m05/3` | `-s` | 30 s | OK |
+| `vault-m05/v2/3` (panning camera) | `--camera vggt` | none | **Crashed the Mac.** The process grew to 50.2 GB on a 48 GB machine; macOS stopped responding and rebooted with a watchdog kernel panic (`panic-full-2026-10-07-011645`). Output deleted. |
+| `vault-m05/2` (M0.11, still camera) | `-s` | 33 s | OK; root travels 5.1 m forward, rises 0.23 m |
+| `vault-m05/3` (M0.11, still camera) | `-s` | 28 s | OK; root travels 4.6 m forward, rises 0.31 m |
+
+GVHMR itself ("Recovered 4.1 s of motion") takes about 0.1 s per take; the rest is tracking, ViTPose, feature extraction and rendering the overlays. The overlays sit on the body in the frames checked, including the vault run-up, hands on the block and the crouch on top. M0.7 and M0.8 judge foot contact and root height properly.
+
+Why VGGT ran out of memory: the fork runs VGGT-1B on 16 keyframes in fp32 on MPS (bf16 autocast is CUDA-only, `gvhmr/utils/preproc/vggt_slam.py:91`), and VGGT's global attention across all frames grows with the square of the token count. VGGT and DUSt3R (installed with `scripts/setup_scene_aware.sh`, 4.7 GB and 2.5 GB of weights) should not be run on this Mac at their defaults. A moving-camera take would try `--camera simplevo` (the default, rotation only, light) first.
+
+The vault camera problem was fixed upstream of GVHMR instead: the v2 takes pan because she runs out of a tight frame; the M0.11 wide base image keeps the camera still in two of three takes, so the vault runs on the same static-camera path as idle and jog.
+
+**Recommendation for Q2 and M0.6:** the Mac replaces the cloud GPU box for the feasibility test and for static-camera clips: about 30 s per take, no cost, no box to provision. Skip M0.6 for now and repoint M0.7 at these local outputs. Keep the cloud box as the fallback for moving-camera clips that `simplevo` cannot handle and for batch runs later; the worker's `/extract` API (GDD §8) does not care where it runs. Q2 stays open for the owner.
